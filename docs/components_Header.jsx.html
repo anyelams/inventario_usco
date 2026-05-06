@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Header.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Header.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// components/Header.jsx
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Componente Header reutilizable para pantallas internas
+ * Proporciona navegación hacia atrás, título principal, descripción opcional
+ * y espacio para componentes adicionales en el lado derecho
+ * @param {Object} props
+ * @param {string} props.title - Título principal del header
+ * @param {string} [props.description] - Descripción opcional debajo del título
+ * @param {boolean} [props.showBackButton=true] - Si mostrar el botón de retroceso
+ * @param {Function} [props.onBackPress] - Función personalizada para el botón back (por defecto usa router.back())
+ * @param {React.ReactNode} [props.rightComponent] - Componente opcional para mostrar en el lado derecho
+ */
+const Header = ({
+  title,
+  description,
+  showBackButton = true,
+  onBackPress,
+  rightComponent,
+}) => {
+  const navigation = useNavigation();
+
+  const handleBackPress = () => {
+    if (onBackPress) {
+      onBackPress();
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  return (
+    &lt;View style={styles.container}>
+      {/* Primera fila: botón back y componente derecho */}
+      &lt;View style={styles.topRow}>
+        {showBackButton ? (
+          &lt;TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+            &lt;MaterialCommunityIcons
+              name="arrow-left"
+              size={21}
+              color={colors.text}
+            />
+          &lt;/TouchableOpacity>
+        ) : (
+          // Placeholder para mantener alineación cuando no hay botón back
+          &lt;View style={styles.placeholder} />
+        )}
+
+        {/* Contenedor para componentes adicionales del lado derecho */}
+        &lt;View style={styles.rightContainer}>{rightComponent}&lt;/View>
+      &lt;/View>
+
+      {/* Segunda fila: título y descripción opcional */}
+      &lt;View style={styles.contentRow}>
+        &lt;Text style={styles.headerTitle}>{title}&lt;/Text>
+        {description &amp;&amp; (
+          &lt;Text style={styles.headerDescription}>{description}&lt;/Text>
+        )}
+      &lt;/View>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  // Contenedor principal del header
+  container: {
+    width: "100%",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  backButton: {
+    padding: 7,
+    borderRadius: 19,
+    backgroundColor: colors.base,
+  },
+  // Contenedor para componentes del lado derecho
+  rightContainer: {
+    alignItems: "flex-end",
+  },
+  placeholder: {
+    width: 40,
+  },
+  contentRow: {
+    alignItems: "flex-start",
+    paddingLeft: 4,
+  },
+  headerTitle: {
+    ...typography.semibold.big,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  // Descripción opcional debajo del título
+  headerDescription: {
+    ...typography.regular.large,
+    color: colors.textSec,
+    letterSpacing: 0.1,
+  },
+});
+
+export default Header;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

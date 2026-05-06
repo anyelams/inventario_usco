@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ActionButtons.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ActionButtons.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * components/ActionButtons.jsx
+ * Barra de dos botones de acción para pantallas de reportes:
+ * "Buscar" (primario) y "Generar Reporte" (secundario).
+ * Muestra spinner y deshabilita los botones durante operaciones en curso.
+ */
+import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Barra de acciones con botón de búsqueda y generación de reporte.
+ * @param {Object} props
+ * @param {Function} props.onSearch - Callback para ejecutar la búsqueda
+ * @param {Function} props.onGenerateReport - Callback para generar el PDF
+ * @param {boolean} props.loadingPedido - Si la búsqueda está en curso
+ * @param {boolean} props.generatingReport - Si la generación de reporte está en curso
+ */
+const ActionButtons = ({
+  onSearch,
+  onGenerateReport,
+  loadingPedido,
+  generatingReport,
+}) => {
+  return (
+    &lt;View style={styles.container}>
+      {/* === BOTÓN PRIMARY: Buscar === */}
+      &lt;TouchableOpacity
+        style={[
+          styles.button,
+          styles.searchButton,
+          loadingPedido &amp;&amp; styles.buttonDisabled,
+        ]}
+        onPress={onSearch}
+        disabled={loadingPedido}
+        activeOpacity={0.8}
+      >
+        &lt;View style={styles.buttonContent}>
+          {loadingPedido ? (
+            &lt;ActivityIndicator size="small" color="white" />
+          ) : (
+            &lt;Ionicons name="search-outline" size={16} color="white" />
+          )}
+          &lt;Text style={styles.primaryText}>
+            {loadingPedido ? "Buscando..." : "Buscar"}
+          &lt;/Text>
+        &lt;/View>
+      &lt;/TouchableOpacity>
+
+      {/* === BOTÓN SECONDARY: Reporte === */}
+      &lt;TouchableOpacity
+        style={[
+          styles.button,
+          styles.reportButton,
+          generatingReport &amp;&amp; styles.buttonDisabled,
+        ]}
+        onPress={onGenerateReport}
+        disabled={generatingReport}
+        activeOpacity={0.8}
+      >
+        &lt;View style={styles.buttonContent}>
+          {generatingReport ? (
+            &lt;ActivityIndicator size="small" color={colors.textSec} />
+          ) : (
+            &lt;Ionicons
+              name="document-text-outline"
+              size={16}
+              color={colors.textSec}
+            />
+          )}
+          &lt;Text style={styles.reportText}>
+            {generatingReport ? "Generando..." : "Generar Reporte"}
+          &lt;/Text>
+        &lt;/View>
+      &lt;/TouchableOpacity>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 10,
+    marginHorizontal: 16,
+    flexDirection: "row",
+    gap: 12,
+  },
+  button: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  searchButton: {
+    backgroundColor: colors.secondary,
+  },
+  reportButton: {
+    backgroundColor: colors.base,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  primaryText: {
+    ...typography.semibold.regular,
+    color: "white",
+  },
+  reportText: {
+    ...typography.semibold.regular,
+    color: colors.textSec,
+  },
+});
+
+export default ActionButtons;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

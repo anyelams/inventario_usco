@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/DeviceItem.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/DeviceItem.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * components/DeviceItem.jsx
+ * Tarjeta individual de dispositivo IoT controlable (bombillo, ventilador, etc.).
+ * Muestra el ícono dinámico según el tipo y estado, el nombre y un Switch
+ * para encender/apagar. Se deshabilita si no hay conexión MQTT activa.
+ */
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet, Switch, Text, View } from "react-native";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Tarjeta de dispositivo IoT con ícono dinámico y switch de control.
+ * @param {Object} props
+ * @param {Object} props.device - Datos del dispositivo { type, name }
+ * @param {boolean} props.isOn - Estado actual del dispositivo
+ * @param {Function} props.onToggle - Callback al cambiar el switch; recibe device.type
+ * @param {boolean} props.connected - Si hay conexión MQTT activa (habilita el switch)
+ */
+const DeviceItem = ({ device, isOn, onToggle, connected }) => {
+  /**
+   * Retorna el nombre del ícono según el tipo y estado del dispositivo.
+   * @param {string} type - Tipo de dispositivo ('bombillo' | 'ventilador')
+   * @param {boolean} isOn - Si está encendido
+   * @returns {string} - Nombre del ícono de MaterialCommunityIcons
+   */
+  const getDeviceIcon = (type, isOn) => {
+    if (type === "bombillo") {
+      return isOn ? "lightbulb-on" : "lightbulb-outline";
+    } else if (type === "ventilador") {
+      return isOn ? "fan" : "fan-off";
+    }
+    return "help-circle-outline"; // fallback
+  };
+
+  const getDeviceColor = (isOn) => {
+    return isOn ? colors.secondary : colors.textSec + "95";
+  };
+
+  const getIconBackgroundColor = (isOn) => {
+    return isOn ? `${colors.secondary}20` : colors.lightGray;
+  };
+
+  return (
+    &lt;View style={styles.deviceItem}>
+      &lt;View style={styles.deviceHeader}>
+        &lt;View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: getIconBackgroundColor(isOn) },
+          ]}
+        >
+          &lt;MaterialCommunityIcons
+            name={getDeviceIcon(device.type, isOn)}
+            size={26}
+            color={getDeviceColor(isOn)}
+          />
+        &lt;/View>
+        &lt;Switch
+          value={isOn}
+          onValueChange={() => onToggle(device.type)}
+          disabled={!connected}
+          trackColor={{
+            false: colors.border,
+            true: colors.secondary,
+          }}
+          thumbColor={colors.white}
+        />
+      &lt;/View>
+
+      &lt;View style={styles.deviceInfo}>
+        &lt;Text style={styles.deviceName}>{device.name}&lt;/Text>
+        &lt;Text style={styles.deviceStatus}>1 Dispositivo&lt;/Text>
+        &lt;Text
+          style={[
+            styles.deviceState,
+            { color: isOn ? colors.success : colors.textSec },
+          ]}
+        >
+          {isOn ? "On" : "Off"}
+        &lt;/Text>
+      &lt;/View>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  deviceItem: {
+    flex: 1,
+    backgroundColor: colors.border + "20",
+    borderRadius: 12,
+    padding: 16,
+    borderColor: colors.border,
+    borderWidth: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  deviceHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deviceInfo: {
+    alignItems: "flex-start",
+  },
+  deviceName: {
+    ...typography.semibold.medium,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  deviceStatus: {
+    ...typography.regular.regular,
+    color: colors.textSec,
+    marginBottom: 16,
+  },
+  deviceState: {
+    ...typography.semibold.regular,
+  },
+});
+
+export default DeviceItem;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

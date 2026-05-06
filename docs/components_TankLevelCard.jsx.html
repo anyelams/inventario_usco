@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/TankLevelCard.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/TankLevelCard.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// components/TankLevelCard.jsx
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Circle, Svg } from "react-native-svg";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Visualización del nivel de tanque con progreso circular
+ * Muestra porcentaje de llenado y distancia del sensor ultrasónico
+ * El color del indicador cambia según el nivel (rojo &lt; 25%, naranja &lt; 50%, azul &lt; 75%, verde ≥ 75%)
+ *
+ * @param {Object} props
+ * @param {number} props.nivel - Nivel del tanque en porcentaje (0-100)
+ * @param {number} props.distanciaUltrasonico - Distancia medida por sensor en cm
+ * @param {Object} [props.style] - Estilos adicionales para el contenedor
+ */
+const TankLevelCard = ({ nivel, distanciaUltrasonico, style }) => {
+  // Configuración del círculo
+  const size = 120;
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (circumference * nivel) / 100;
+
+  /**
+   * Determina el color del indicador según el nivel del tanque
+   * @returns {string} Color hex según nivel
+   */
+  const getTankColor = () => {
+    if (nivel >= 75) return colors.success;
+    if (nivel >= 50) return colors.secondary;
+    if (nivel >= 25) return colors.warning;
+    return colors.error;
+  };
+
+  return (
+    &lt;View style={[styles.container, style]}>
+      &lt;View style={styles.tankCard}>
+        &lt;View style={styles.tankHeader}>
+          &lt;View style={styles.iconContainer}>
+            &lt;Ionicons name="water-outline" size={22} color={colors.textSec} />
+          &lt;/View>
+          &lt;Text style={styles.tankTitle}>Nivel del tanque&lt;/Text>
+        &lt;/View>
+
+        &lt;View style={styles.circularProgressContainer}>
+          &lt;Svg width={size} height={size} style={styles.circularProgress}>
+            {/* Círculo de fondo */}
+            &lt;Circle
+              stroke={colors.lightGray}
+              fill="none"
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              strokeWidth={strokeWidth}
+            />
+            {/* Círculo de progreso */}
+            &lt;Circle
+              stroke={getTankColor()}
+              fill="none"
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              strokeWidth={strokeWidth}
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            />
+          &lt;/Svg>
+
+          &lt;View style={styles.percentageContainer}>
+            &lt;Text style={[styles.percentageText, { color: getTankColor() }]}>
+              {nivel.toFixed(0)}%
+            &lt;/Text>
+          &lt;/View>
+        &lt;/View>
+
+        {distanciaUltrasonico > 0 &amp;&amp; (
+          &lt;View style={styles.distanceInfo}>
+            &lt;Text style={styles.distanceLabel}>Distancia&lt;/Text>
+            &lt;Text style={styles.distanceValue}>
+              {distanciaUltrasonico.toFixed(1)} cm
+            &lt;/Text>
+          &lt;/View>
+        )}
+      &lt;/View>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 16,
+    backgroundColor: "transparent",
+  },
+  tankCard: {
+    backgroundColor: colors.border + "20",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    marginBottom: 16,
+    borderColor: colors.border,
+    borderWidth: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  tankHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 16,
+    backgroundColor: colors.lightGray,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  tankTitle: {
+    ...typography.medium.large,
+    color: colors.text,
+  },
+  circularProgressContainer: {
+    position: "relative",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  circularProgress: {
+    transform: [{ rotate: "0deg" }],
+  },
+  percentageContainer: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  percentageText: {
+    ...typography.bold.big,
+    fontSize: 24,
+  },
+  distanceInfo: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  distanceLabel: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    marginBottom: 4,
+  },
+  distanceValue: {
+    ...typography.semibold.medium,
+    color: colors.text,
+  },
+});
+
+export default TankLevelCard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

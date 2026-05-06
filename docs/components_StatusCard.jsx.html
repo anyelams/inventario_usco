@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/StatusCard.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/StatusCard.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// components/StatusCard.jsx
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Tarjeta que muestra el estado de conexión MQTT
+ * Incluye indicador visual, estado textual y botón de reconexión cuando es necesario
+ *
+ * @param {Object} props
+ * @param {boolean} props.connected - Estado de conexión al broker MQTT
+ * @param {boolean} props.isConnecting - Indica si está intentando conectar
+ * @param {Function} props.onReconnect - Callback para intentar reconexión manual
+ */
+const StatusCard = ({ connected, isConnecting, onReconnect }) => {
+  const getStatusText = () => {
+    if (isConnecting) return "Conectando...";
+    return connected ? "Conectado" : "Desconectado";
+  };
+
+  const getStatusColor = () => {
+    if (isConnecting) return colors.accent;
+    return connected ? colors.success : colors.error;
+  };
+
+  const getIconBackgroundColor = () => {
+    if (isConnecting) return `${colors.accent}20`;
+    return connected ? `${colors.success}20` : `${colors.error}20`;
+  };
+
+  const getIconBorderColor = () => {
+    if (isConnecting) return colors.accent;
+    return connected ? colors.success : colors.error;
+  };
+
+  return (
+    &lt;View style={styles.card}>
+      &lt;View style={styles.content}>
+        {/* Icono en recuadro */}
+        &lt;View style={styles.iconContainer}>
+          &lt;View
+            style={[
+              styles.iconBox,
+              {
+                backgroundColor: getIconBackgroundColor(),
+                borderColor: getIconBorderColor(),
+              },
+            ]}
+          >
+            &lt;Ionicons name="power-outline" size={20} color={getStatusColor()} />
+          &lt;/View>
+        &lt;/View>
+
+        {/* Información */}
+        &lt;View style={styles.info}>
+          &lt;Text style={styles.label}>Estado&lt;/Text>
+          &lt;Text style={[styles.value, { color: getStatusColor() }]}>
+            {getStatusText()}
+          &lt;/Text>
+        &lt;/View>
+
+        {/* Loader o botón */}
+        {isConnecting &amp;&amp; (
+          &lt;ActivityIndicator size="small" color={colors.accent} />
+        )}
+        {!connected &amp;&amp; !isConnecting &amp;&amp; (
+          &lt;TouchableOpacity
+            onPress={onReconnect}
+            style={styles.reconnectButton}
+            activeOpacity={0.8}
+          >
+            &lt;Ionicons name="refresh" size={16} color={colors.white} />
+            &lt;Text style={styles.reconnectText}>Reconectar&lt;/Text>
+          &lt;/TouchableOpacity>
+        )}
+      &lt;/View>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    borderColor: colors.border,
+    borderWidth: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    marginBottom: 16,
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+  },
+  iconContainer: {
+    marginRight: 12,
+  },
+  iconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  info: {
+    flex: 1,
+  },
+  label: {
+    ...typography.regular.medium,
+    color: colors.textSec,
+  },
+  value: {
+    ...typography.semibold.regular,
+    fontSize: 15,
+    letterSpacing: -0.1,
+  },
+  reconnectButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.secondary,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  reconnectText: {
+    ...typography.medium.small,
+    color: colors.white,
+    fontSize: 13,
+    marginLeft: 6,
+  },
+});
+
+export default StatusCard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

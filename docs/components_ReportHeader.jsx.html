@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ReportHeader.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ReportHeader.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * components/ReportHeader.jsx
+ * Header reutilizable para pantallas de reportes. Extiende el Header base
+ * con un botón de filtro opcional que se activa visualmente cuando hay
+ * filtros aplicados.
+ */
+import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Header para pantallas de reportes con botón de filtro integrado.
+ * @param {Object} props
+ * @param {string} props.title - Título principal del header
+ * @param {string} [props.description] - Descripción opcional debajo del título
+ * @param {boolean} [props.showBackButton=true] - Si mostrar el botón de retroceso
+ * @param {Function} [props.onBackPress] - Función personalizada para el botón back
+ * @param {boolean} [props.showFilterButton=true] - Si mostrar el botón de filtro
+ * @param {Function} [props.onFilterPress] - Callback al presionar el botón de filtro
+ * @param {boolean} [props.filterActive=false] - Si los filtros están activos (cambia color del botón)
+ */
+const ReportHeader = ({
+  title,
+  description,
+  showBackButton = true,
+  onBackPress,
+  showFilterButton = true,
+  onFilterPress,
+  filterActive = false,
+}) => {
+  const navigation = useNavigation();
+
+  /**
+   * Ejecuta la función de retroceso personalizada o navega hacia atrás por defecto.
+   */
+  const handleBackPress = () => {
+    if (onBackPress) {
+      onBackPress();
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  /** Botón de filtro con feedback visual cuando filterActive es true. */
+  const FilterButton = () => (
+    &lt;TouchableOpacity
+      onPress={onFilterPress}
+      style={[styles.filterButton, filterActive &amp;&amp; styles.filterButtonActive]}
+    >
+      &lt;MaterialCommunityIcons
+        name="filter-outline"
+        size={20}
+        color={filterActive ? colors.secondary : colors.text}
+      />
+    &lt;/TouchableOpacity>
+  );
+
+  return (
+    &lt;View style={styles.container}>
+      {/* Primera fila: botón back y filtros */}
+      &lt;View style={styles.topRow}>
+        {showBackButton ? (
+          &lt;TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+            &lt;MaterialCommunityIcons
+              name="arrow-left"
+              size={21}
+              color={colors.text}
+            />
+          &lt;/TouchableOpacity>
+        ) : (
+          &lt;View style={styles.placeholder} />
+        )}
+
+        &lt;View style={styles.rightContainer}>
+          {showFilterButton &amp;&amp; &lt;FilterButton />}
+        &lt;/View>
+      &lt;/View>
+
+      {/* Segunda fila: título y descripción */}
+      &lt;View style={styles.contentRow}>
+        &lt;Text style={styles.headerTitle}>{title}&lt;/Text>
+        {description &amp;&amp; (
+          &lt;Text style={styles.headerDescription}>{description}&lt;/Text>
+        )}
+      &lt;/View>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  backButton: {
+    padding: 7,
+    borderRadius: 19,
+    backgroundColor: colors.base,
+  },
+  rightContainer: {
+    alignItems: "flex-end",
+  },
+  placeholder: {
+    width: 40,
+  },
+  filterButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: colors.base,
+  },
+  filterButtonActive: {
+    backgroundColor: colors.secondary + "20",
+  },
+  contentRow: {
+    alignItems: "flex-start",
+    paddingLeft: 4,
+  },
+  headerTitle: {
+    ...typography.semibold.big,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  headerDescription: {
+    ...typography.regular.large,
+    color: colors.textSec,
+    letterSpacing: 0.1,
+  },
+});
+
+export default ReportHeader;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

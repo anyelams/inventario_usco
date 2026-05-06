@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/(tabs)/profile.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app/(tabs)/profile.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// app/(tabs)/profile.jsx
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import {
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "../../components/Header";
+import LanguageSheet from "../../components/LanguageSheet";
+import { colors } from "../../config/theme";
+import { typography } from "../../config/typography";
+import { useSession } from "../../context/SessionContext";
+
+/**
+ * Pantalla de perfil del usuario
+ * Permite gestionar configuraciones personales como notificaciones,
+ * cambio de contraseña, idioma y cerrar sesión. Muestra información
+ * del usuario actual y empresa seleccionada.
+ */
+const Profile = () => {
+  const navigation = useNavigation();
+  const { cerrarSesion, userEmail, empresaSeleccionada, getUserInitials } =
+    useSession();
+
+  // Estados locales para configuraciones
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState("es");
+
+  // Lista de idiomas soportados por la aplicación
+  const languages = [
+    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "en", name: "English", flag: "🇬🇧" },
+  ];
+
+  /**
+   * Verifica el estado actual de los permisos de notificaciones
+   * al cargar la pantalla
+   */
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        const settings = await Notifications.getPermissionsAsync();
+        setNotificationsEnabled(settings.granted);
+      } catch (e) {
+        console.log("Error consultando permisos de notificaciones:", e);
+      }
+    };
+    checkPermissions();
+  }, []);
+
+  /**
+   * Maneja el cierre de sesión del usuario
+   * Limpia la sesión y permite que AppInitializer maneje la navegación
+   */
+  const handleLogout = async () => {
+    await cerrarSesion();
+    // El AppNavigator detecta token=null y muestra Auth automáticamente
+  };
+
+  /**
+   * Abre la configuración del sistema para gestionar notificaciones
+   * Permite al usuario modificar permisos desde la configuración nativa
+   */
+  const handleOpenNotificationSettings = async () => {
+    try {
+      await Linking.openSettings(); // Abre configuración de la app
+    } catch (e) {
+      console.log("Error abriendo configuración de notificaciones:", e);
+    }
+  };
+
+  /**
+   * Maneja la selección de idioma desde el modal
+   * @param {string} code - Código del idioma seleccionado
+   */
+  const handleLanguageSelect = (code) => {
+    setCurrentLanguage(code);
+    setLanguageSheetVisible(false);
+    // TODO: Integrar con sistema de internacionalización real
+    // i18n.changeLanguage(code) si se usa i18next
+  };
+
+  return (
+    &lt;SafeAreaView style={styles.safeArea}>
+      {/* Header de la pantalla */}
+      &lt;Header
+        title="Mi perfil"
+        onBackPress={() => navigation.navigate("Home")}
+      />
+
+      &lt;ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Tarjeta de información del usuario */}
+        &lt;View style={styles.userCard}>
+          &lt;View style={styles.avatar}>
+            &lt;Text style={styles.avatarText}>{getUserInitials()}&lt;/Text>
+          &lt;/View>
+          &lt;View style={styles.userInfo}>
+            &lt;Text style={styles.userName}>
+              {empresaSeleccionada?.empresaNombre || "Nombre empresa"}
+            &lt;/Text>
+            &lt;Text style={styles.userEmail}>
+              {userEmail || "DireccionCorreo@gmail.com"}
+            &lt;/Text>
+          &lt;/View>
+        &lt;/View>
+
+        {/* Sección General */}
+        &lt;Text style={styles.sectionLabel}>General&lt;/Text>
+
+        {/* Configuración de notificaciones */}
+        &lt;TouchableOpacity
+          style={styles.optionRow}
+          onPress={handleOpenNotificationSettings}
+        >
+          &lt;Text style={styles.optionText}>Notificaciones&lt;/Text>
+          &lt;Switch
+            value={notificationsEnabled}
+            onValueChange={handleOpenNotificationSettings}
+            trackColor={{ false: colors.lightGray, true: colors.primary }}
+            thumbColor={notificationsEnabled ? colors.white : "#f4f3f4"}
+          />
+        &lt;/TouchableOpacity>
+
+        {/* Opción para cambiar contraseña */}
+        &lt;TouchableOpacity
+          style={styles.optionRow}
+          onPress={() => navigation.navigate("ChangePassword")}
+        >
+          &lt;Text style={styles.optionText}>Cambiar contraseña&lt;/Text>
+          &lt;MaterialCommunityIcons
+            name="chevron-right"
+            size={20}
+            color={colors.textSec}
+          />
+        &lt;/TouchableOpacity>
+
+        {/* Sección Preferencias */}
+        &lt;Text style={styles.sectionLabel}>Preferencias&lt;/Text>
+
+        {/* Selector de idioma */}
+        &lt;TouchableOpacity
+          style={styles.optionRow}
+          onPress={() => setLanguageSheetVisible(true)}
+        >
+          &lt;Text style={styles.optionText}>Idioma&lt;/Text>
+          &lt;View style={styles.optionRight}>
+            &lt;Text style={styles.optionValue}>
+              {languages.find((l) => l.code === currentLanguage)?.name}
+            &lt;/Text>
+            &lt;MaterialCommunityIcons
+              name="chevron-right"
+              size={20}
+              color={colors.textSec}
+            />
+          &lt;/View>
+        &lt;/TouchableOpacity>
+
+        {/* Botón de cerrar sesión */}
+        &lt;TouchableOpacity style={styles.logoutRow} onPress={handleLogout}>
+          &lt;Text style={styles.logoutText}>Cerrar sesión&lt;/Text>
+          &lt;MaterialCommunityIcons name="logout" size={20} color={colors.red} />
+        &lt;/TouchableOpacity>
+      &lt;/ScrollView>
+
+      {/* Modal de selección de idioma */}
+      &lt;LanguageSheet
+        visible={languageSheetVisible}
+        onClose={() => setLanguageSheetVisible(false)}
+        languages={languages}
+        currentLanguage={currentLanguage}
+        onSelect={handleLanguageSelect}
+        t={(key) => {
+          // Función temporal de traducción hasta integrar i18n real
+          const map = {
+            "welcome.selectLanguage": "Selecciona un idioma",
+            "common.cancel": "Cancelar",
+          };
+          return map[key] || key;
+        }}
+      />
+    &lt;/SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  // Contenedor principal con safe area
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+
+  // Configuración del scroll
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+  },
+
+  // Tarjeta de información del usuario
+  userCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  avatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 28,
+    backgroundColor: colors.secondary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  avatarText: {
+    ...typography.medium.large,
+    color: colors.white,
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    ...typography.semibold.medium,
+    color: colors.text,
+  },
+  userEmail: {
+    ...typography.regular.large,
+    color: colors.textSec,
+    marginTop: 2,
+  },
+
+  // Etiquetas de sección
+  sectionLabel: {
+    ...typography.regular.large,
+    color: colors.textSec,
+    marginTop: 26,
+    marginBottom: 6,
+  },
+
+  // Filas de opciones de configuración
+  optionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 6,
+  },
+  optionText: {
+    ...typography.medium.large,
+    color: colors.text,
+  },
+  optionRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  optionValue: {
+    ...typography.regular.medium,
+    color: colors.textSec,
+    marginRight: 6,
+  },
+
+  // Fila de cerrar sesión con estilo distintivo
+  logoutRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    marginTop: 24,
+  },
+  logoutText: {
+    ...typography.medium.large,
+    color: colors.red,
+  },
+});
+
+export default Profile;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

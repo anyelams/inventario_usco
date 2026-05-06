@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/CustomPicker.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/CustomPicker.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * components/CustomPicker.jsx
+ * Selector desplegable personalizado basado en @react-native-picker/picker.
+ * Muestra un label, opción placeholder vacía, lista de items y mensaje de error.
+ * Admite estado deshabilitado con feedback visual.
+ */
+import { Picker } from "@react-native-picker/picker";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Selector desplegable con label, placeholder y manejo de errores.
+ * @param {Object} props
+ * @param {string} [props.label] - Etiqueta visible encima del picker
+ * @param {Array} [props.items=[]] - Lista de opciones { id, nombre | name }
+ * @param {*} props.selectedValue - Valor actualmente seleccionado
+ * @param {Function} props.onValueChange - Callback al cambiar la selección
+ * @param {boolean} [props.enabled=true] - Si el picker es interactivo
+ * @param {string} [props.placeholder] - Texto de la opción vacía inicial
+ * @param {string} [props.error] - Mensaje de error a mostrar debajo
+ */
+const CustomPicker = ({
+  label,
+  items = [],
+  selectedValue,
+  onValueChange,
+  enabled = true,
+  placeholder = null,
+  error = null,
+}) => {
+  return (
+    &lt;View style={styles.container}>
+      {label &amp;&amp; (
+        &lt;Text style={[styles.label, !enabled &amp;&amp; styles.labelDisabled]}>
+          {label}
+        &lt;/Text>
+      )}
+
+      &lt;View
+        style={[
+          styles.pickerWrapper,
+          !enabled &amp;&amp; styles.pickerDisabled,
+          error &amp;&amp; styles.pickerError,
+        ]}
+      >
+        &lt;Picker
+          selectedValue={selectedValue}
+          onValueChange={onValueChange}
+          enabled={enabled}
+          style={styles.picker}
+        >
+          &lt;Picker.Item
+            label={placeholder || `Seleccione ${label}`}
+            value={null}
+            color={colors.textSec}
+          />
+          {items.map((item) => (
+            &lt;Picker.Item
+              key={item.id}
+              label={item.nombre || item.name || `${label} ${item.id}`}
+              value={item.id}
+              color={colors.text}
+            />
+          ))}
+        &lt;/Picker>
+      &lt;/View>
+
+      {error &amp;&amp; &lt;Text style={styles.errorText}>{error}&lt;/Text>}
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 12,
+  },
+  label: {
+    ...typography.semibold.medium,
+    color: colors.text,
+    marginBottom: 6,
+    marginLeft: 4,
+  },
+  labelDisabled: {
+    color: colors.textSec,
+    opacity: 0.6,
+  },
+  pickerWrapper: {
+    backgroundColor: colors.lightGray,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "transparent",
+    overflow: "hidden",
+  },
+  pickerDisabled: {
+    backgroundColor: colors.border,
+    opacity: 0.6,
+  },
+  pickerError: {
+    borderColor: colors.error,
+    backgroundColor: "#fef2f2",
+  },
+  picker: {
+    height: 50,
+    color: colors.text,
+  },
+  errorText: {
+    ...typography.regular.small,
+    color: colors.error,
+    marginTop: 4,
+  },
+});
+
+export default CustomPicker;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

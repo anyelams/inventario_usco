@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/CompanySwitcher.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/CompanySwitcher.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// components/CompanySwitcher.jsx
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Logo from "../components/Logo";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+import { useSession } from "../context/SessionContext";
+import DropdownEmpresas from "./DropdownEmpresas";
+/**
+ * Formatea nombres de roles removiendo prefijos y aplicando capitalización
+ * @param {string} roleName - Nombre del rol a formatear
+ * @returns {string} - Nombre del rol formateado
+ */
+const formatRoleName = (roleName) => {
+  if (!roleName) return "Rol sin nombre";
+
+  return roleName
+    .replace(/^ROLE_/, "")
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
+/**
+ * Agrupa los roles por empresa para facilitar la visualización
+ * @param {Array} rolesByCompany - Array de roles y empresas
+ * @returns {Array} - Array agrupado por empresa con sus roles
+ */
+const agruparRolesByCompany = (rolesByCompany) => {
+  if (!rolesByCompany || rolesByCompany.length === 0) return [];
+
+  return rolesByCompany.reduce((acc, item) => {
+    const existente = acc.find((e) => e.empresaId === item.empresaId);
+    const rol = { rolId: item.rolId, rolNombre: item.rolNombre };
+
+    if (existente) {
+      existente.roles.push(rol);
+    } else {
+      acc.push({
+        empresaId: item.empresaId,
+        empresaNombre: item.empresaNombre,
+        roles: [rol],
+      });
+    }
+    return acc;
+  }, []);
+};
+
+/**
+ * Componente para cambiar entre empresas y roles del usuario
+ * Puede funcionar como modal o pantalla completa. Permite al usuario
+ * seleccionar una empresa y rol diferente para cambiar su contexto actual.
+ * @param {Object} props
+ * @param {boolean} [props.visible=true] - Si el componente está visible
+ * @param {Function} [props.onClose=null] - Función llamada al cerrar (indica modo modal)
+ * @param {Function} [props.onSwitch=null] - Función llamada después de cambiar exitosamente
+ * @param {boolean} [props.asModal=false] - Fuerza el modo modal
+ */
+export default function CompanySwitcher({
+  visible = true,
+  onClose = null,
+  onSwitch = null,
+  asModal = false,
+}) {
+  const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const {
+    rolesByCompany,
+    empresaSeleccionada,
+    cambiarContexto,
+    tieneMultiplesOpciones,
+  } = useSession();
+
+  // Estados locales del componente
+  const [seleccion, setSeleccion] = useState({
+    empresaId: empresaSeleccionada?.empresaId,
+    rolId: empresaSeleccionada?.rolId,
+  });
+  const [cambiando, setCambiando] = useState(false);
+  const [modalVisible, setModalVisible] = useState(visible);
+
+  // Determinar si debe funcionar como modal
+  const isModal = asModal || onClose !== null;
+
+  // Optimización: memoizar el agrupamiento de datos
+  const agrupado = useMemo(() => {
+    return agruparRolesByCompany(rolesByCompany);
+  }, [rolesByCompany]);
+
+  /**
+   * Sincronizar estado local con prop visible solo en modo modal
+   */
+  useEffect(() => {
+    if (isModal) {
+      setModalVisible(visible);
+    }
+  }, [visible, isModal]);
+
+  /**
+   * Resetear selección cuando se abre el componente
+   */
+  useEffect(() => {
+    if (visible &amp;&amp; empresaSeleccionada) {
+      setSeleccion({
+        empresaId: empresaSeleccionada.empresaId,
+        rolId: empresaSeleccionada.rolId,
+      });
+    }
+  }, [visible, empresaSeleccionada]);
+
+  /**
+   * Maneja la selección de empresa
+   * @param {number} empresaId - ID de la empresa seleccionada
+   * @param {Array} roles - Roles disponibles para la empresa
+   */
+  const handleSelectEmpresa = useCallback((empresaId, roles) => {
+    setSeleccion({ empresaId, rolId: null });
+  }, []);
+
+  /**
+   * Maneja la selección de rol
+   * @param {number} empresaId - ID de la empresa
+   * @param {number} rolId - ID del rol seleccionado
+   */
+  const handleSelectRol = useCallback((empresaId, rolId) => {
+    setSeleccion({ empresaId, rolId });
+  }, []);
+
+  /**
+   * Maneja el cierre del componente
+   * En modo modal cierra el modal, sino navega hacia atrás
+   */
+  const handleClose = useCallback(() => {
+    if (isModal) {
+      setModalVisible(false);
+      if (onClose) {
+        onClose();
+      }
+    } else {
+      navigation.goBack();
+    }
+  }, [isModal, onClose, navigation]);
+
+  /**
+   * Confirma y ejecuta el cambio de contexto
+   * Valida la selección, llama al API y maneja el resultado
+   */
+  const handleConfirmar = useCallback(async () => {
+    if (!seleccion?.empresaId || !seleccion?.rolId) {
+      Alert.alert("Error", "Debes seleccionar una empresa y un rol");
+      return;
+    }
+
+    // No hacer nada si la selección es la misma que la actual
+    if (
+      seleccion.empresaId === empresaSeleccionada?.empresaId &amp;&amp;
+      seleccion.rolId === empresaSeleccionada?.rolId
+    ) {
+      handleClose();
+      return;
+    }
+
+    setCambiando(true);
+
+    try {
+      await cambiarContexto(seleccion.empresaId, seleccion.rolId, true);
+
+      handleClose();
+
+      if (onSwitch) {
+        onSwitch();
+      }
+
+      navigation.navigate("Home");
+      Alert.alert(
+        "Éxito",
+        "Empresa y rol cambiados correctamente. Redirigiendo al inicio...",
+      );
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        error.message || "No se pudo cambiar el contexto. Intenta nuevamente.",
+      );
+    } finally {
+      setCambiando(false);
+    }
+  }, [seleccion, empresaSeleccionada, cambiarContexto, handleClose, onSwitch]);
+
+  // No renderizar si no hay múltiples opciones
+  if (!tieneMultiplesOpciones?.()) {
+    return null;
+  }
+
+  // No renderizar modal si no está visible
+  if (isModal &amp;&amp; !modalVisible) {
+    return null;
+  }
+
+  const isConfirmDisabled = !seleccion?.rolId || cambiando;
+
+  /**
+   * Renderiza el contenido principal del componente
+   */
+  const renderContent = () => (
+    &lt;SafeAreaView style={styles.container}>
+      {/* Logo de la empresa */}
+      &lt;View
+        style={[styles.logoContainer, { marginTop: isModal ? insets.top : 0 }]}
+      >
+        &lt;Logo width={150} height={120} variant="light" />
+      &lt;/View>
+
+      {/* Botón de cerrar */}
+      &lt;TouchableOpacity
+        style={styles.closeButton}
+        onPress={handleClose}
+        disabled={cambiando}
+        accessibilityLabel="Cerrar selector de empresa"
+        accessibilityRole="button"
+      >
+        &lt;Ionicons name="close" size={24} color={colors.textSec} />
+      &lt;/TouchableOpacity>
+
+      {/* Título y subtítulo */}
+      &lt;Text style={styles.titulo}>Cambiar empresa&lt;/Text>
+      &lt;Text style={styles.subtitulo}>
+        Selecciona la empresa y rol que deseas usar.
+      &lt;/Text>
+
+      {/* Dropdown de empresas y roles */}
+      &lt;View style={styles.dropdownContainer}>
+        {agrupado &amp;&amp; agrupado.length > 0 ? (
+          &lt;DropdownEmpresas
+            data={agrupado}
+            seleccion={seleccion}
+            onSelectEmpresa={handleSelectEmpresa}
+            onSelectRol={handleSelectRol}
+          />
+        ) : (
+          // Estado vacío cuando no hay datos
+          &lt;View style={styles.noDataContainer}>
+            &lt;View style={styles.noDataIcon}>
+              &lt;Ionicons
+                name="business-outline"
+                size={48}
+                color={colors.textSec}
+              />
+            &lt;/View>
+            &lt;Text style={styles.noDataText}>
+              No se pudieron cargar las empresas
+            &lt;/Text>
+            &lt;Text style={styles.noDataSubtext}>
+              Verifica tu conexión e intenta nuevamente
+            &lt;/Text>
+          &lt;/View>
+        )}
+      &lt;/View>
+
+      {/* Información del contexto actual */}
+      &lt;View style={styles.currentInfo}>
+        &lt;Text style={styles.currentLabel}>Empresa actual:&lt;/Text>
+        &lt;Text style={styles.currentValue}>
+          {empresaSeleccionada?.empresaNombre || "No seleccionada"}
+        &lt;/Text>
+        &lt;Text style={styles.currentLabel}>Rol actual:&lt;/Text>
+        &lt;Text style={styles.currentValue}>
+          {formatRoleName(empresaSeleccionada?.rolNombre) || "No seleccionado"}
+        &lt;/Text>
+      &lt;/View>
+
+      {/* Botón de confirmación */}
+      &lt;TouchableOpacity
+        style={[
+          styles.botonContinuar,
+          isConfirmDisabled &amp;&amp; styles.botonDeshabilitado,
+          {
+            position: "absolute",
+            bottom: insets.bottom + 20,
+            left: 20,
+            right: 20,
+          },
+        ]}
+        disabled={isConfirmDisabled}
+        onPress={handleConfirmar}
+        accessibilityLabel="Confirmar cambio de empresa y rol"
+        accessibilityRole="button"
+      >
+        {cambiando ? (
+          &lt;View style={styles.loadingContainer}>
+            &lt;ActivityIndicator size="small" color={colors.white} />
+            &lt;Text style={styles.textoContinuar}>Cambiando...&lt;/Text>
+          &lt;/View>
+        ) : (
+          &lt;>
+            &lt;Text style={styles.textoContinuar}>Confirmar cambio&lt;/Text>
+            &lt;Ionicons name="arrow-forward" size={18} color={colors.white} />
+          &lt;/>
+        )}
+      &lt;/TouchableOpacity>
+    &lt;/SafeAreaView>
+  );
+
+  // Renderizar como modal o contenido directo
+  if (isModal) {
+    return (
+      &lt;Modal
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={handleClose}
+        statusBarTranslucent
+      >
+        {renderContent()}
+      &lt;/Modal>
+    );
+  }
+
+  return renderContent();
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    backgroundColor: colors.white,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 0,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 60,
+    right: 20,
+    zIndex: 1,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: colors.base,
+  },
+  titulo: {
+    ...typography.semibold.large,
+    fontSize: 20,
+    color: colors.text,
+    marginBottom: 5,
+    textAlign: "center",
+  },
+  subtitulo: {
+    ...typography.regular.regular,
+    fontSize: 14,
+    color: colors.textSec,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  dropdownContainer: {
+    flex: 1,
+    paddingTop: 10,
+  },
+  // Estado vacío cuando no hay empresas
+  noDataContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 24,
+  },
+  noDataIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    backgroundColor: colors.base,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderStyle: "dashed",
+  },
+  noDataText: {
+    ...typography.semibold.regular,
+    fontSize: 16,
+    color: colors.textSec,
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  noDataSubtext: {
+    ...typography.regular.small,
+    fontSize: 12,
+    color: colors.textSec,
+    textAlign: "center",
+    opacity: 0.7,
+  },
+  // Información del contexto actual
+  currentInfo: {
+    backgroundColor: colors.base,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 100,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  currentLabel: {
+    ...typography.semibold.small,
+    fontSize: 12,
+    color: colors.textSec,
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  currentValue: {
+    ...typography.regular.regular,
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 12,
+  },
+  // Botón principal de confirmación
+  botonContinuar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.secondary,
+    padding: 14,
+    borderRadius: 12,
+    shadowColor: colors.secondary,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  botonDeshabilitado: {
+    opacity: 0.4,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  textoContinuar: {
+    ...typography.semibold.regular,
+    color: colors.white,
+    marginRight: 6,
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

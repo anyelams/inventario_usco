@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/InfoCard.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/InfoCard.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// components/InfoCard.jsx
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { colors } from "../config/theme";
+import { typography } from "../config/typography";
+
+/**
+ * Tarjeta informativa de temperatura y humedad
+ * Muestra datos de sensores en tiempo real con navegación a detalles
+ *
+ * @param {Object} props
+ * @param {number|null} props.temperature - Temperatura actual en °C (null si no disponible)
+ * @param {number|null} props.humidity - Humedad relativa en % (null si no disponible)
+ * @param {Function} props.onPress - Callback al presionar la tarjeta (navega a detalles)
+ */
+const InfoCard = ({ temperature, humidity, onPress }) => {
+  return (
+    &lt;View style={styles.container}>
+      &lt;TouchableOpacity
+        style={styles.infoRow}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        &lt;View style={styles.infoItem}>
+          &lt;Ionicons
+            name="thermometer-outline"
+            size={26}
+            color={colors.secondary}
+            style={styles.icon}
+          />
+          &lt;View style={styles.infoText}>
+            &lt;Text style={styles.valueText}>
+              {temperature !== null ? `${temperature}°C` : "--"}
+            &lt;/Text>
+            &lt;Text style={styles.labelText}>Temperatura&lt;/Text>
+          &lt;/View>
+        &lt;/View>
+
+        &lt;View style={styles.separator} />
+
+        &lt;View style={styles.infoItem}>
+          &lt;Ionicons
+            name="water-outline"
+            size={26}
+            color={colors.secondary}
+            style={styles.icon}
+          />
+          &lt;View style={styles.infoText}>
+            &lt;Text style={styles.valueText}>
+              {humidity !== null ? `${humidity}%` : "--"}
+            &lt;/Text>
+            &lt;Text style={styles.labelText}>Humedad&lt;/Text>
+          &lt;/View>
+        &lt;/View>
+
+        {/* Contenedor redondo para la flecha */}
+        &lt;View style={styles.arrowContainer}>
+          &lt;MaterialCommunityIcons
+            name="chevron-right"
+            size={18}
+            color={colors.textSec}
+          />
+        &lt;/View>
+      &lt;/TouchableOpacity>
+    &lt;/View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.border + "20",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderColor: colors.border,
+    borderWidth: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  icon: {
+    marginRight: 12,
+  },
+  infoText: {
+    flex: 1,
+  },
+  valueText: {
+    ...typography.semibold.large,
+    color: colors.text,
+    marginBottom: 2,
+  },
+  labelText: {
+    ...typography.regular.regular,
+    color: colors.textSec,
+  },
+  separator: {
+    width: 1,
+    height: 40,
+    backgroundColor: colors.border,
+    marginHorizontal: 16,
+  },
+  arrowContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.lightGray,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+
+export default InfoCard;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/LocationFilters.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/LocationFilters.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * components/LocationFilters.jsx
+ * Grupo de pickers en cascada para filtrar por ubicación geográfica:
+ * País → Departamento → Municipio → Sede → Bloque → Espacio → Almacén.
+ * Cada nivel se habilita solo cuando el nivel anterior tiene una selección.
+ */
+import React from "react";
+import CustomPicker from "./CustomPicker";
+
+/**
+ * Pickers en cascada para filtrar por ubicación geográfica.
+ * Cada nivel se activa solo cuando el nivel superior tiene valor seleccionado.
+ * @param {Object} props
+ * @param {Object} props.selected - IDs actualmente seleccionados por nivel
+ * @param {Object} props.locationData - Listas de opciones por nivel (paises, departamentos, etc.)
+ * @param {Object} props.handlers - Funciones de cambio por nivel (handlePaisChange, etc.)
+ */
+const LocationFilters = ({ selected, locationData, handlers }) => {
+  return (
+    &lt;>
+      &lt;CustomPicker
+        label="País"
+        items={locationData.paises}
+        selectedValue={selected.paisId}
+        onValueChange={handlers.handlePaisChange}
+      />
+
+      &lt;CustomPicker
+        label="Departamento"
+        items={locationData.departamentos}
+        selectedValue={selected.departamentoId}
+        onValueChange={handlers.handleDepartamentoChange}
+        enabled={selected.paisId !== null}
+      />
+
+      &lt;CustomPicker
+        label="Municipio"
+        items={locationData.municipios}
+        selectedValue={selected.municipioId}
+        onValueChange={handlers.handleMunicipioChange}
+        enabled={selected.departamentoId !== null}
+      />
+
+      &lt;CustomPicker
+        label="Sede"
+        items={locationData.sedes}
+        selectedValue={selected.sedeId}
+        onValueChange={handlers.handleSedeChange}
+        enabled={selected.municipioId !== null}
+      />
+
+      &lt;CustomPicker
+        label="Bloque"
+        items={locationData.bloques}
+        selectedValue={selected.bloqueId}
+        onValueChange={handlers.handleBloqueChange}
+        enabled={selected.sedeId !== null}
+      />
+
+      &lt;CustomPicker
+        label="Espacio"
+        items={locationData.espacios}
+        selectedValue={selected.espacioId}
+        onValueChange={handlers.handleEspacioChange}
+        enabled={selected.bloqueId !== null}
+      />
+
+      &lt;CustomPicker
+        label="Almacén"
+        items={locationData.almacenes}
+        selectedValue={selected.almacenId}
+        onValueChange={handlers.handleAlmacenChange}
+        enabled={selected.espacioId !== null}
+      />
+    &lt;/>
+  );
+};
+
+export default LocationFilters;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

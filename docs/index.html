@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>Inventario App</h1>
+<p>Aplicación móvil de gestión de inventario desarrollada con React Native y Expo. Permite a las empresas controlar su inventario, monitorear sensores IoT en tiempo real, consultar reportes y gestionar notificaciones, todo desde un dispositivo móvil.</p>
+<hr>
+<h2>Tecnologías principales</h2>
+<table>
+<thead>
+<tr>
+<th>Tecnología</th>
+<th>Versión</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>React Native</td>
+<td>0.81.5</td>
+</tr>
+<tr>
+<td>Expo</td>
+<td>~54.0.25</td>
+</tr>
+<tr>
+<td>React</td>
+<td>19.1.0</td>
+</tr>
+<tr>
+<td>React Navigation</td>
+<td>7.x</td>
+</tr>
+<tr>
+<td>Axios</td>
+<td>1.12.0</td>
+</tr>
+<tr>
+<td>MQTT.js</td>
+<td>5.14.1</td>
+</tr>
+<tr>
+<td>i18n-js</td>
+<td>4.5.1</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2>Requisitos previos</h2>
+<ul>
+<li><a href="https://nodejs.org/">Node.js</a> &gt;= 18</li>
+<li><a href="https://www.npmjs.com/">npm</a> o <a href="https://yarnpkg.com/">yarn</a></li>
+<li><a href="https://docs.expo.dev/get-started/installation/">Expo CLI</a> — <code>npm install -g expo-cli</code></li>
+<li><a href="https://expo.dev/client">Expo Go</a> en el dispositivo físico (para pruebas rápidas)</li>
+<li>Android Studio o Xcode (para builds nativos)</li>
+</ul>
+<hr>
+<h2>Instalación</h2>
+<pre class="prettyprint source lang-bash"><code># 1. Clonar el repositorio
+git clone &lt;url-del-repositorio>
+cd inventario_app
+
+# 2. Instalar dependencias
+npm install
+</code></pre>
+<hr>
+<h2>Variables de entorno</h2>
+<p>Crear un archivo <code>.env</code> en la raíz del proyecto con las variables necesarias. Estas se inyectan en <code>app.config.js</code> mediante <code>expo-constants</code> y quedan disponibles en la app a través de <code>Constants.expoConfig.extra</code>.</p>
+<blockquote>
+<p>El archivo <code>.env</code> <strong>nunca debe subirse al repositorio</strong>.</p>
+</blockquote>
+<hr>
+<h2>Ejecución en desarrollo</h2>
+<pre class="prettyprint source lang-bash"><code># Iniciar el servidor de desarrollo (muestra QR para Expo Go)
+npm start
+
+# Ejecutar en Android
+npm run android
+
+# Ejecutar en iOS
+npm run ios
+
+# Ejecutar en navegador web
+npm run web
+</code></pre>
+<hr>
+<h2>Estructura del proyecto</h2>
+<pre class="prettyprint source"><code>inventario_app/
+├── app/
+│   ├── (auth)/          # Pantallas de autenticación
+│   │   ├── index.jsx        # Login y Registro
+│   │   ├── forgotPassword.jsx
+│   │   └── emailVerification.jsx
+│   ├── (tabs)/          # Tabs principales
+│   │   ├── home.jsx         # Pantalla de inicio con módulos
+│   │   ├── notifications.jsx
+│   │   └── profile.jsx
+│   ├── inventory/       # Módulo de inventario
+│   │   └── camera.jsx       # Escáner QR / código de barras
+│   ├── iot/             # Módulo IoT
+│   │   ├── index.jsx        # Panel de dispositivos
+│   │   └── temperature.jsx  # Gráfico de temperatura en tiempo real
+│   ├── profile/
+│   │   └── changePassword.jsx
+│   ├── reports/         # Módulo de reportes
+│   │   ├── index.jsx
+│   │   ├── reporteKardex.jsx
+│   │   ├── reportePedido.jsx
+│   │   ├── reporteProductosVencidos.jsx
+│   │   ├── reporteFactura.jsx
+│   │   └── reporteOrdencompra.jsx
+│   └── security/
+│       └── index.jsx
+├── components/          # Componentes reutilizables
+├── config/              # Tema y tipografía
+├── context/             # SessionContext, LanguageContext
+├── hooks/               # useLocationFilters, useMQTT
+├── navigation/          # AppNavigator, AuthNavigator, MainNavigator, TabsNavigator
+├── services/            # Capa de acceso a datos (auth, storage)
+├── utils/               # Validaciones
+├── assets/              # Imágenes, fuentes
+├── app.config.js        # Configuración de Expo (lee variables del .env)
+├── index.js             # Punto de entrada
+└── .env                 # Variables de entorno (NO subir al repositorio)
+</code></pre>
+<hr>
+<h2>Módulos de la aplicación</h2>
+<h3>Autenticación</h3>
+<ul>
+<li>Login con email y contraseña, recordar email entre sesiones.</li>
+<li>Registro de nuevos usuarios con validación de fortaleza de contraseña.</li>
+<li>Recuperación de contraseña por email.</li>
+<li>Soporte multi-empresa: el usuario puede tener roles en varias empresas y cambiar de contexto desde la pantalla Home.</li>
+</ul>
+<h3>Inventario</h3>
+<ul>
+<li>Escaneo de códigos QR y de barras mediante la cámara del dispositivo.</li>
+<li>Integración con el API de detección de imágenes.</li>
+</ul>
+<h3>IoT</h3>
+<ul>
+<li>Conexión en tiempo real al broker MQTT configurado en <code>.env</code>.</li>
+<li>Visualización de temperatura y humedad en gráfico de línea (últimas 10 lecturas).</li>
+<li>Control de dispositivos (bombillos, ventiladores) desde la app.</li>
+</ul>
+<h3>Reportes</h3>
+<p>Generación y descarga de reportes en PDF con filtros por ubicación, fechas y producto:</p>
+<ul>
+<li>Reporte de Kardex</li>
+<li>Reporte de Pedido</li>
+<li>Reporte de Productos Vencidos</li>
+<li>Reporte de Factura <em>(en construcción)</em></li>
+<li>Orden de Compra <em>(en construcción)</em></li>
+</ul>
+<h3>Notificaciones</h3>
+<ul>
+<li>Configuración automática de notificaciones push con Expo al iniciar sesión.</li>
+<li>Visualización de notificaciones en la pestaña dedicada.</li>
+</ul>
+<hr>
+<h2>Internacionalización (i18n)</h2>
+<p>El idioma de la aplicación se puede cambiar desde la pantalla de login. Los textos se gestionan con <code>i18n-js</code> y <code>expo-localization</code>. Los archivos de traducción se encuentran en <code>assets/locales/</code>.</p>
+<hr>
+<h2>Build de producción</h2>
+<pre class="prettyprint source lang-bash"><code># Instalar EAS CLI (si no lo tienes)
+npm install -g eas-cli
+
+# Configurar el proyecto en EAS (primera vez)
+eas build:configure
+
+# Build para Android
+eas build --platform android
+
+# Build para iOS
+eas build --platform ios
+</code></pre>
+<blockquote>
+<p>Asegúrate de configurar el <code>projectId</code> en <code>app.config.js</code> y tener una cuenta en <a href="https://expo.dev">expo.dev</a> antes de compilar.</p>
+</blockquote>
+<hr>
+<h2>Notas de configuración</h2>
+<ul>
+<li>El archivo <code>.env</code> <strong>no debe subirse al repositorio</strong>. Está incluido en <code>.gitignore</code>.</li>
+<li>Para desarrollo local apuntando a un backend en red local, cambiar <code>API_URL</code> a la IP de la máquina (ej. <code>http://192.168.x.x:8081</code>).</li>
+<li>El broker MQTT debe exponer WebSockets en el puerto configurado en <code>MQTT_BROKER_URL</code> (por defecto <code>ws://...:9001</code>).</li>
+<li>Las notificaciones push solo funcionan en dispositivos físicos, no en emuladores.</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

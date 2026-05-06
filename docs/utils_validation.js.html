@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: utils/validation.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: utils/validation.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// utils/validation.js
+
+/**
+ * Valida formato de email
+ * @param {string} email
+ * @returns {boolean}
+ */
+export const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+/**
+ * Evalúa la fortaleza de la contraseña y retorna feedback
+ * @param {string} password
+ * @param {function} t - función de traducción
+ * @returns {object} { score, feedback, isValid }
+ */
+export const getPasswordStrength = (password, t) => {
+  let score = 0;
+  let feedback = [];
+  const requirements = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[!@#$%^&amp;*(),.?":{}|&lt;>]/.test(password),
+  };
+
+  // Evaluar cada requisito
+  Object.entries(requirements).forEach(([key, passed]) => {
+    if (passed) {
+      score += 1;
+    } else {
+      feedback.push(t(`password.requirements.${key}`));
+    }
+  });
+
+  const isValid = score === 4;
+  const message = isValid
+    ? t("password.secure")
+    : t("password.missing", { items: feedback.join(", ") });
+
+  return {
+    score,
+    feedback,
+    isValid,
+    message,
+    requirements,
+  };
+};
+
+/**
+ * Valida los datos del formulario de login
+ * @param {object} formData - { email, password }
+ * @param {function} t - función de traducción
+ * @returns {object} { isValid, errors }
+ */
+export const validateLoginForm = (formData, t) => {
+  const errors = {};
+  let isValid = true;
+
+  // Validar email
+  if (!formData.email?.trim()) {
+    errors.email = t("validation.emailRequired");
+    isValid = false;
+  } else if (!validateEmail(formData.email)) {
+    errors.email = t("validation.emailInvalid");
+    isValid = false;
+  }
+
+  // Validar contraseña
+  if (!formData.password?.trim()) {
+    errors.password = t("validation.passwordRequired");
+    isValid = false;
+  }
+
+  return { isValid, errors };
+};
+
+/**
+ * Valida los datos del formulario de registro
+ * @param {object} formData - { email, password, confirmPassword?, fullName? }
+ * @param {function} t - función de traducción
+ * @returns {object} { isValid, errors, passwordStrength }
+ */
+export const validateRegisterForm = (formData, t) => {
+  const errors = {};
+  let isValid = true;
+
+  // Validar email
+  if (!formData.email?.trim()) {
+    errors.email = t("validation.emailRequired");
+    isValid = false;
+  } else if (!validateEmail(formData.email)) {
+    errors.email = t("validation.emailInvalid");
+    isValid = false;
+  }
+
+  // Validar contraseña
+  const passwordStrength = getPasswordStrength(formData.password || "", t);
+  if (!formData.password?.trim()) {
+    errors.password = t("validation.passwordRequired");
+    isValid = false;
+  } else if (!passwordStrength.isValid) {
+    errors.password = passwordStrength.message;
+    isValid = false;
+  }
+
+  // Validar confirmación de contraseña (si está presente)
+  if (formData.confirmPassword !== undefined) {
+    if (!formData.confirmPassword?.trim()) {
+      errors.confirmPassword = t("validation.confirmPasswordRequired");
+      isValid = false;
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = t("validation.passwordsDontMatch");
+      isValid = false;
+    }
+  }
+
+  // Validar nombre completo (si está presente)
+  if (formData.fullName !== undefined) {
+    if (!formData.fullName?.trim()) {
+      errors.fullName = t("validation.fullNameRequired");
+      isValid = false;
+    } else if (formData.fullName.trim().length &lt; 2) {
+      errors.fullName = t("validation.fullNameMinLength");
+      isValid = false;
+    }
+  }
+
+  return { isValid, errors, passwordStrength };
+};
+
+/**
+ * Maneja errores de la API y retorna mensaje traducido
+ * @param {Error} error
+ * @param {function} t - función de traducción
+ * @param {string} defaultKey - clave por defecto si no se encuentra el error
+ * @returns {string}
+ */
+export const getErrorMessage = (
+  error,
+  t,
+  defaultKey = "errors.unknownError",
+) => {
+  // Errores HTTP específicos
+  if (error.response?.status === 401) {
+    return t("errors.loginFailed");
+  } else if (error.response?.status === 404) {
+    return t("errors.accountNotFound");
+  } else if (error.response?.status === 400) {
+    return t("errors.invalidData");
+  } else if (error.response?.status >= 500) {
+    return t("errors.serverError");
+  }
+
+  // Errores de conexión
+  if (
+    error.message?.includes("Network Error") ||
+    error.code === "NETWORK_ERROR"
+  ) {
+    return t("errors.networkError");
+  } else if (error.message?.includes("timeout")) {
+    return t("errors.connectionTimeout");
+  }
+
+  // Si hay un mensaje específico del servidor, usarlo
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  }
+
+  // Mensaje por defecto
+  return t(defaultKey);
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

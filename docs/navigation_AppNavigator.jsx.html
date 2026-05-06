@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: navigation/AppNavigator.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: navigation/AppNavigator.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * navigation/AppNavigator.jsx
+ * Navegador raíz de la aplicación. Envuelve la app con LanguageProvider
+ * y SessionProvider, carga las fuentes Roboto y decide si mostrar
+ * el flujo de autenticación (AuthNavigator) o el área principal (MainNavigator)
+ * según el estado del token de sesión.
+ */
+import {
+  AntDesign,
+  Feather,
+  Ionicons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import React, { useEffect } from "react";
+import { LogBox } from "react-native";
+import { LanguageProvider } from "../context/LanguageContext";
+import { SessionProvider, useSession } from "../context/SessionContext";
+import AuthNavigator from "./AuthNavigator";
+import MainNavigator from "./MainNavigator";
+
+SplashScreen.preventAutoHideAsync();
+
+const Stack = createNativeStackNavigator();
+
+/**
+ * Navegador interno que decide entre AuthNavigator y MainNavigator
+ * según si el token existe y es válido. También carga las fuentes
+ * y oculta el SplashScreen cuando están listas.
+ */
+function RootNavigator() {
+  const { token, tokenEsValido } = useSession();
+  const isAuthenticated = !!token &amp;&amp; tokenEsValido();
+
+  const [fontsLoaded] = useFonts({
+    RobotoBold: require("../assets/fonts/Roboto-Bold.ttf"),
+    RobotoSemiBold: require("../assets/fonts/Roboto-SemiBold.ttf"),
+    RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
+    RobotoRegular: require("../assets/fonts/Roboto-Regular.ttf"),
+    RobotoLight: require("../assets/fonts/Roboto-Light.ttf"),
+    ...AntDesign.font,
+    ...Ionicons.font,
+    ...Feather.font,
+    ...MaterialIcons.font,
+  });
+
+  useEffect(() => {
+    LogBox.ignoreLogs([
+      "Support for defaultProps will be removed from function components in a future major release",
+      "Expected newLocale to be a string",
+    ]);
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync().catch(console.error);
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
+  return (
+    &lt;NavigationContainer>
+      &lt;Stack.Navigator screenOptions={{ headerShown: false, animation: "none" }}>
+        {isAuthenticated ? (
+          &lt;Stack.Screen name="Main" component={MainNavigator} />
+        ) : (
+          &lt;Stack.Screen name="Auth" component={AuthNavigator} />
+        )}
+      &lt;/Stack.Navigator>
+      &lt;StatusBar style="dark" translucent={true} />
+    &lt;/NavigationContainer>
+  );
+}
+
+export default function AppNavigator() {
+  return (
+    &lt;LanguageProvider>
+      &lt;SessionProvider>
+        &lt;RootNavigator />
+      &lt;/SessionProvider>
+    &lt;/LanguageProvider>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

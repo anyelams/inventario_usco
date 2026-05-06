@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/(tabs)/home.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app/(tabs)/home.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * app/(tabs)/home.jsx
+ * Pantalla principal de la aplicación. Muestra un saludo personalizado,
+ * el selector de empresa activa (si el usuario tiene múltiples empresas)
+ * y las tarjetas de acceso a los módulos disponibles.
+ */
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import CompanySwitcher from "../../components/CompanySwitcher";
+import HeaderHome from "../../components/HeaderHome";
+import ModuleCard from "../../components/ModuleCard";
+import { colors } from "../../config/theme";
+import { typography } from "../../config/typography";
+import { useSession } from "../../context/SessionContext";
+
+// Colores corporativos con naranja para seguridad
+const corporateColors = {
+  inventory: {
+    background: "#eff6ff", // Azul claro
+    icon: "#2563eb", // Azul corporativo
+    accent: "#1d4ed8", // Azul más intenso
+  },
+  iot: {
+    background: "#faf5ff", // Púrpura muy claro
+    icon: "#7c3aed", // Púrpura
+    accent: "#6d28d9", // Púrpura intenso
+  },
+  security: {
+    background: "#fff7ed", // Naranja muy claro
+    icon: "#ea580c", // Naranja profesional
+    accent: "#c2410c", // Naranja intenso
+  },
+  reports: {
+    background: "#f6fdf9", // Verde muy claro
+    icon: "#16a34a", // Verde suave
+    accent: "#15803d", // Verde oscuro profesional
+  },
+};
+
+const modules = [
+  {
+    id: "1",
+    title: "Módulo\nInventario",
+    icon: "clipboard-check",
+    route: "inventory",
+    moduleColors: corporateColors.inventory,
+  },
+  {
+    id: "2",
+    title: "Módulo\nde IoT",
+    icon: "access-point",
+    route: "iot",
+    moduleColors: corporateColors.iot,
+  },
+  {
+    id: "3",
+    title: "Módulo\nSeguridad",
+    icon: "shield-lock-outline",
+    route: "security",
+    moduleColors: corporateColors.security,
+  },
+  {
+    id: "4",
+    title: "Módulo\nReportes",
+    icon: "chart-line",
+    route: "reports",
+    moduleColors: corporateColors.reports,
+  },
+];
+
+/**
+ * Pantalla Home con saludo al usuario, tarjeta de empresa activa
+ * y grilla de módulos disponibles.
+ */
+export default function Home() {
+  const navigation = useNavigation();
+  const screenMap = {
+    inventory: "Camera",
+    iot: "Iot",
+    security: "Security",
+    reports: "Reports",
+  };
+  const {
+    empresaSeleccionada,
+    rolesByCompany,
+    token,
+    userEmail,
+    getUserInitials,
+  } = useSession();
+  const [showCompanySwitcher, setShowCompanySwitcher] = useState(false);
+
+  useEffect(() => {
+    console.log("Token recibido en Home:", token);
+    console.log("Email del usuario:", userEmail);
+    console.log("Iniciales del usuario:", getUserInitials());
+    console.log("Roles disponibles:", rolesByCompany);
+    console.log("Cantidad de roles:", rolesByCompany?.length);
+  }, [token, rolesByCompany, userEmail]);
+
+  /** Abre el modal de cambio de empresa. */
+  const handleOpenCompanySwitcher = () => {
+    setShowCompanySwitcher(true);
+  };
+
+  /** Cierra el modal de cambio de empresa. */
+  const handleCloseCompanySwitcher = () => {
+    setShowCompanySwitcher(false);
+  };
+
+  /**
+   * Retorna un saludo en español según la hora actual del dispositivo.
+   * @returns {string} - "Buenos días!", "Buenas tardes!" o "Buenas noches!"
+   */
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour &lt; 12) return "Buenos días!";
+    if (hour &lt; 18) return "Buenas tardes!";
+    return "Buenas noches!";
+  };
+
+  /**
+   * Extrae la parte local del email y la formatea como nombre legible.
+   * Ej: "juan.perez@empresa.com" → "Juan Perez"
+   * @returns {string} - Nombre formateado o cadena vacía si no hay email
+   */
+  const getUserDisplayName = () => {
+    if (!userEmail) return "";
+    const localPart = userEmail.split("@")[0];
+    return localPart
+      .replace(/[._-]/g, " ")
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  return (
+    &lt;SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      &lt;HeaderHome />
+
+      &lt;ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header con información del usuario */}
+        &lt;View style={styles.userSection}>
+          &lt;View style={styles.greetingContainer}>
+            &lt;Text style={styles.greeting}>{getGreeting()}&lt;/Text>
+            &lt;Text style={styles.userName}>
+              {rolesByCompany?.length > 1
+                ? "Recuerda que desde 'Empresa' podrás cambiar tu sesión actual."
+                : getUserDisplayName() || "Accede a los módulos de tu empresa"}
+            &lt;/Text>
+          &lt;/View>
+        &lt;/View>
+
+        {/* Empresa actual */}
+        {rolesByCompany?.length > 1 &amp;&amp; (
+          &lt;View style={styles.companySection}>
+            &lt;TouchableOpacity
+              onPress={handleOpenCompanySwitcher}
+              style={styles.empresaContainer}
+            >
+              &lt;View style={styles.empresaContent}>
+                &lt;View style={styles.empresaIconContainer}>
+                  &lt;View style={styles.empresaIcon}>
+                    &lt;MaterialCommunityIcons
+                      name="domain"
+                      size={20}
+                      color={colors.textSec}
+                    />
+                  &lt;/View>
+                &lt;/View>
+                &lt;View style={styles.empresaInfo}>
+                  &lt;Text style={styles.empresaLabel}>Empresa&lt;/Text>
+                  &lt;Text style={styles.empresaText} numberOfLines={1}>
+                    {empresaSeleccionada?.empresaNombre}
+                  &lt;/Text>
+                &lt;/View>
+                &lt;View style={styles.chevronContainer}>
+                  &lt;MaterialCommunityIcons
+                    name="chevron-right"
+                    size={18}
+                    color={colors.textSec}
+                  />
+                &lt;/View>
+              &lt;/View>
+            &lt;/TouchableOpacity>
+          &lt;/View>
+        )}
+
+        {/* Módulos Section */}
+        &lt;View style={styles.modulesSection}>
+          &lt;View style={styles.sectionHeader}>
+            &lt;Text style={styles.sectionTitle}>Módulos disponibles&lt;/Text>
+          &lt;/View>
+          &lt;View style={styles.grid}>
+            {modules.map((item) => (
+              &lt;ModuleCard
+                key={item.id}
+                title={item.title}
+                icon={item.icon}
+                moduleColors={item.moduleColors}
+                onPress={() =>
+                  navigation.navigate(screenMap[item.route] || item.route)
+                }
+              />
+            ))}
+          &lt;/View>
+        &lt;/View>
+      &lt;/ScrollView>
+
+      {/* Modal del Company Switcher */}
+      &lt;CompanySwitcher
+        visible={showCompanySwitcher}
+        asModal={true}
+        onClose={handleCloseCompanySwitcher}
+        onSwitch={handleCloseCompanySwitcher}
+      />
+    &lt;/SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 100,
+  },
+  userSection: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  greetingContainer: {
+    flex: 1,
+  },
+  greeting: {
+    ...typography.bold.big,
+    fontSize: 26,
+    color: colors.text,
+    letterSpacing: -0.3,
+    marginBottom: 8,
+  },
+  userName: {
+    ...typography.regular.large,
+    color: colors.textSec,
+    letterSpacing: 0.1,
+  },
+  companySection: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  empresaContainer: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    borderColor: colors.border,
+    borderWidth: 1,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  empresaContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+  },
+  empresaIconContainer: {
+    marginRight: 12,
+  },
+  empresaIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: colors.lightGray,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  empresaInfo: {
+    flex: 1,
+  },
+  empresaLabel: {
+    ...typography.medium.regular,
+    color: colors.textSec,
+    marginBottom: 2,
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
+  },
+  empresaText: {
+    ...typography.semibold.medium,
+    fontSize: 15,
+    color: colors.text,
+    letterSpacing: -0.1,
+  },
+  chevronContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.lightGray,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modulesSection: {
+    paddingHorizontal: 24,
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    ...typography.semibold.large,
+    color: colors.text,
+    letterSpacing: -0.2,
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "source": {
+    "include": [
+      "index.js",
+      "utils",
+      "hooks",
+      "services",
+      "context",
+      "components",
+      "app",
+      "navigation"
+    ],
+    "includePattern": ".+\\.jsx?$",
+    "excludePattern": "(node_modules|docs)"
+  },
+  "opts": {
+    "destination": "./docs",
+    "recurse": true,
+    "readme": "README.md"
+  },
+  "plugins": ["plugins/markdown"]
+}

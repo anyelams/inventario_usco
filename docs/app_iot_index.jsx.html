@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/iot/index.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app/iot/index.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// app/iot/index.jsx
+import Constants from "expo-constants";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { ScrollView, StyleSheet, Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import DeviceCard from "../../components/DeviceCard";
+import Header from "../../components/Header";
+import InfoCard from "../../components/InfoCard";
+import StatusCard from "../../components/StatusCard";
+import TankLevelCard from "../../components/TankLevelCard";
+import { colors } from "../../config/theme";
+import { typography } from "../../config/typography";
+import { useSession } from "../../context/SessionContext";
+import { useMQTT } from "../../hooks/useMQTT";
+
+const API_IOT_NOTIFICATIONS = Constants.expoConfig.extra;
+
+/**
+ * Panel principal del módulo IoT
+ *
+ * Funcionalidades:
+ * - Monitoreo en tiempo real de temperatura y humedad
+ * - Control remoto de dispositivos (bombillo, ventilador)
+ * - Monitoreo de nivel de tanque mediante sensor ultrasónico
+ * - Conexión MQTT para comunicación bidireccional
+ * - Registro de tokens para notificaciones push
+ *
+ * @component
+ */
+export default function IotScreen() {
+  const navigation = useNavigation();
+  const { username } = useSession();
+
+  const {
+    connected,
+    temperature,
+    humidity,
+    toggleDevice,
+    connect,
+    isConnecting,
+    lastMessage,
+  } = useMQTT();
+
+  const [lightState, setLightState] = useState(false);
+  const [fanState, setFanState] = useState(false);
+  const [nivel, setNivel] = useState(0);
+  const [distanciaUltrasonico, setDistanciaUltrasonico] = useState(0);
+
+  /**
+   * Altura total del tanque en centímetros
+   * Usado para calcular el porcentaje de nivel de agua
+   */
+  const ALTURA_TANQUE_CM = 100;
+
+  // Configuración de dispositivos dinámicos
+  const devices = [
+    { type: "bombillo", name: "Bombillo", icon: "bulb-outline" },
+    { type: "ventilador", name: "Ventilador", icon: "fan" },
+  ];
+
+  const deviceStates = {
+    bombillo: lightState,
+    ventilador: fanState,
+  };
+
+  /**
+   * Procesa mensajes del sensor ultrasónico y calcula el nivel del tanque
+   * El nivel se calcula como porcentaje basado en la distancia medida
+   *
+   * @listens sensor/agua/ultrasonico - Topic MQTT del sensor ultrasónico
+   */
+  useEffect(() => {
+    if (lastMessage?.topic === "sensor/agua/ultrasonico") {
+      console.log("Sensor Ultrasónico - Mensaje recibido:", {
+        topic: lastMessage.topic,
+        message: lastMessage.message,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+
+      const distancia = parseFloat(lastMessage.message);
+      if (!isNaN(distancia)) {
+        console.log("Distancia detectada:", distancia, "cm");
+        setDistanciaUltrasonico(distancia);
+
+        // Calcular nivel como porcentaje (0-100%)
+        const nivelCalculado = Math.max(
+          0,
+          Math.min(100, (distancia / ALTURA_TANQUE_CM) * 100),
+        );
+
+        setNivel(nivelCalculado);
+      }
+    }
+  }, [lastMessage]);
+
+  /**
+   * Registra el token de notificaciones push del dispositivo
+   * Se ejecuta cuando el usuario está autenticado y en un dispositivo físico
+   *
+   * @requires Device.isDevice - Solo ejecuta en dispositivos físicos
+   * @requires username - Usuario debe estar autenticado
+   */
+  useEffect(() => {
+    const registerPushToken = async () => {
+      if (!Device.isDevice || !username) {
+        console.warn("Dispositivo no válido o username no disponible");
+        return;
+      }
+
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (finalStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") return;
+
+      const token = (await Notifications.getExpoPushTokenAsync()).data;
+      console.log("Expo Push Token:", token);
+
+      try {
+        await fetch(`${API_IOT_NOTIFICATIONS}/api/token`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: username,
+            token,
+          }),
+        });
+      } catch (error) {
+        console.error("Error enviando token al backend:", error);
+      }
+    };
+
+    registerPushToken();
+  }, [username]);
+
+  /**
+   * Alterna el estado de un dispositivo IoT
+   * Actualiza el estado local y envía comando MQTT al dispositivo
+   *
+   * @param {string} type - Tipo de dispositivo ('bombillo' | 'ventilador')
+   */
+  const handleToggleDevice = async (type) => {
+    if (type === "bombillo") {
+      const newState = !lightState;
+      setLightState(newState);
+      await toggleDevice("sensor/bombillo", newState ? "on" : "off");
+    } else if (type === "ventilador") {
+      const newState = !fanState;
+      setFanState(newState);
+      await toggleDevice("sensor/ventilador", newState ? "on" : "off");
+    }
+  };
+
+  const handleReconnect = async () => {
+    if (!connected &amp;&amp; !isConnecting) {
+      await connect();
+    }
+  };
+
+  const handleInfoPress = () => {
+    navigation.navigate("IotTemperature");
+  };
+
+  return (
+    &lt;SafeAreaView style={styles.container}>
+      &lt;Header
+        title="Panel IoT"
+        onBackPress={() => navigation.navigate("Tabs")}
+      />
+
+      &lt;ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        &lt;StatusCard
+          connected={connected}
+          isConnecting={isConnecting}
+          onReconnect={handleReconnect}
+        />
+        &lt;Text style={styles.sectionTitle}>Información&lt;/Text>
+        &lt;InfoCard
+          temperature={temperature}
+          humidity={humidity}
+          onPress={handleInfoPress}
+        />
+        &lt;Text style={styles.sectionTitle}>Dispositivos&lt;/Text>
+        &lt;DeviceCard
+          devices={devices}
+          deviceStates={deviceStates}
+          onToggleDevice={handleToggleDevice}
+          connected={connected}
+        />
+
+        &lt;TankLevelCard
+          nivel={nivel}
+          distanciaUltrasonico={distanciaUltrasonico}
+          style={{ marginTop: 16 }}
+        />
+      &lt;/ScrollView>
+    &lt;/SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  sectionTitle: {
+    ...typography.semibold.medium,
+    color: colors.text,
+    marginBottom: 12,
+  },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Mon May 04 2026 03:41:48 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
