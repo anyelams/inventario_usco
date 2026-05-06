@@ -1,0 +1,81 @@
+{
+  "welcome": {
+    "title": "¡Comienza ahora!",
+    "subtitle": "Crea una cuenta o inicia sesión para explorar la app.",
+    "signIn": "Iniciar sesión",
+    "register": "Registrarse",
+    "language": "Español",
+    "selectLanguage": "Seleccionar idioma"
+  },
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "loginTitle": "Iniciar sesión",
+    "registerTitle": "Crear cuenta",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "signUp": "Regístrate aquí",
+    "signIn": "Inicia sesión",
+    "orContinueWith": "o",
+    "loggingIn": "Iniciando sesión...",
+    "registering": "Registrando...",
+    "enterEmail": "Ingresa tu correo electrónico",
+    "enterPassword": "Ingresa tu contraseña",
+    "rememberMe": "Recordarme",
+    "continueWithGoogle": "Acceder con Google"
+  },
+  "forgotPassword": {
+    "title": "Recuperar contraseña",
+    "subtitle": "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
+    "sendLink": "Enviar enlace de recuperación",
+    "sending": "Enviando...",
+    "rememberPassword": "¿Recordaste tu contraseña?"
+  },
+  "emailVerification": {
+    "title": "¡Revisa tu correo!",
+    "description": "Te hemos enviado un enlace para restablecer tu contraseña. Por favor, revisa tu bandeja de entrada.",
+    "backToLogin": "Volver a iniciar sesión"
+  },
+  "validation": {
+    "emailRequired": "Por favor ingresa tu correo electrónico",
+    "emailInvalid": "Correo electrónico inválido",
+    "passwordRequired": "Por favor ingresa tu contraseña",
+    "confirmPasswordRequired": "Por favor confirma tu contraseña",
+    "passwordsDontMatch": "Las contraseñas no coinciden",
+    "fullNameRequired": "El nombre completo es obligatorio",
+    "fullNameMinLength": "El nombre completo debe tener al menos 2 caracteres"
+  },
+  "errors": {
+    "loginFailed": "Usuario o contraseña incorrectos",
+    "registerFailed": "Error en el registro. Por favor intenta de nuevo",
+    "networkError": "Error de conexión. Verifica tu conexión a internet",
+    "unknownError": "Error inesperado. Intenta nuevamente",
+    "accountNotFound": "Cuenta no encontrada. Verifica tus datos",
+    "invalidData": "Datos inválidos. Revisa la información ingresada",
+    "connectionTimeout": "La conexión tardó demasiado. Intenta nuevamente",
+    "serverError": "No se pudo conectar con el servidor",
+    "noAssociatedCompanies": "No tienes empresas asociadas"
+  },
+  "success": {
+    "registrationComplete": "¡Registro exitoso!",
+    "confirmationEmailSent": "Te enviamos un correo de confirmación. Verifica tu cuenta antes de iniciar sesión",
+    "understood": "Entendido"
+  },
+  "password": {
+    "secure": "¡Contraseña segura!",
+    "missing": "Falta: {{items}}",
+    "requirements": {
+      "length": "8+ caracteres",
+      "uppercase": "mayúscula",
+      "number": "número",
+      "special": "carácter especial"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "cancel": "Cancelar"
+  }
+}

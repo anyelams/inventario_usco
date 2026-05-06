@@ -1,0 +1,81 @@
+{
+  "welcome": {
+    "title": "¡Get started now!",
+    "subtitle": "Create an account or log in to explore about our app.",
+    "signIn": "Sign In",
+    "register": "Register",
+    "language": "English",
+    "selectLanguage": "Select language"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "register": "Register",
+    "loginTitle": "Sign In",
+    "registerTitle": "Create Account",
+    "forgotPassword": "Forgot your password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "signUp": "Sign up here",
+    "signIn": "Sign in",
+    "orContinueWith": "or",
+    "loggingIn": "Signing in...",
+    "registering": "Registering...",
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password",
+    "rememberMe": "Remember me",
+    "continueWithGoogle": "Continue with Google"
+  },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+    "sendLink": "Send Reset Link",
+    "sending": "Sending...",
+    "rememberPassword": "Remember your password?"
+  },
+  "emailVerification": {
+    "title": "Check your email!",
+    "description": "We've sent you a link to reset your password. Please check your inbox.",
+    "backToLogin": "Back to login"
+  },
+  "validation": {
+    "emailRequired": "Please enter your email",
+    "emailInvalid": "Invalid email",
+    "passwordRequired": "Please enter your password",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsDontMatch": "Passwords don't match",
+    "fullNameRequired": "Full name is required",
+    "fullNameMinLength": "Full name must be at least 2 characters"
+  },
+  "errors": {
+    "loginFailed": "Incorrect username or password",
+    "registerFailed": "Registration failed. Please try again",
+    "networkError": "Connection error. Check your internet connection",
+    "unknownError": "An unexpected error occurred",
+    "accountNotFound": "Account not found. Check your information",
+    "invalidData": "Invalid data. Review the information entered",
+    "connectionTimeout": "Connection timed out. Try again",
+    "serverError": "Could not connect to server",
+    "noAssociatedCompanies": "You have no associated companies"
+  },
+  "success": {
+    "registrationComplete": "Registration successful!",
+    "confirmationEmailSent": "We sent you a confirmation email. Verify your account before signing in",
+    "understood": "Understood"
+  },
+  "password": {
+    "secure": "Secure password!",
+    "missing": "Missing: {{items}}",
+    "requirements": {
+      "length": "8+ characters",
+      "uppercase": "uppercase",
+      "number": "number",
+      "special": "special character"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "cancel": "Cancel"
+  }
+}
