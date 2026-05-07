@@ -15,6 +15,7 @@ import TankLevelCard from "../../components/TankLevelCard";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 import { useMQTT } from "../../hooks/useMQTT";
 
 const API_IOT_NOTIFICATIONS = Constants.expoConfig.extra;
@@ -34,6 +35,7 @@ const API_IOT_NOTIFICATIONS = Constants.expoConfig.extra;
 export default function IotScreen() {
   const navigation = useNavigation();
   const { username } = useSession();
+  const { t } = useLanguage();
 
   const {
     connected,
@@ -58,8 +60,8 @@ export default function IotScreen() {
 
   // Configuración de dispositivos dinámicos
   const devices = [
-    { type: "bombillo", name: "Bombillo", icon: "bulb-outline" },
-    { type: "ventilador", name: "Ventilador", icon: "fan" },
+    { type: "bombillo", name: t("iot.deviceBombillo"), icon: "bulb-outline" },
+    { type: "ventilador", name: t("iot.deviceVentilador"), icon: "fan" },
   ];
 
   const deviceStates = {
@@ -173,7 +175,7 @@ export default function IotScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Header
-        title="Panel IoT"
+        title={t("iot.title")}
         onBackPress={() => navigation.navigate("Tabs")}
       />
 
@@ -187,13 +189,13 @@ export default function IotScreen() {
           isConnecting={isConnecting}
           onReconnect={handleReconnect}
         />
-        <Text style={styles.sectionTitle}>Información</Text>
+        <Text style={styles.sectionTitle}>{t("iot.infoSection")}</Text>
         <InfoCard
           temperature={temperature}
           humidity={humidity}
           onPress={handleInfoPress}
         />
-        <Text style={styles.sectionTitle}>Dispositivos</Text>
+        <Text style={styles.sectionTitle}>{t("iot.devicesSection")}</Text>
         <DeviceCard
           devices={devices}
           deviceStates={deviceStates}

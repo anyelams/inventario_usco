@@ -12,13 +12,14 @@ import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 const { API_URL } = Constants.expoConfig.extra;
 
 /**
  * Evalúa la fortaleza de la contraseña y retorna feedback
  */
-const getPasswordStrength = (password) => {
+const getPasswordStrength = (password, t) => {
   let score = 0;
   let feedback = [];
 
@@ -33,20 +34,14 @@ const getPasswordStrength = (password) => {
     if (passed) {
       score += 1;
     } else {
-      const labels = {
-        length: "8+ caracteres",
-        uppercase: "mayúscula",
-        number: "número",
-        special: "carácter especial",
-      };
-      feedback.push(labels[key]);
+      feedback.push(t(`password.requirements.${key}`));
     }
   });
 
   const isValid = score === 4;
   const message = isValid
-    ? "¡Contraseña segura!"
-    : `Falta: ${feedback.join(", ")}`;
+    ? t("password.secure")
+    : t("password.missing", { items: feedback.join(", ") });
 
   return { score, message, isValid, requirements };
 };
@@ -57,6 +52,7 @@ const getPasswordStrength = (password) => {
 export default function ChangePassword() {
   const navigation = useNavigation();
   const { token } = useSession();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -78,7 +74,7 @@ export default function ChangePassword() {
     }
 
     if (field === "newPassword") {
-      const strength = getPasswordStrength(value);
+      const strength = getPasswordStrength(value, t);
       setPasswordStrength(strength);
     }
   };
@@ -87,19 +83,19 @@ export default function ChangePassword() {
     const newErrors = {};
 
     if (!formData.oldPassword.trim()) {
-      newErrors.oldPassword = "Ingresa tu contraseña actual";
+      newErrors.oldPassword = t("changePassword.errorCurrentRequired");
     }
 
     if (!formData.newPassword.trim()) {
-      newErrors.newPassword = "Ingresa una nueva contraseña";
+      newErrors.newPassword = t("changePassword.errorNewRequired");
     } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Mínimo 8 caracteres";
+      newErrors.newPassword = t("changePassword.errorMinLength");
     } else if (!/[A-Z]/.test(formData.newPassword)) {
-      newErrors.newPassword = "Debe incluir una mayúscula";
+      newErrors.newPassword = t("changePassword.errorNeedsUppercase");
     } else if (!/[0-9]/.test(formData.newPassword)) {
-      newErrors.newPassword = "Debe incluir un número";
+      newErrors.newPassword = t("changePassword.errorNeedsNumber");
     } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.newPassword)) {
-      newErrors.newPassword = "Debe incluir un carácter especial";
+      newErrors.newPassword = t("changePassword.errorNeedsSpecial");
     }
 
     if (
@@ -107,7 +103,7 @@ export default function ChangePassword() {
       formData.newPassword &&
       formData.oldPassword === formData.newPassword
     ) {
-      newErrors.newPassword = "La nueva contraseña debe ser diferente";
+      newErrors.newPassword = t("changePassword.errorMustBeDifferent");
     }
 
     setErrors(newErrors);
@@ -136,11 +132,11 @@ export default function ChangePassword() {
       );
 
       Alert.alert(
-        "¡Contraseña actualizada!",
-        "Tu contraseña ha sido cambiada exitosamente.",
+        t("changePassword.successTitle"),
+        t("changePassword.successMessage"),
         [
           {
-            text: "Entendido",
+            text: t("success.understood"),
             onPress: () => {
               setTimeout(() => {
                 navigation.goBack();
@@ -155,24 +151,24 @@ export default function ChangePassword() {
     } catch (error) {
       console.error("Error al cambiar contraseña:", error);
 
-      let errorMessage = "No se pudo cambiar la contraseña";
+      let errorMessage = t("changePassword.errorGeneric");
 
       if (error.response) {
         switch (error.response.status) {
           case 400:
-            errorMessage = error.response.data?.message || "Datos inválidos";
+            errorMessage = error.response.data?.message || t("errors.invalidData");
             break;
           case 401:
-            errorMessage = "La contraseña actual es incorrecta";
+            errorMessage = t("changePassword.errorWrongCurrent");
             break;
           case 500:
-            errorMessage = "Error del servidor. Intenta más tarde";
+            errorMessage = t("changePassword.errorServer");
             break;
           default:
             errorMessage = error.response.data?.message || errorMessage;
         }
       } else if (error.code === "ERR_NETWORK") {
-        errorMessage = "Error de conexión. Verifica tu internet";
+        errorMessage = t("changePassword.errorNetwork");
       }
 
       setErrors({ general: errorMessage });
@@ -184,8 +180,8 @@ export default function ChangePassword() {
   return (
     <SafeAreaView style={styles.container}>
       <Header
-        title="Cambiar contraseña"
-        description="Actualiza tu contraseña de forma segura"
+        title={t("changePassword.title")}
+        description={t("changePassword.description")}
         onBackPress={() => navigation.goBack()}
       />
 
@@ -207,8 +203,8 @@ export default function ChangePassword() {
           <View style={styles.formContainer}>
             {/* Contraseña actual */}
             <CustomInput
-              label="Contraseña actual"
-              placeholder="Ingresa tu contraseña actual"
+              label={t("changePassword.currentPassword")}
+              placeholder={t("changePassword.currentPasswordPlaceholder")}
               value={formData.oldPassword}
               onChangeText={(value) => handleInputChange("oldPassword", value)}
               icon="lock-closed-outline"
@@ -221,8 +217,8 @@ export default function ChangePassword() {
 
             {/* Nueva contraseña */}
             <CustomInput
-              label="Nueva contraseña"
-              placeholder="Ingresa tu nueva contraseña"
+              label={t("changePassword.newPassword")}
+              placeholder={t("changePassword.newPasswordPlaceholder")}
               value={formData.newPassword}
               onChangeText={(value) => handleInputChange("newPassword", value)}
               icon="lock-closed-outline"
@@ -271,7 +267,7 @@ export default function ChangePassword() {
 
             {/* Botón de actualizar */}
             <CustomButton
-              text={loading ? "Actualizando..." : "Actualizar contraseña"}
+              text={loading ? t("changePassword.updating") : t("changePassword.updateButton")}
               onPress={handleChangePassword}
               variant="primary"
               icon={!loading ? "checkmark-circle" : null}
@@ -283,7 +279,7 @@ export default function ChangePassword() {
 
           {/* Consejos de seguridad */}
           <View style={styles.tipsContainer}>
-            <Text style={styles.tipsTitle}>Consejos de seguridad</Text>
+            <Text style={styles.tipsTitle}>{t("changePassword.tipsTitle")}</Text>
             <View style={styles.tipItem}>
               <Ionicons
                 name="checkmark-circle"
@@ -291,7 +287,7 @@ export default function ChangePassword() {
                 color={colors.success}
               />
               <Text style={styles.tipText}>
-                Usa una combinación de letras, números y símbolos
+                {t("changePassword.tipText")}
               </Text>
             </View>
           </View>

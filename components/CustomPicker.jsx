@@ -9,6 +9,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Selector desplegable con label, placeholder y manejo de errores.
@@ -30,6 +31,7 @@ const CustomPicker = ({
   placeholder = null,
   error = null,
 }) => {
+  const { t } = useLanguage();
   return (
     <View style={styles.container}>
       {label && (
@@ -52,7 +54,7 @@ const CustomPicker = ({
           style={styles.picker}
         >
           <Picker.Item
-            label={placeholder || `Seleccione ${label}`}
+            label={placeholder || `${t("common.select")}${label ? " " + label : ""}`}
             value={null}
             color={colors.textSec}
           />

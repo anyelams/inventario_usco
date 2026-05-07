@@ -5,14 +5,16 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
 import CustomButton from "./CustomButton";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Componente para mostrar pantallas en desarrollo
  * @param {Object} props
  * @param {string} [props.customTitle="En Construcción"] - Título personalizable
  */
-const UnderConstruction = ({ customTitle = "En Construcción" }) => {
+const UnderConstruction = ({ customTitle }) => {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   return (
     <View style={styles.container}>
@@ -25,14 +27,12 @@ const UnderConstruction = ({ customTitle = "En Construcción" }) => {
       </View>
 
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{customTitle}</Text>
-        <Text style={styles.subtitle}>
-          Muy pronto podrás acceder a todas las funciones de este módulo.
-        </Text>
+        <Text style={styles.title}>{customTitle || t("underConstruction.defaultTitle")}</Text>
+        <Text style={styles.subtitle}>{t("underConstruction.subtitle")}</Text>
       </View>
 
       <CustomButton
-        text="Volver al Inicio"
+        text={t("underConstruction.backHome")}
         icon="home"
         iconPosition="left"
         onPress={() => navigation.navigate("Tabs")}

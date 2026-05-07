@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Input de fecha y hora para Android
@@ -34,6 +35,7 @@ const DateTimeInput = ({
   error = null,
   showClearButton = false,
 }) => {
+  const { t } = useLanguage();
   const [showPicker, setShowPicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
   const [mode, setMode] = useState("date");
@@ -142,7 +144,7 @@ const DateTimeInput = ({
         <Text
           style={[styles.pickerText, !displayValue && styles.placeholderText]}
         >
-          {displayValue || placeholder || `Seleccione ${label}`}
+          {displayValue || placeholder || `${t("common.select")}${label ? " " + label : ""}`}
         </Text>
 
         <Ionicons

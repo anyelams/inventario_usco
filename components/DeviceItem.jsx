@@ -9,6 +9,7 @@ import React from "react";
 import { StyleSheet, Switch, Text, View } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Tarjeta de dispositivo IoT con ícono dinámico y switch de control.
@@ -19,6 +20,7 @@ import { typography } from "../config/typography";
  * @param {boolean} props.connected - Si hay conexión MQTT activa (habilita el switch)
  */
 const DeviceItem = ({ device, isOn, onToggle, connected }) => {
+  const { t } = useLanguage();
   /**
    * Retorna el nombre del ícono según el tipo y estado del dispositivo.
    * @param {string} type - Tipo de dispositivo ('bombillo' | 'ventilador')
@@ -71,14 +73,14 @@ const DeviceItem = ({ device, isOn, onToggle, connected }) => {
 
       <View style={styles.deviceInfo}>
         <Text style={styles.deviceName}>{device.name}</Text>
-        <Text style={styles.deviceStatus}>1 Dispositivo</Text>
+        <Text style={styles.deviceStatus}>{t("deviceItem.deviceCount")}</Text>
         <Text
           style={[
             styles.deviceState,
             { color: isOn ? colors.success : colors.textSec },
           ]}
         >
-          {isOn ? "On" : "Off"}
+          {isOn ? t("deviceItem.on") : t("deviceItem.off")}
         </Text>
       </View>
     </View>

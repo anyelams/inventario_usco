@@ -76,6 +76,191 @@
   },
   "common": {
     "loading": "Loading...",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "select": "Select"
+  },
+  "home": {
+    "greetingMorning": "Good morning!",
+    "greetingAfternoon": "Good afternoon!",
+    "greetingEvening": "Good evening!",
+    "multiCompanyHint": "Remember you can switch your active session from 'Company'.",
+    "accessModules": "Access your company modules",
+    "companyLabel": "Company",
+    "availableModules": "Available modules",
+    "moduleInventory": "Inventory\nModule",
+    "moduleIot": "IoT\nModule",
+    "moduleSecurity": "Security\nModule",
+    "moduleReports": "Reports\nModule"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "demoNotice": "Preview — service not yet available",
+    "markAllRead": "Mark all as read"
+  },
+  "reports": {
+    "title": "Reports module",
+    "description": "Generate and view all your available reports.",
+    "reportPedido": "Order\nReport",
+    "reportKardex": "Kardex\nReport",
+    "reportVencidos": "Expired\nProducts",
+    "reportFactura": "Invoice\nReport",
+    "reportOrdenCompra": "Purchase\nOrder"
+  },
+  "iot": {
+    "title": "IoT Panel",
+    "infoSection": "Information",
+    "devicesSection": "Devices",
+    "deviceBombillo": "Light Bulb",
+    "deviceVentilador": "Fan",
+    "tankTitle": "Tank Level",
+    "tankDistance": "Distance"
+  },
+  "temperature": {
+    "title": "Temperature",
+    "description": "Real-time temperature data",
+    "periodDaily": "Daily",
+    "periodWeekly": "Weekly",
+    "periodMonthly": "Monthly",
+    "waitingData": "Waiting for data...",
+    "temperatureLabel": "Temperature",
+    "humidityLabel": "Humidity",
+    "lastUpdate": "Last update:"
+  },
+  "security": {
+    "title": "Security Module"
+  },
+  "profile": {
+    "title": "My Profile",
+    "sectionGeneral": "General",
+    "optionNotifications": "Notifications",
+    "optionChangePassword": "Change Password",
+    "sectionPreferences": "Preferences",
+    "optionLanguage": "Language",
+    "logout": "Log out",
+    "defaultCompany": "Company name",
+    "defaultEmail": "email@example.com"
+  },
+  "actionButtons": {
+    "search": "Search",
+    "searching": "Searching...",
+    "generateReport": "Generate Report",
+    "generating": "Generating..."
+  },
+  "statusCard": {
+    "status": "Status",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "connecting": "Connecting...",
+    "reconnect": "Reconnect"
+  },
+  "underConstruction": {
+    "defaultTitle": "Under Construction",
+    "subtitle": "You'll soon be able to access all the features of this module.",
+    "backHome": "Back to Home"
+  },
+  "companySwitcher": {
+    "title": "Switch Company",
+    "subtitle": "Select the company and role you want to use.",
+    "noDataText": "Could not load companies",
+    "noDataSubtext": "Check your connection and try again",
+    "currentCompany": "Current company:",
+    "currentRole": "Current role:",
+    "notSelected": "Not selected",
+    "roleNotSelected": "Not selected",
+    "confirmButton": "Confirm change",
+    "changing": "Changing...",
+    "noRoleName": "Unnamed role",
+    "errorSelectBoth": "You must select a company and a role",
+    "successMessage": "Company and role changed successfully. Redirecting to home...",
+    "errorChangeContext": "Could not change context. Try again."
+  },
+  "camera": {
+    "title": "Code Scanner",
+    "permissionTitle": "Camera Access",
+    "permissionMessage": "To scan QR codes and barcodes, we need access to your camera.",
+    "featureQR": "QR code scanning",
+    "featureBarcode": "Barcodes",
+    "featureFlash": "Automatic flash",
+    "allowButton": "Allow camera access",
+    "privacyText": "Your privacy matters. We only use the camera to scan codes.",
+    "starting": "Starting camera...",
+    "detectedLive": "Detected live:",
+    "pointToCode": "Point at the code"
+  },
+  "deviceItem": {
+    "deviceCount": "1 Device",
+    "on": "On",
+    "off": "Off"
+  },
+  "filters": {
+    "locationTitle": "Location Filters",
+    "apply": "Apply Filters",
+    "fechaInicio": "Start Date",
+    "fechaFin": "End Date",
+    "loadingData": "Loading data...",
+    "generatingReport": "Generating report...",
+    "pais": "Country",
+    "departamento": "State",
+    "municipio": "City",
+    "sede": "Site",
+    "bloque": "Block",
+    "espacio": "Space",
+    "almacen": "Warehouse",
+    "allCategories": "All categories",
+    "allProducts": "All products"
+  },
+  "reportePedido": {
+    "title": "Order Report",
+    "description": "Search and generate order reports",
+    "filterPedido": "Order",
+    "filterCategoriaEstado": "Status Category"
+  },
+  "reporteKardex": {
+    "title": "Kardex Report",
+    "description": "Search and generate product kardex reports",
+    "filterCategoriaProducto": "Product Category",
+    "filterProducto": "Product",
+    "filterProduccion": "Production",
+    "filterPresentacion": "Presentation"
+  },
+  "reporteVencidos": {
+    "title": "Expired Products Report",
+    "description": "Search and generate product expiry reports"
+  },
+  "reporteFactura": {
+    "title": "Invoice Report"
+  },
+  "reporteOrdenCompra": {
+    "title": "Purchase Order Report",
+    "description": "Search and generate purchase order reports",
+    "filterPedido": "Order",
+    "filterEstado": "Order Status",
+    "noDate": "No date",
+    "orderPrefix": "Order"
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "description": "Update your password securely",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter your current password",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Enter your new password",
+    "updating": "Updating...",
+    "updateButton": "Update Password",
+    "successTitle": "Password Updated!",
+    "successMessage": "Your password has been changed successfully.",
+    "tipsTitle": "Security Tips",
+    "tipText": "Use a combination of letters, numbers and symbols",
+    "errorCurrentRequired": "Enter your current password",
+    "errorNewRequired": "Enter a new password",
+    "errorMinLength": "Minimum 8 characters",
+    "errorNeedsUppercase": "Must include an uppercase letter",
+    "errorNeedsNumber": "Must include a number",
+    "errorNeedsSpecial": "Must include a special character",
+    "errorMustBeDifferent": "New password must be different",
+    "errorGeneric": "Could not change the password",
+    "errorWrongCurrent": "Current password is incorrect",
+    "errorServer": "Server error. Try again later",
+    "errorNetwork": "Connection error. Check your internet"
   }
 }

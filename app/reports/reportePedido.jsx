@@ -25,6 +25,7 @@ import {
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 // Componentes reutilizables
 import CustomPicker from "../../components/CustomPicker";
@@ -60,6 +61,7 @@ const API_URL_REPORT_PEDIDO_V2 =
  */
 export default function PedidoReporte() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const { token, empresaSeleccionada } = useSession();
 
   // Hook para manejo de ubicación
@@ -557,7 +559,7 @@ export default function PedidoReporte() {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.secondary} />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
+        <Text style={styles.loadingText}>{t("filters.loadingData")}</Text>
       </SafeAreaView>
     );
   }
@@ -565,8 +567,8 @@ export default function PedidoReporte() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ReportHeader
-        title="Reporte de pedido"
-        description="Consulta y genera reportes de pedidos"
+        title={t("reportePedido.title")}
+        description={t("reportePedido.description")}
         onBackPress={() => navigation.navigate("Reports")}
         onFilterPress={handleFilterPress}
         filterActive={hasActiveFilters()}
@@ -581,30 +583,28 @@ export default function PedidoReporte() {
           {/* === FILTROS PRINCIPALES === */}
           <View style={styles.mainFiltersContainer}>
             <CustomPicker
-              label="Pedido"
+              label={t("reportePedido.filterPedido")}
               items={mainData.pedidos}
               selectedValue={pedido.pedidoId}
               onValueChange={handlePedidoChange}
-              placeholder="Selecciona una opción"
             />
 
             <CustomPicker
-              label="Categoría Estado"
+              label={t("reportePedido.filterCategoriaEstado")}
               items={mainData.categoriasEstado}
               selectedValue={pedido.categoriaEstadoId}
               onValueChange={handleCategoriaEstadoChange}
-              placeholder="Selecciona una opción"
             />
 
             <DateTimeInput
-              label="Fecha Inicio"
+              label={t("filters.fechaInicio")}
               value={pedido.fechaInicio}
               onChangeText={handleFechaInicioChange}
               placeholder="DD/MM/AAAA"
             />
 
             <DateTimeInput
-              label="Fecha Fin"
+              label={t("filters.fechaFin")}
               value={pedido.fechaFin}
               onChangeText={handleFechaFinChange}
               placeholder="DD/MM/AAAA"
@@ -643,7 +643,7 @@ export default function PedidoReporte() {
             <View style={styles.loadingReport}>
               <ActivityIndicator size="small" color={colors.secondary} />
               <Text style={styles.loadingReportText}>
-                {loadingPedido ? "Cargando datos..." : "Generando reporte..."}
+                {loadingPedido ? t("filters.loadingData") : t("filters.generatingReport")}
               </Text>
             </View>
           )}
@@ -659,7 +659,7 @@ export default function PedidoReporte() {
           <SafeAreaView style={styles.modalContainer}>
             {/* Header */}
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtros de Ubicación</Text>
+              <Text style={styles.modalTitle}>{t("filters.locationTitle")}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={handleCloseModal}
@@ -687,7 +687,7 @@ export default function PedidoReporte() {
                 style={styles.applyButton}
                 onPress={handleCloseModal}
               >
-                <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+                <Text style={styles.applyButtonText}>{t("filters.apply")}</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>

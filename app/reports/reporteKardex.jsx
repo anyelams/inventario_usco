@@ -29,6 +29,7 @@ import {
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 import CustomPicker from "../../components/CustomPicker";
 import DateTimeInput from "../../components/DateTimeInput";
@@ -64,6 +65,7 @@ const API_URL_REPORT_KARDEX =
  */
 export default function KardexReporte() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const { token, empresaSeleccionada } = useSession();
 
   const locationFilters = useLocationFilters(token, API_URL);
@@ -478,7 +480,7 @@ export default function KardexReporte() {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.secondary} />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
+        <Text style={styles.loadingText}>{t("filters.loadingData")}</Text>
       </SafeAreaView>
     );
   }
@@ -486,8 +488,8 @@ export default function KardexReporte() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ReportHeader
-        title="Reporte de Kardex"
-        description="Consulta y genera reportes de kardex de productos"
+        title={t("reporteKardex.title")}
+        description={t("reporteKardex.description")}
         onBackPress={() => navigation.navigate("Reports")}
         onFilterPress={() => setShowFiltersModal(true)}
         filterActive={hasActiveFilters()}
@@ -501,47 +503,43 @@ export default function KardexReporte() {
         <View style={styles.pageContent}>
           <View style={styles.mainFiltersContainer}>
             <CustomPicker
-              label="Categoría Producto"
+              label={t("reporteKardex.filterCategoriaProducto")}
               items={mainData.categorias}
               selectedValue={filtro.productoCategoriaId}
               onValueChange={handleCategoriaChange}
-              placeholder="Selecciona una categoría"
             />
 
             <CustomPicker
-              label="Producto"
+              label={t("reporteKardex.filterProducto")}
               items={productosFiltrados}
               selectedValue={filtro.productoId}
               onValueChange={handleProductoChange}
-              placeholder="Selecciona un producto"
               enabled={productosFiltrados.length > 0}
             />
 
             <CustomPicker
-              label="Producción"
+              label={t("reporteKardex.filterProduccion")}
               items={mainData.producciones}
               selectedValue={filtro.produccionId}
               onValueChange={handleProduccionChange}
-              placeholder="Selecciona una producción"
             />
 
             <CustomPicker
-              label="Presentación"
+              label={t("reporteKardex.filterPresentacion")}
               items={mainData.presentaciones}
               selectedValue={filtro.productoPresentacionId}
               onValueChange={handlePresentacionChange}
-              placeholder="Selecciona una presentación"
             />
 
             <DateTimeInput
-              label="Fecha Inicio"
+              label={t("filters.fechaInicio")}
               value={filtro.fechaInicio}
               onChangeText={handleFechaInicioChange}
               placeholder="DD/MM/AAAA HH:MM"
             />
 
             <DateTimeInput
-              label="Fecha Fin"
+              label={t("filters.fechaFin")}
               value={filtro.fechaFin}
               onChangeText={handleFechaFinChange}
               placeholder="DD/MM/AAAA HH:MM"
@@ -567,7 +565,7 @@ export default function KardexReporte() {
             <View style={styles.loadingReport}>
               <ActivityIndicator size="small" color={colors.secondary} />
               <Text style={styles.loadingReportText}>
-                {loadingKardex ? "Cargando datos..." : "Generando reporte..."}
+                {loadingKardex ? t("filters.loadingData") : t("filters.generatingReport")}
               </Text>
             </View>
           )}
@@ -581,7 +579,7 @@ export default function KardexReporte() {
         >
           <SafeAreaView style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtros de Ubicación</Text>
+              <Text style={styles.modalTitle}>{t("filters.locationTitle")}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowFiltersModal(false)}
@@ -607,7 +605,7 @@ export default function KardexReporte() {
                 style={styles.applyButton}
                 onPress={() => setShowFiltersModal(false)}
               >
-                <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+                <Text style={styles.applyButtonText}>{t("filters.apply")}</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>

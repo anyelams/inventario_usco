@@ -17,14 +17,15 @@ import Logo from "../components/Logo";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
 import { useSession } from "../context/SessionContext";
+import { useLanguage } from "../context/LanguageContext";
 import DropdownEmpresas from "./DropdownEmpresas";
 /**
  * Formatea nombres de roles removiendo prefijos y aplicando capitalización
  * @param {string} roleName - Nombre del rol a formatear
  * @returns {string} - Nombre del rol formateado
  */
-const formatRoleName = (roleName) => {
-  if (!roleName) return "Rol sin nombre";
+const formatRoleName = (roleName, fallback = "") => {
+  if (!roleName) return fallback;
 
   return roleName
     .replace(/^ROLE_/, "")
@@ -78,6 +79,7 @@ export default function CompanySwitcher({
 }) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const {
     rolesByCompany,
     empresaSeleccionada,
@@ -161,7 +163,7 @@ export default function CompanySwitcher({
    */
   const handleConfirmar = useCallback(async () => {
     if (!seleccion?.empresaId || !seleccion?.rolId) {
-      Alert.alert("Error", "Debes seleccionar una empresa y un rol");
+      Alert.alert("Error", t("companySwitcher.errorSelectBoth"));
       return;
     }
 
@@ -186,14 +188,11 @@ export default function CompanySwitcher({
       }
 
       navigation.navigate("Home");
-      Alert.alert(
-        "Éxito",
-        "Empresa y rol cambiados correctamente. Redirigiendo al inicio...",
-      );
+      Alert.alert("", t("companySwitcher.successMessage"));
     } catch (error) {
       Alert.alert(
         "Error",
-        error.message || "No se pudo cambiar el contexto. Intenta nuevamente.",
+        error.message || t("companySwitcher.errorChangeContext"),
       );
     } finally {
       setCambiando(false);
@@ -236,10 +235,8 @@ export default function CompanySwitcher({
       </TouchableOpacity>
 
       {/* Título y subtítulo */}
-      <Text style={styles.titulo}>Cambiar empresa</Text>
-      <Text style={styles.subtitulo}>
-        Selecciona la empresa y rol que deseas usar.
-      </Text>
+      <Text style={styles.titulo}>{t("companySwitcher.title")}</Text>
+      <Text style={styles.subtitulo}>{t("companySwitcher.subtitle")}</Text>
 
       {/* Dropdown de empresas y roles */}
       <View style={styles.dropdownContainer}>
@@ -260,25 +257,21 @@ export default function CompanySwitcher({
                 color={colors.textSec}
               />
             </View>
-            <Text style={styles.noDataText}>
-              No se pudieron cargar las empresas
-            </Text>
-            <Text style={styles.noDataSubtext}>
-              Verifica tu conexión e intenta nuevamente
-            </Text>
+            <Text style={styles.noDataText}>{t("companySwitcher.noDataText")}</Text>
+            <Text style={styles.noDataSubtext}>{t("companySwitcher.noDataSubtext")}</Text>
           </View>
         )}
       </View>
 
       {/* Información del contexto actual */}
       <View style={styles.currentInfo}>
-        <Text style={styles.currentLabel}>Empresa actual:</Text>
+        <Text style={styles.currentLabel}>{t("companySwitcher.currentCompany")}</Text>
         <Text style={styles.currentValue}>
-          {empresaSeleccionada?.empresaNombre || "No seleccionada"}
+          {empresaSeleccionada?.empresaNombre || t("companySwitcher.notSelected")}
         </Text>
-        <Text style={styles.currentLabel}>Rol actual:</Text>
+        <Text style={styles.currentLabel}>{t("companySwitcher.currentRole")}</Text>
         <Text style={styles.currentValue}>
-          {formatRoleName(empresaSeleccionada?.rolNombre) || "No seleccionado"}
+          {formatRoleName(empresaSeleccionada?.rolNombre, t("companySwitcher.noRoleName")) || t("companySwitcher.roleNotSelected")}
         </Text>
       </View>
 
@@ -302,11 +295,11 @@ export default function CompanySwitcher({
         {cambiando ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="small" color={colors.white} />
-            <Text style={styles.textoContinuar}>Cambiando...</Text>
+            <Text style={styles.textoContinuar}>{t("companySwitcher.changing")}</Text>
           </View>
         ) : (
           <>
-            <Text style={styles.textoContinuar}>Confirmar cambio</Text>
+            <Text style={styles.textoContinuar}>{t("companySwitcher.confirmButton")}</Text>
             <Ionicons name="arrow-forward" size={18} color={colors.white} />
           </>
         )}

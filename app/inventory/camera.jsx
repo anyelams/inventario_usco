@@ -17,6 +17,7 @@ import CustomButton from "../../components/CustomButton";
 import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
 
 const { API_CAMARA_URL, API_CODE_PATH } = Constants.expoConfig.extra;
 
@@ -32,6 +33,7 @@ const { API_CAMARA_URL, API_CODE_PATH } = Constants.expoConfig.extra;
  */
 export default function CameraScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState("back");
   const [torchEnabled, setTorchEnabled] = useState(false);
@@ -264,7 +266,7 @@ export default function CameraScreen() {
     return (
       <SafeAreaView style={styles.permissionContainer}>
         <Header
-          title="Escáner de Códigos"
+          title={t("camera.title")}
           onBackPress={() => navigation.goBack()}
         />
         <View style={styles.permissionContent}>
@@ -278,11 +280,8 @@ export default function CameraScreen() {
             </View>
           </View>
 
-          <Text style={styles.permissionTitle}>Acceso a la cámara</Text>
-          <Text style={styles.message}>
-            Para escanear códigos QR y códigos de barras, necesitamos acceso a
-            tu cámara.
-          </Text>
+          <Text style={styles.permissionTitle}>{t("camera.permissionTitle")}</Text>
+          <Text style={styles.message}>{t("camera.permissionMessage")}</Text>
 
           <View style={styles.featuresList}>
             <View style={styles.featureItem}>
@@ -291,7 +290,7 @@ export default function CameraScreen() {
                 size={20}
                 color={colors.secondary}
               />
-              <Text style={styles.featureText}>Escaneo de códigos QR</Text>
+              <Text style={styles.featureText}>{t("camera.featureQR")}</Text>
             </View>
             <View style={styles.featureItem}>
               <Ionicons
@@ -299,7 +298,7 @@ export default function CameraScreen() {
                 size={20}
                 color={colors.secondary}
               />
-              <Text style={styles.featureText}>Códigos de barras</Text>
+              <Text style={styles.featureText}>{t("camera.featureBarcode")}</Text>
             </View>
             <View style={styles.featureItem}>
               <Ionicons
@@ -307,12 +306,12 @@ export default function CameraScreen() {
                 size={20}
                 color={colors.secondary}
               />
-              <Text style={styles.featureText}>Flash automático</Text>
+              <Text style={styles.featureText}>{t("camera.featureFlash")}</Text>
             </View>
           </View>
 
           <CustomButton
-            text="Permitir acceso a cámara"
+            text={t("camera.allowButton")}
             onPress={requestPermission}
             variant="primary"
             icon="camera"
@@ -320,10 +319,7 @@ export default function CameraScreen() {
             style={styles.permissionButtonCustom}
           />
 
-          <Text style={styles.privacyText}>
-            Tu privacidad es importante. Solo usamos la cámara para escanear
-            códigos.
-          </Text>
+          <Text style={styles.privacyText}>{t("camera.privacyText")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -370,12 +366,12 @@ export default function CameraScreen() {
           <View style={styles.statusContainer}>
             <Text style={styles.statusText}>
               {!isCameraReady
-                ? "Iniciando cámara..."
+                ? t("camera.starting")
                 : liveDetections.length > 0
-                  ? `Detectado en vivo: ${[
+                  ? `${t("camera.detectedLive")} ${[
                       ...new Set(liveDetections.map((d) => d.type)),
                     ].join(", ")}`
-                  : "Apunta al código"}
+                  : t("camera.pointToCode")}
             </Text>
           </View>
 

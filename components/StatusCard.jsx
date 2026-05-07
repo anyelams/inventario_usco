@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Tarjeta que muestra el estado de conexión MQTT
@@ -21,9 +22,11 @@ import { typography } from "../config/typography";
  * @param {Function} props.onReconnect - Callback para intentar reconexión manual
  */
 const StatusCard = ({ connected, isConnecting, onReconnect }) => {
+  const { t } = useLanguage();
+
   const getStatusText = () => {
-    if (isConnecting) return "Conectando...";
-    return connected ? "Conectado" : "Desconectado";
+    if (isConnecting) return t("statusCard.connecting");
+    return connected ? t("statusCard.connected") : t("statusCard.disconnected");
   };
 
   const getStatusColor = () => {
@@ -61,7 +64,7 @@ const StatusCard = ({ connected, isConnecting, onReconnect }) => {
 
         {/* Información */}
         <View style={styles.info}>
-          <Text style={styles.label}>Estado</Text>
+          <Text style={styles.label}>{t("statusCard.status")}</Text>
           <Text style={[styles.value, { color: getStatusColor() }]}>
             {getStatusText()}
           </Text>
@@ -78,7 +81,7 @@ const StatusCard = ({ connected, isConnecting, onReconnect }) => {
             activeOpacity={0.8}
           >
             <Ionicons name="refresh" size={16} color={colors.white} />
-            <Text style={styles.reconnectText}>Reconectar</Text>
+            <Text style={styles.reconnectText}>{t("statusCard.reconnect")}</Text>
           </TouchableOpacity>
         )}
       </View>

@@ -4,6 +4,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Tarjeta informativa de temperatura y humedad
@@ -15,6 +16,7 @@ import { typography } from "../config/typography";
  * @param {Function} props.onPress - Callback al presionar la tarjeta (navega a detalles)
  */
 const InfoCard = ({ temperature, humidity, onPress }) => {
+  const { t } = useLanguage();
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -33,7 +35,7 @@ const InfoCard = ({ temperature, humidity, onPress }) => {
             <Text style={styles.valueText}>
               {temperature !== null ? `${temperature}°C` : "--"}
             </Text>
-            <Text style={styles.labelText}>Temperatura</Text>
+            <Text style={styles.labelText}>{t("temperature.temperatureLabel")}</Text>
           </View>
         </View>
 
@@ -50,7 +52,7 @@ const InfoCard = ({ temperature, humidity, onPress }) => {
             <Text style={styles.valueText}>
               {humidity !== null ? `${humidity}%` : "--"}
             </Text>
-            <Text style={styles.labelText}>Humedad</Text>
+            <Text style={styles.labelText}>{t("temperature.humidityLabel")}</Text>
           </View>
         </View>
 

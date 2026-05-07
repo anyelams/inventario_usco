@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
 
 // Datos de ejemplo para notificaciones mientras se implementa la API real
 const mockData = [
@@ -48,6 +49,7 @@ const mockData = [
  */
 export default function NotificationsScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   // Estados de la pantalla
   const [notificaciones, setNotificaciones] = useState([]);
@@ -109,14 +111,14 @@ export default function NotificationsScreen() {
     <SafeAreaView style={styles.safeArea}>
       {/* Header con contador de notificaciones no leídas */}
       <Header
-        title={`Notificaciones${unreadCount > 0 ? ` (${unreadCount})` : ""}`}
+        title={`${t("notifications.title")}${unreadCount > 0 ? ` (${unreadCount})` : ""}`}
         onBackPress={() => navigation.navigate("Home")}
       />
 
       {/* Banner de aviso: datos de demostración */}
       <View style={styles.demoBanner}>
         <Text style={styles.demoBannerText}>
-          Vista previa — servicio aún no disponible
+          {t("notifications.demoNotice")}
         </Text>
       </View>
 
@@ -157,7 +159,7 @@ export default function NotificationsScreen() {
       {/* Botón flotante para marcar todas como leídas (solo si hay no leídas) */}
       {unreadCount > 0 && (
         <TouchableOpacity onPress={marcarTodoComoLeido} style={styles.fab}>
-          <Text style={styles.fabText}>Marcar todo leído</Text>
+          <Text style={styles.fabText}>{t("notifications.markAllRead")}</Text>
         </TouchableOpacity>
       )}
     </SafeAreaView>

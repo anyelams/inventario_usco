@@ -18,6 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
 
 // Colores corporativos consistentes con home
 const reportColors = {
@@ -48,43 +49,6 @@ const reportColors = {
   },
 };
 
-const reportes = [
-  {
-    id: "1",
-    title: "Reporte de\nPedido",
-    icon: "clipboard-check-outline",
-    route: "/reports/reportePedido",
-    moduleColors: reportColors.pedido,
-  },
-  {
-    id: "2",
-    title: "Reporte de\nKardex",
-    icon: "package-variant-closed",
-    route: "/reports/reporteKardex",
-    moduleColors: reportColors.kardex,
-  },
-  {
-    id: "3",
-    title: "Productos\nVencidos",
-    icon: "calendar-alert",
-    route: "/reports/reporteProductosVencidos",
-    moduleColors: reportColors.vencidos,
-  },
-  {
-    id: "4",
-    title: "Reporte de\nFactura",
-    icon: "file-document-edit-outline",
-    route: "/reports/reporteFactura",
-    moduleColors: reportColors.factura,
-  },
-  {
-    id: "5",
-    title: "Orden de\nCompra",
-    icon: "cart-outline",
-    route: "/reports/reporteOrdencompra",
-    moduleColors: reportColors.orden,
-  },
-];
 
 /**
  * Tarjeta de reporte con icono y título. Reutiliza el mismo diseño
@@ -144,6 +108,45 @@ const ReportCard = ({ title, icon, moduleColors, onPress }) => {
  */
 export default function ReportesIndex() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
+
+  const reportes = [
+    {
+      id: "1",
+      title: t("reports.reportPedido"),
+      icon: "clipboard-check-outline",
+      route: "/reports/reportePedido",
+      moduleColors: reportColors.pedido,
+    },
+    {
+      id: "2",
+      title: t("reports.reportKardex"),
+      icon: "package-variant-closed",
+      route: "/reports/reporteKardex",
+      moduleColors: reportColors.kardex,
+    },
+    {
+      id: "3",
+      title: t("reports.reportVencidos"),
+      icon: "calendar-alert",
+      route: "/reports/reporteProductosVencidos",
+      moduleColors: reportColors.vencidos,
+    },
+    {
+      id: "4",
+      title: t("reports.reportFactura"),
+      icon: "file-document-edit-outline",
+      route: "/reports/reporteFactura",
+      moduleColors: reportColors.factura,
+    },
+    {
+      id: "5",
+      title: t("reports.reportOrdenCompra"),
+      icon: "cart-outline",
+      route: "/reports/reporteOrdencompra",
+      moduleColors: reportColors.orden,
+    },
+  ];
 
   const routeToScreen = {
     "/reports/reportePedido": "ReportePedido",
@@ -164,8 +167,8 @@ export default function ReportesIndex() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <Header
-        title="Módulo reportes"
-        description="Genera y consulta todos tus reportes disponibles."
+        title={t("reports.title")}
+        description={t("reports.description")}
         onBackPress={() => navigation.navigate("Tabs")}
       />
 

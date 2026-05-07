@@ -30,6 +30,7 @@ import {
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 import CustomPicker from "../../components/CustomPicker";
 import DateTimeInput from "../../components/DateTimeInput";
@@ -66,6 +67,7 @@ const API_URL_REPORT_ORDEN_COMPRA =
  */
 export default function OrdenCompraReporte() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const { token, empresaSeleccionada } = useSession();
 
   const locationFilters = useLocationFilters(token, API_URL);
@@ -420,7 +422,7 @@ export default function OrdenCompraReporte() {
         <Text style={styles.itemDate}>
           {getFechaOC(oc)
             ? new Date(getFechaOC(oc)).toLocaleString()
-            : "Sin fecha"}
+            : t("reporteOrdenCompra.noDate")}
         </Text>
       </View>
     ),
@@ -430,7 +432,7 @@ export default function OrdenCompraReporte() {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.secondary} />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
+        <Text style={styles.loadingText}>{t("filters.loadingData")}</Text>
       </SafeAreaView>
     );
   }
@@ -438,8 +440,8 @@ export default function OrdenCompraReporte() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ReportHeader
-        title="Reporte de Orden de Compra"
-        description="Consulta y genera reportes de órdenes de compra"
+        title={t("reporteOrdenCompra.title")}
+        description={t("reporteOrdenCompra.description")}
         onBackPress={() => navigation.navigate("Reports")}
         onFilterPress={() => setShowFiltersModal(true)}
         filterActive={hasActiveFilters()}
@@ -453,20 +455,19 @@ export default function OrdenCompraReporte() {
         <View style={styles.pageContent}>
           <View style={styles.mainFiltersContainer}>
             <CustomPicker
-              label="Pedido"
+              label={t("reporteOrdenCompra.filterPedido")}
               items={mainData.pedidos.map((p) => ({
                 ...p,
-                nombre: `Pedido ${p.id}`,
+                nombre: `${t("reporteOrdenCompra.orderPrefix")} ${p.id}`,
               }))}
               selectedValue={filtro.pedidoId}
               onValueChange={(value) =>
                 setFiltro((prev) => ({ ...prev, pedidoId: value }))
               }
-              placeholder="Selecciona un pedido"
             />
 
             <CustomPicker
-              label="Estado de la orden"
+              label={t("reporteOrdenCompra.filterEstado")}
               items={mainData.estadosOC.map((e) => ({
                 ...e,
                 nombre: e.name ?? e.nombre ?? `Estado ${e.id}`,
@@ -475,11 +476,10 @@ export default function OrdenCompraReporte() {
               onValueChange={(value) =>
                 setFiltro((prev) => ({ ...prev, categoriaEstadoId: value }))
               }
-              placeholder="Selecciona un estado"
             />
 
             <DateTimeInput
-              label="Fecha Inicio"
+              label={t("filters.fechaInicio")}
               value={filtro.fechaInicio}
               onChangeText={(value) =>
                 setFiltro((prev) => ({ ...prev, fechaInicio: value }))
@@ -488,7 +488,7 @@ export default function OrdenCompraReporte() {
             />
 
             <DateTimeInput
-              label="Fecha Fin"
+              label={t("filters.fechaFin")}
               value={filtro.fechaFin}
               onChangeText={(value) =>
                 setFiltro((prev) => ({ ...prev, fechaFin: value }))
@@ -516,7 +516,7 @@ export default function OrdenCompraReporte() {
             <View style={styles.loadingReport}>
               <ActivityIndicator size="small" color={colors.secondary} />
               <Text style={styles.loadingReportText}>
-                {loadingOrdenes ? "Cargando datos..." : "Generando reporte..."}
+                {loadingOrdenes ? t("filters.loadingData") : t("filters.generatingReport")}
               </Text>
             </View>
           )}
@@ -530,7 +530,7 @@ export default function OrdenCompraReporte() {
         >
           <SafeAreaView style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtros de Ubicación</Text>
+              <Text style={styles.modalTitle}>{t("filters.locationTitle")}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowFiltersModal(false)}
@@ -556,7 +556,7 @@ export default function OrdenCompraReporte() {
                 style={styles.applyButton}
                 onPress={() => setShowFiltersModal(false)}
               >
-                <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+                <Text style={styles.applyButtonText}>{t("filters.apply")}</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>

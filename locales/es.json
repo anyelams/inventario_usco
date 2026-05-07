@@ -76,6 +76,191 @@
   },
   "common": {
     "loading": "Cargando...",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "select": "Seleccione"
+  },
+  "home": {
+    "greetingMorning": "Buenos días!",
+    "greetingAfternoon": "Buenas tardes!",
+    "greetingEvening": "Buenas noches!",
+    "multiCompanyHint": "Recuerda que desde 'Empresa' podrás cambiar tu sesión actual.",
+    "accessModules": "Accede a los módulos de tu empresa",
+    "companyLabel": "Empresa",
+    "availableModules": "Módulos disponibles",
+    "moduleInventory": "Módulo\nInventario",
+    "moduleIot": "Módulo\nde IoT",
+    "moduleSecurity": "Módulo\nSeguridad",
+    "moduleReports": "Módulo\nReportes"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "demoNotice": "Vista previa — servicio aún no disponible",
+    "markAllRead": "Marcar todo leído"
+  },
+  "reports": {
+    "title": "Módulo reportes",
+    "description": "Genera y consulta todos tus reportes disponibles.",
+    "reportPedido": "Reporte de\nPedido",
+    "reportKardex": "Reporte de\nKardex",
+    "reportVencidos": "Productos\nVencidos",
+    "reportFactura": "Reporte de\nFactura",
+    "reportOrdenCompra": "Orden de\nCompra"
+  },
+  "iot": {
+    "title": "Panel IoT",
+    "infoSection": "Información",
+    "devicesSection": "Dispositivos",
+    "deviceBombillo": "Bombillo",
+    "deviceVentilador": "Ventilador",
+    "tankTitle": "Nivel del tanque",
+    "tankDistance": "Distancia"
+  },
+  "temperature": {
+    "title": "Temperatura",
+    "description": "Datos de temperatura en tiempo real",
+    "periodDaily": "Diario",
+    "periodWeekly": "Semanal",
+    "periodMonthly": "Mensual",
+    "waitingData": "Esperando datos...",
+    "temperatureLabel": "Temperatura",
+    "humidityLabel": "Humedad",
+    "lastUpdate": "Última actualización:"
+  },
+  "security": {
+    "title": "Módulo Seguridad"
+  },
+  "profile": {
+    "title": "Mi perfil",
+    "sectionGeneral": "General",
+    "optionNotifications": "Notificaciones",
+    "optionChangePassword": "Cambiar contraseña",
+    "sectionPreferences": "Preferencias",
+    "optionLanguage": "Idioma",
+    "logout": "Cerrar sesión",
+    "defaultCompany": "Nombre empresa",
+    "defaultEmail": "correo@ejemplo.com"
+  },
+  "actionButtons": {
+    "search": "Buscar",
+    "searching": "Buscando...",
+    "generateReport": "Generar Reporte",
+    "generating": "Generando..."
+  },
+  "statusCard": {
+    "status": "Estado",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "connecting": "Conectando...",
+    "reconnect": "Reconectar"
+  },
+  "underConstruction": {
+    "defaultTitle": "En Construcción",
+    "subtitle": "Muy pronto podrás acceder a todas las funciones de este módulo.",
+    "backHome": "Volver al Inicio"
+  },
+  "companySwitcher": {
+    "title": "Cambiar empresa",
+    "subtitle": "Selecciona la empresa y rol que deseas usar.",
+    "noDataText": "No se pudieron cargar las empresas",
+    "noDataSubtext": "Verifica tu conexión e intenta nuevamente",
+    "currentCompany": "Empresa actual:",
+    "currentRole": "Rol actual:",
+    "notSelected": "No seleccionada",
+    "roleNotSelected": "No seleccionado",
+    "confirmButton": "Confirmar cambio",
+    "changing": "Cambiando...",
+    "noRoleName": "Rol sin nombre",
+    "errorSelectBoth": "Debes seleccionar una empresa y un rol",
+    "successMessage": "Empresa y rol cambiados correctamente. Redirigiendo al inicio...",
+    "errorChangeContext": "No se pudo cambiar el contexto. Intenta nuevamente."
+  },
+  "camera": {
+    "title": "Escáner de Códigos",
+    "permissionTitle": "Acceso a la cámara",
+    "permissionMessage": "Para escanear códigos QR y códigos de barras, necesitamos acceso a tu cámara.",
+    "featureQR": "Escaneo de códigos QR",
+    "featureBarcode": "Códigos de barras",
+    "featureFlash": "Flash automático",
+    "allowButton": "Permitir acceso a cámara",
+    "privacyText": "Tu privacidad es importante. Solo usamos la cámara para escanear códigos.",
+    "starting": "Iniciando cámara...",
+    "detectedLive": "Detectado en vivo:",
+    "pointToCode": "Apunta al código"
+  },
+  "deviceItem": {
+    "deviceCount": "1 Dispositivo",
+    "on": "Encendido",
+    "off": "Apagado"
+  },
+  "filters": {
+    "locationTitle": "Filtros de Ubicación",
+    "apply": "Aplicar Filtros",
+    "fechaInicio": "Fecha Inicio",
+    "fechaFin": "Fecha Fin",
+    "loadingData": "Cargando datos...",
+    "generatingReport": "Generando reporte...",
+    "pais": "País",
+    "departamento": "Departamento",
+    "municipio": "Municipio",
+    "sede": "Sede",
+    "bloque": "Bloque",
+    "espacio": "Espacio",
+    "almacen": "Almacén",
+    "allCategories": "Todas las categorías",
+    "allProducts": "Todos los productos"
+  },
+  "reportePedido": {
+    "title": "Reporte de Pedido",
+    "description": "Consulta y genera reportes de pedidos",
+    "filterPedido": "Pedido",
+    "filterCategoriaEstado": "Categoría Estado"
+  },
+  "reporteKardex": {
+    "title": "Reporte de Kardex",
+    "description": "Consulta y genera reportes de kardex de productos",
+    "filterCategoriaProducto": "Categoría Producto",
+    "filterProducto": "Producto",
+    "filterProduccion": "Producción",
+    "filterPresentacion": "Presentación"
+  },
+  "reporteVencidos": {
+    "title": "Reporte de Productos Vencidos",
+    "description": "Consulta y genera reportes de vencimiento de productos"
+  },
+  "reporteFactura": {
+    "title": "Reporte de Factura"
+  },
+  "reporteOrdenCompra": {
+    "title": "Reporte de Orden de Compra",
+    "description": "Consulta y genera reportes de órdenes de compra",
+    "filterPedido": "Pedido",
+    "filterEstado": "Estado de la orden",
+    "noDate": "Sin fecha",
+    "orderPrefix": "Pedido"
+  },
+  "changePassword": {
+    "title": "Cambiar contraseña",
+    "description": "Actualiza tu contraseña de forma segura",
+    "currentPassword": "Contraseña actual",
+    "currentPasswordPlaceholder": "Ingresa tu contraseña actual",
+    "newPassword": "Nueva contraseña",
+    "newPasswordPlaceholder": "Ingresa tu nueva contraseña",
+    "updating": "Actualizando...",
+    "updateButton": "Actualizar contraseña",
+    "successTitle": "¡Contraseña actualizada!",
+    "successMessage": "Tu contraseña ha sido cambiada exitosamente.",
+    "tipsTitle": "Consejos de seguridad",
+    "tipText": "Usa una combinación de letras, números y símbolos",
+    "errorCurrentRequired": "Ingresa tu contraseña actual",
+    "errorNewRequired": "Ingresa una nueva contraseña",
+    "errorMinLength": "Mínimo 8 caracteres",
+    "errorNeedsUppercase": "Debe incluir una mayúscula",
+    "errorNeedsNumber": "Debe incluir un número",
+    "errorNeedsSpecial": "Debe incluir un carácter especial",
+    "errorMustBeDifferent": "La nueva contraseña debe ser diferente",
+    "errorGeneric": "No se pudo cambiar la contraseña",
+    "errorWrongCurrent": "La contraseña actual es incorrecta",
+    "errorServer": "Error del servidor. Intenta más tarde",
+    "errorNetwork": "Error de conexión. Verifica tu internet"
   }
 }

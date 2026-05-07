@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Circle, Svg } from "react-native-svg";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Visualización del nivel de tanque con progreso circular
@@ -17,6 +18,7 @@ import { typography } from "../config/typography";
  * @param {Object} [props.style] - Estilos adicionales para el contenedor
  */
 const TankLevelCard = ({ nivel, distanciaUltrasonico, style }) => {
+  const { t } = useLanguage();
   // Configuración del círculo
   const size = 120;
   const strokeWidth = 8;
@@ -43,7 +45,7 @@ const TankLevelCard = ({ nivel, distanciaUltrasonico, style }) => {
           <View style={styles.iconContainer}>
             <Ionicons name="water-outline" size={22} color={colors.textSec} />
           </View>
-          <Text style={styles.tankTitle}>Nivel del tanque</Text>
+          <Text style={styles.tankTitle}>{t("iot.tankTitle")}</Text>
         </View>
 
         <View style={styles.circularProgressContainer}>
@@ -81,7 +83,7 @@ const TankLevelCard = ({ nivel, distanciaUltrasonico, style }) => {
 
         {distanciaUltrasonico > 0 && (
           <View style={styles.distanceInfo}>
-            <Text style={styles.distanceLabel}>Distancia</Text>
+            <Text style={styles.distanceLabel}>{t("iot.tankDistance")}</Text>
             <Text style={styles.distanceValue}>
               {distanciaUltrasonico.toFixed(1)} cm
             </Text>

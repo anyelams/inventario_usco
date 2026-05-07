@@ -18,6 +18,7 @@ import LanguageSheet from "../../components/LanguageSheet";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 /**
  * Pantalla de perfil del usuario
@@ -29,17 +30,11 @@ const Profile = () => {
   const navigation = useNavigation();
   const { cerrarSesion, userEmail, empresaSeleccionada, getUserInitials } =
     useSession();
+  const { t, currentLanguage, changeLanguage, availableLanguages } = useLanguage();
 
   // Estados locales para configuraciones
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("es");
-
-  // Lista de idiomas soportados por la aplicación
-  const languages = [
-    { code: "es", name: "Español", flag: "🇪🇸" },
-    { code: "en", name: "English", flag: "🇬🇧" },
-  ];
 
   /**
    * Verifica el estado actual de los permisos de notificaciones
@@ -83,17 +78,15 @@ const Profile = () => {
    * @param {string} code - Código del idioma seleccionado
    */
   const handleLanguageSelect = (code) => {
-    setCurrentLanguage(code);
+    changeLanguage(code);
     setLanguageSheetVisible(false);
-    // TODO: Integrar con sistema de internacionalización real
-    // i18n.changeLanguage(code) si se usa i18next
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header de la pantalla */}
       <Header
-        title="Mi perfil"
+        title={t("profile.title")}
         onBackPress={() => navigation.navigate("Home")}
       />
 
@@ -108,23 +101,23 @@ const Profile = () => {
           </View>
           <View style={styles.userInfo}>
             <Text style={styles.userName}>
-              {empresaSeleccionada?.empresaNombre || "Nombre empresa"}
+              {empresaSeleccionada?.empresaNombre || t("profile.defaultCompany")}
             </Text>
             <Text style={styles.userEmail}>
-              {userEmail || "DireccionCorreo@gmail.com"}
+              {userEmail || t("profile.defaultEmail")}
             </Text>
           </View>
         </View>
 
         {/* Sección General */}
-        <Text style={styles.sectionLabel}>General</Text>
+        <Text style={styles.sectionLabel}>{t("profile.sectionGeneral")}</Text>
 
         {/* Configuración de notificaciones */}
         <TouchableOpacity
           style={styles.optionRow}
           onPress={handleOpenNotificationSettings}
         >
-          <Text style={styles.optionText}>Notificaciones</Text>
+          <Text style={styles.optionText}>{t("profile.optionNotifications")}</Text>
           <Switch
             value={notificationsEnabled}
             onValueChange={handleOpenNotificationSettings}
@@ -138,7 +131,7 @@ const Profile = () => {
           style={styles.optionRow}
           onPress={() => navigation.navigate("ChangePassword")}
         >
-          <Text style={styles.optionText}>Cambiar contraseña</Text>
+          <Text style={styles.optionText}>{t("profile.optionChangePassword")}</Text>
           <MaterialCommunityIcons
             name="chevron-right"
             size={20}
@@ -147,17 +140,17 @@ const Profile = () => {
         </TouchableOpacity>
 
         {/* Sección Preferencias */}
-        <Text style={styles.sectionLabel}>Preferencias</Text>
+        <Text style={styles.sectionLabel}>{t("profile.sectionPreferences")}</Text>
 
         {/* Selector de idioma */}
         <TouchableOpacity
           style={styles.optionRow}
           onPress={() => setLanguageSheetVisible(true)}
         >
-          <Text style={styles.optionText}>Idioma</Text>
+          <Text style={styles.optionText}>{t("profile.optionLanguage")}</Text>
           <View style={styles.optionRight}>
             <Text style={styles.optionValue}>
-              {languages.find((l) => l.code === currentLanguage)?.name}
+              {availableLanguages.find((l) => l.code === currentLanguage)?.name}
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"
@@ -169,7 +162,7 @@ const Profile = () => {
 
         {/* Botón de cerrar sesión */}
         <TouchableOpacity style={styles.logoutRow} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Cerrar sesión</Text>
+          <Text style={styles.logoutText}>{t("profile.logout")}</Text>
           <MaterialCommunityIcons name="logout" size={20} color={colors.red} />
         </TouchableOpacity>
       </ScrollView>
@@ -178,17 +171,10 @@ const Profile = () => {
       <LanguageSheet
         visible={languageSheetVisible}
         onClose={() => setLanguageSheetVisible(false)}
-        languages={languages}
+        languages={availableLanguages}
         currentLanguage={currentLanguage}
         onSelect={handleLanguageSelect}
-        t={(key) => {
-          // Función temporal de traducción hasta integrar i18n real
-          const map = {
-            "welcome.selectLanguage": "Selecciona un idioma",
-            "common.cancel": "Cancelar",
-          };
-          return map[key] || key;
-        }}
+        t={t}
       />
     </SafeAreaView>
   );

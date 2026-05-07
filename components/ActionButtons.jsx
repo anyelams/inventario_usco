@@ -15,6 +15,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Barra de acciones con botón de búsqueda y generación de reporte.
@@ -30,6 +31,7 @@ const ActionButtons = ({
   loadingPedido,
   generatingReport,
 }) => {
+  const { t } = useLanguage();
   return (
     <View style={styles.container}>
       {/* === BOTÓN PRIMARY: Buscar === */}
@@ -50,7 +52,7 @@ const ActionButtons = ({
             <Ionicons name="search-outline" size={16} color="white" />
           )}
           <Text style={styles.primaryText}>
-            {loadingPedido ? "Buscando..." : "Buscar"}
+            {loadingPedido ? t("actionButtons.searching") : t("actionButtons.search")}
           </Text>
         </View>
       </TouchableOpacity>
@@ -77,7 +79,7 @@ const ActionButtons = ({
             />
           )}
           <Text style={styles.reportText}>
-            {generatingReport ? "Generando..." : "Generar Reporte"}
+            {generatingReport ? t("actionButtons.generating") : t("actionButtons.generateReport")}
           </Text>
         </View>
       </TouchableOpacity>

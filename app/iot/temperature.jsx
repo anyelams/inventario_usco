@@ -20,6 +20,7 @@ import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useMQTT } from "../../hooks/useMQTT";
+import { useLanguage } from "../../context/LanguageContext";
 
 const screenWidth = Dimensions.get("window").width;
 const maxPoints = 10;
@@ -31,11 +32,12 @@ const maxPoints = 10;
 export default function Temperature() {
   const { temperature, humidity, lastUpdateTime } = useMQTT();
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const [temperatures, setTemperatures] = useState([]);
   const [labels, setLabels] = useState([]);
   const [currentTime, setCurrentTime] = useState("");
-  const [selectedPeriod, setSelectedPeriod] = useState("Diario");
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
 
   /**
    * Agrega cada nueva lectura de temperatura al historial y su etiqueta de hora.
@@ -86,13 +88,18 @@ export default function Temperature() {
     return "";
   });
 
-  const periods = ["Diario", "Semanal", "Mensual"];
+  const periods = [
+    { key: "periodDaily", label: t("temperature.periodDaily") },
+    { key: "periodWeekly", label: t("temperature.periodWeekly") },
+    { key: "periodMonthly", label: t("temperature.periodMonthly") },
+  ];
+  const activePeriod = selectedPeriod ?? periods[0].key;
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <Header
-        title="Temperatura"
-        description="Datos de temperatura en tiempo real"
+        title={t("temperature.title")}
+        description={t("temperature.description")}
         onBackPress={() => navigation.goBack()}
       />
 
@@ -105,20 +112,20 @@ export default function Temperature() {
         <View style={styles.periodContainer}>
           {periods.map((period) => (
             <TouchableOpacity
-              key={period}
+              key={period.key}
               style={[
                 styles.periodButton,
-                selectedPeriod === period && styles.periodButtonActive,
+                activePeriod === period.key && styles.periodButtonActive,
               ]}
-              onPress={() => setSelectedPeriod(period)}
+              onPress={() => setSelectedPeriod(period.key)}
             >
               <Text
                 style={[
                   styles.periodText,
-                  selectedPeriod === period && styles.periodTextActive,
+                  activePeriod === period.key && styles.periodTextActive,
                 ]}
               >
-                {period}
+                {period.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -175,7 +182,7 @@ export default function Temperature() {
             />
           ) : (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Esperando datos...</Text>
+              <Text style={styles.loadingText}>{t("temperature.waitingData")}</Text>
             </View>
           )}
         </View>
@@ -189,7 +196,7 @@ export default function Temperature() {
             <Text style={styles.dataValue}>
               {temperature !== null ? `${temperature}°C` : "--"}
             </Text>
-            <Text style={styles.dataLabel}>Temperatura</Text>
+            <Text style={styles.dataLabel}>{t("temperature.temperatureLabel")}</Text>
           </View>
 
           <View style={styles.dataCard}>
@@ -199,13 +206,13 @@ export default function Temperature() {
             <Text style={styles.dataValue}>
               {humidity !== null ? `${humidity}%` : "--"}
             </Text>
-            <Text style={styles.dataLabel}>Humedad</Text>
+            <Text style={styles.dataLabel}>{t("temperature.humidityLabel")}</Text>
           </View>
         </View>
 
         {lastUpdateTime && (
           <Text style={styles.lastUpdate}>
-            Última actualización: {lastUpdateTime.toLocaleTimeString()}
+            {t("temperature.lastUpdate")} {lastUpdateTime.toLocaleTimeString()}
           </Text>
         )}
       </ScrollView>

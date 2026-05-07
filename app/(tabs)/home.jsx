@@ -21,6 +21,7 @@ import ModuleCard from "../../components/ModuleCard";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 // Colores corporativos con naranja para seguridad
 const corporateColors = {
@@ -46,36 +47,6 @@ const corporateColors = {
   },
 };
 
-const modules = [
-  {
-    id: "1",
-    title: "Módulo\nInventario",
-    icon: "clipboard-check",
-    route: "inventory",
-    moduleColors: corporateColors.inventory,
-  },
-  {
-    id: "2",
-    title: "Módulo\nde IoT",
-    icon: "access-point",
-    route: "iot",
-    moduleColors: corporateColors.iot,
-  },
-  {
-    id: "3",
-    title: "Módulo\nSeguridad",
-    icon: "shield-lock-outline",
-    route: "security",
-    moduleColors: corporateColors.security,
-  },
-  {
-    id: "4",
-    title: "Módulo\nReportes",
-    icon: "chart-line",
-    route: "reports",
-    moduleColors: corporateColors.reports,
-  },
-];
 
 /**
  * Pantalla Home con saludo al usuario, tarjeta de empresa activa
@@ -83,6 +54,39 @@ const modules = [
  */
 export default function Home() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
+
+  const modules = [
+    {
+      id: "1",
+      title: t("home.moduleInventory"),
+      icon: "clipboard-check",
+      route: "inventory",
+      moduleColors: corporateColors.inventory,
+    },
+    {
+      id: "2",
+      title: t("home.moduleIot"),
+      icon: "access-point",
+      route: "iot",
+      moduleColors: corporateColors.iot,
+    },
+    {
+      id: "3",
+      title: t("home.moduleSecurity"),
+      icon: "shield-lock-outline",
+      route: "security",
+      moduleColors: corporateColors.security,
+    },
+    {
+      id: "4",
+      title: t("home.moduleReports"),
+      icon: "chart-line",
+      route: "reports",
+      moduleColors: corporateColors.reports,
+    },
+  ];
+
   const screenMap = {
     inventory: "Camera",
     iot: "Iot",
@@ -122,9 +126,9 @@ export default function Home() {
    */
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Buenos días!";
-    if (hour < 18) return "Buenas tardes!";
-    return "Buenas noches!";
+    if (hour < 12) return t("home.greetingMorning");
+    if (hour < 18) return t("home.greetingAfternoon");
+    return t("home.greetingEvening");
   };
 
   /**
@@ -157,8 +161,8 @@ export default function Home() {
             <Text style={styles.greeting}>{getGreeting()}</Text>
             <Text style={styles.userName}>
               {rolesByCompany?.length > 1
-                ? "Recuerda que desde 'Empresa' podrás cambiar tu sesión actual."
-                : getUserDisplayName() || "Accede a los módulos de tu empresa"}
+                ? t("home.multiCompanyHint")
+                : getUserDisplayName() || t("home.accessModules")}
             </Text>
           </View>
         </View>
@@ -181,7 +185,7 @@ export default function Home() {
                   </View>
                 </View>
                 <View style={styles.empresaInfo}>
-                  <Text style={styles.empresaLabel}>Empresa</Text>
+                  <Text style={styles.empresaLabel}>{t("home.companyLabel")}</Text>
                   <Text style={styles.empresaText} numberOfLines={1}>
                     {empresaSeleccionada?.empresaNombre}
                   </Text>
@@ -201,7 +205,7 @@ export default function Home() {
         {/* Módulos Section */}
         <View style={styles.modulesSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Módulos disponibles</Text>
+            <Text style={styles.sectionTitle}>{t("home.availableModules")}</Text>
           </View>
           <View style={styles.grid}>
             {modules.map((item) => (

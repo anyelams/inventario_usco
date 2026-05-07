@@ -6,6 +6,7 @@
  */
 import React from "react";
 import CustomPicker from "./CustomPicker";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Pickers en cascada para filtrar por ubicación geográfica.
@@ -16,17 +17,18 @@ import CustomPicker from "./CustomPicker";
  * @param {Object} props.handlers - Funciones de cambio por nivel (handlePaisChange, etc.)
  */
 const LocationFilters = ({ selected, locationData, handlers }) => {
+  const { t } = useLanguage();
   return (
     <>
       <CustomPicker
-        label="País"
+        label={t("filters.pais")}
         items={locationData.paises}
         selectedValue={selected.paisId}
         onValueChange={handlers.handlePaisChange}
       />
 
       <CustomPicker
-        label="Departamento"
+        label={t("filters.departamento")}
         items={locationData.departamentos}
         selectedValue={selected.departamentoId}
         onValueChange={handlers.handleDepartamentoChange}
@@ -34,7 +36,7 @@ const LocationFilters = ({ selected, locationData, handlers }) => {
       />
 
       <CustomPicker
-        label="Municipio"
+        label={t("filters.municipio")}
         items={locationData.municipios}
         selectedValue={selected.municipioId}
         onValueChange={handlers.handleMunicipioChange}
@@ -42,7 +44,7 @@ const LocationFilters = ({ selected, locationData, handlers }) => {
       />
 
       <CustomPicker
-        label="Sede"
+        label={t("filters.sede")}
         items={locationData.sedes}
         selectedValue={selected.sedeId}
         onValueChange={handlers.handleSedeChange}
@@ -50,7 +52,7 @@ const LocationFilters = ({ selected, locationData, handlers }) => {
       />
 
       <CustomPicker
-        label="Bloque"
+        label={t("filters.bloque")}
         items={locationData.bloques}
         selectedValue={selected.bloqueId}
         onValueChange={handlers.handleBloqueChange}
@@ -58,7 +60,7 @@ const LocationFilters = ({ selected, locationData, handlers }) => {
       />
 
       <CustomPicker
-        label="Espacio"
+        label={t("filters.espacio")}
         items={locationData.espacios}
         selectedValue={selected.espacioId}
         onValueChange={handlers.handleEspacioChange}
@@ -66,7 +68,7 @@ const LocationFilters = ({ selected, locationData, handlers }) => {
       />
 
       <CustomPicker
-        label="Almacén"
+        label={t("filters.almacen")}
         items={locationData.almacenes}
         selectedValue={selected.almacenId}
         onValueChange={handlers.handleAlmacenChange}

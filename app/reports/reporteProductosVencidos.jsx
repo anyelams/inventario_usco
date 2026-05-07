@@ -29,6 +29,7 @@ import {
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 import CustomPicker from "../../components/CustomPicker";
 import DateTimeInput from "../../components/DateTimeInput";
@@ -63,6 +64,7 @@ const API_URL_REPORT_PRODUCTO_VENCIMIENTO_NUEVO =
  */
 export default function ProductosVencidosReporte() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const { token, empresaSeleccionada } = useSession();
 
   const locationFilters = useLocationFilters(token, API_URL);
@@ -426,7 +428,7 @@ export default function ProductosVencidosReporte() {
     return (
       <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.secondary} />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
+        <Text style={styles.loadingText}>{t("filters.loadingData")}</Text>
       </SafeAreaView>
     );
   }
@@ -434,8 +436,8 @@ export default function ProductosVencidosReporte() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ReportHeader
-        title="Reporte de Productos Vencidos"
-        description="Consulta y genera reportes de vencimiento de productos"
+        title={t("reporteVencidos.title")}
+        description={t("reporteVencidos.description")}
         onBackPress={() => navigation.navigate("Reports")}
         onFilterPress={() => setShowFiltersModal(true)}
         filterActive={hasActiveFilters()}
@@ -449,31 +451,31 @@ export default function ProductosVencidosReporte() {
         <View style={styles.pageContent}>
           <View style={styles.mainFiltersContainer}>
             <CustomPicker
-              label="Categoría Producto"
+              label={t("reporteKardex.filterCategoriaProducto")}
               items={mainData.categorias}
               selectedValue={filtro.productoCategoriaId}
               onValueChange={handleCategoriaChange}
-              placeholder="Todas las categorías"
+              placeholder={t("filters.allCategories")}
             />
 
             <CustomPicker
-              label="Producto"
+              label={t("reporteKardex.filterProducto")}
               items={productosFiltrados}
               selectedValue={filtro.productoId}
               onValueChange={handleProductoChange}
-              placeholder="Todos los productos"
+              placeholder={t("filters.allProducts")}
               enabled={mainData.productos.length > 0}
             />
 
             <DateTimeInput
-              label="Fecha Inicio"
+              label={t("filters.fechaInicio")}
               value={filtro.fechaInicio}
               onChangeText={handleFechaInicioChange}
               placeholder="DD/MM/AAAA HH:MM"
             />
 
             <DateTimeInput
-              label="Fecha Fin"
+              label={t("filters.fechaFin")}
               value={filtro.fechaFin}
               onChangeText={handleFechaFinChange}
               placeholder="DD/MM/AAAA HH:MM"
@@ -499,9 +501,7 @@ export default function ProductosVencidosReporte() {
             <View style={styles.loadingReport}>
               <ActivityIndicator size="small" color={colors.secondary} />
               <Text style={styles.loadingReportText}>
-                {loadingProductos
-                  ? "Cargando datos..."
-                  : "Generando reporte..."}
+                {loadingProductos ? t("filters.loadingData") : t("filters.generatingReport")}
               </Text>
             </View>
           )}
@@ -515,7 +515,7 @@ export default function ProductosVencidosReporte() {
         >
           <SafeAreaView style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtros de Ubicación</Text>
+              <Text style={styles.modalTitle}>{t("filters.locationTitle")}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowFiltersModal(false)}
@@ -541,7 +541,7 @@ export default function ProductosVencidosReporte() {
                 style={styles.applyButton}
                 onPress={() => setShowFiltersModal(false)}
               >
-                <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
+                <Text style={styles.applyButtonText}>{t("filters.apply")}</Text>
               </TouchableOpacity>
             </View>
           </SafeAreaView>
