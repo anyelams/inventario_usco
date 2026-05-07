@@ -113,6 +113,13 @@ export default function NotificationsScreen() {
         onBackPress={() => navigation.navigate("Home")}
       />
 
+      {/* Banner de aviso: datos de demostración */}
+      <View style={styles.demoBanner}>
+        <Text style={styles.demoBannerText}>
+          Vista previa — servicio aún no disponible
+        </Text>
+      </View>
+
       {/* Lista scrolleable de notificaciones */}
       <ScrollView
         style={styles.scrollView}
@@ -174,18 +181,15 @@ const styles = StyleSheet.create({
     paddingBottom: 80, // Espacio para el FAB
   },
 
-  // Barra de advertencia (no utilizada actualmente)
-  warningBar: {
-    flexDirection: "row",
-    backgroundColor: colors.red,
-    padding: 10,
+  demoBanner: {
+    backgroundColor: colors.secondary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     alignItems: "center",
-    justifyContent: "center",
   },
-  warningText: {
+  demoBannerText: {
     ...typography.regular.medium,
     color: colors.white,
-    marginLeft: 6,
   },
 
   // Item individual de notificación
