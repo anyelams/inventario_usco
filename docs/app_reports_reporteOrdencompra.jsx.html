@@ -1,4 +1,32 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/reports/reporteOrdencompra.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app/reports/reporteOrdencompra.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * @file reporteOrdencompra.jsx
  * @module app/reports/reporteOrdencompra
  * @description Pantalla de reporte de órdenes de compra. Permite filtrar por pedido,
@@ -142,7 +170,7 @@ export default function OrdenCompraReporte() {
    * @returns {boolean} `true` si el rango es válido o no se especificaron ambas fechas.
    */
   const validarRango = () => {
-    if (filtro.fechaInicio && filtro.fechaFin) {
+    if (filtro.fechaInicio &amp;&amp; filtro.fechaFin) {
       const ini = new Date(filtro.fechaInicio);
       const fin = new Date(filtro.fechaFin);
       if (ini > fin) {
@@ -160,7 +188,7 @@ export default function OrdenCompraReporte() {
    * Construye el objeto `condicion` que se envía en el cuerpo del POST para
    * generar el PDF. Cada clave es un índice numérico en cadena y el valor es
    * un fragmento SQL de filtrado.
-   * @returns {Object.<string, string>} Mapa índice → cláusula SQL.
+   * @returns {Object.&lt;string, string>} Mapa índice → cláusula SQL.
    */
   const buildCondicion = () => {
     const userIni = toDateStr(filtro.fechaInicio, false);
@@ -180,7 +208,7 @@ export default function OrdenCompraReporte() {
         `AND oc.orc_orden_compra_estado_id = ${Number(filtro.categoriaEstadoId)}`;
     }
 
-    if (userIni && userFin) {
+    if (userIni &amp;&amp; userFin) {
       c[String(idx++)] =
         `AND oc.orc_fecha_hora BETWEEN '${userIni ?? DEF_INI}' AND '${userFin ?? DEF_FIN}'`;
     }
@@ -228,7 +256,7 @@ export default function OrdenCompraReporte() {
    * Obtiene todas las órdenes de compra desde el backend, intentando varios
    * paths de endpoint y paginando cuando es necesario para acumular el total.
    * @async
-   * @returns {Promise<Object[]>} Listado completo de órdenes de compra.
+   * @returns {Promise&lt;Object[]>} Listado completo de órdenes de compra.
    * @throws {Error} Con `code === "NO_OC_ENDPOINT"` si ningún path responde con datos.
    */
   const fetchAllOrdenes = async () => {
@@ -252,8 +280,8 @@ export default function OrdenCompraReporte() {
         // Paginar si vino vacío sin estructura de página
         let page = 0;
         let acc = [];
-        for (let i = 0; i < 15; i++) {
-          const r = await fetch(`${API_URL}${basePath}?page=${page}&size=200`, {
+        for (let i = 0; i &lt; 15; i++) {
+          const r = await fetch(`${API_URL}${basePath}?page=${page}&amp;size=200`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!r.ok) break;
@@ -280,7 +308,7 @@ export default function OrdenCompraReporte() {
    * Obtiene todas las órdenes y aplica los filtros activos (pedido, estado y
    * rango de fechas) en el cliente, actualizando el estado `ordenes`.
    * @async
-   * @returns {Promise<void>}
+   * @returns {Promise&lt;void>}
    */
   const buscarOrdenes = async () => {
     if (!validarRango()) return;
@@ -296,12 +324,12 @@ export default function OrdenCompraReporte() {
 
       const lista = all.filter((oc) => {
         // Filtro por pedido
-        if (filtro.pedidoId && String(oc.pedidoId) !== String(filtro.pedidoId))
+        if (filtro.pedidoId &amp;&amp; String(oc.pedidoId) !== String(filtro.pedidoId))
           return false;
 
         // Filtro por estado
         if (
-          filtro.categoriaEstadoId &&
+          filtro.categoriaEstadoId &amp;&amp;
           String(oc.ordenCompraEstadoId ?? oc.estadoId) !==
             String(filtro.categoriaEstadoId)
         )
@@ -309,11 +337,11 @@ export default function OrdenCompraReporte() {
 
         // Filtro por fechas
         const f = getFechaOC(oc);
-        if (f && (ini || fin)) {
+        if (f &amp;&amp; (ini || fin)) {
           const d = new Date(f);
           if (!isNaN(d.getTime())) {
-            if (ini && d < ini) return false;
-            if (fin && d > fin) return false;
+            if (ini &amp;&amp; d &lt; ini) return false;
+            if (fin &amp;&amp; d > fin) return false;
           }
         }
 
@@ -342,7 +370,7 @@ export default function OrdenCompraReporte() {
    * Genera el reporte PDF en el servidor, lo descarga como base64, lo escribe
    * en la caché del dispositivo y lo comparte usando el sistema nativo.
    * @async
-   * @returns {Promise<void>}
+   * @returns {Promise&lt;void>}
    */
   const generarReporte = async () => {
     if (!validarRango()) return;
@@ -415,29 +443,29 @@ export default function OrdenCompraReporte() {
     pluralLabel: "Órdenes",
     getItemKey: (item, index) => item.id ?? index,
     renderItem: (oc) => (
-      <View style={styles.itemRow}>
-        <Text style={styles.itemId}>#{oc.id ?? "—"}</Text>
-        <Text style={styles.itemDate}>
+      &lt;View style={styles.itemRow}>
+        &lt;Text style={styles.itemId}>#{oc.id ?? "—"}&lt;/Text>
+        &lt;Text style={styles.itemDate}>
           {getFechaOC(oc)
             ? new Date(getFechaOC(oc)).toLocaleString()
             : "Sin fecha"}
-        </Text>
-      </View>
+        &lt;/Text>
+      &lt;/View>
     ),
   };
 
   if (loadingData) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.secondary} />
-        <Text style={styles.loadingText}>Cargando datos...</Text>
-      </SafeAreaView>
+      &lt;SafeAreaView style={styles.loadingContainer}>
+        &lt;ActivityIndicator size="large" color={colors.secondary} />
+        &lt;Text style={styles.loadingText}>Cargando datos...&lt;/Text>
+      &lt;/SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <ReportHeader
+    &lt;SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      &lt;ReportHeader
         title="Reporte de Orden de Compra"
         description="Consulta y genera reportes de órdenes de compra"
         onBackPress={() => navigation.navigate("Reports")}
@@ -445,14 +473,14 @@ export default function OrdenCompraReporte() {
         filterActive={hasActiveFilters()}
       />
 
-      <ScrollView
+      &lt;ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.pageContent}>
-          <View style={styles.mainFiltersContainer}>
-            <CustomPicker
+        &lt;View style={styles.pageContent}>
+          &lt;View style={styles.mainFiltersContainer}>
+            &lt;CustomPicker
               label="Pedido"
               items={mainData.pedidos.map((p) => ({
                 ...p,
@@ -465,7 +493,7 @@ export default function OrdenCompraReporte() {
               placeholder="Selecciona un pedido"
             />
 
-            <CustomPicker
+            &lt;CustomPicker
               label="Estado de la orden"
               items={mainData.estadosOC.map((e) => ({
                 ...e,
@@ -478,7 +506,7 @@ export default function OrdenCompraReporte() {
               placeholder="Selecciona un estado"
             />
 
-            <DateTimeInput
+            &lt;DateTimeInput
               label="Fecha Inicio"
               value={filtro.fechaInicio}
               onChangeText={(value) =>
@@ -487,7 +515,7 @@ export default function OrdenCompraReporte() {
               placeholder="DD/MM/AAAA HH:MM"
             />
 
-            <DateTimeInput
+            &lt;DateTimeInput
               label="Fecha Fin"
               value={filtro.fechaFin}
               onChangeText={(value) =>
@@ -495,74 +523,74 @@ export default function OrdenCompraReporte() {
               }
               placeholder="DD/MM/AAAA HH:MM"
             />
-          </View>
+          &lt;/View>
 
-          <ActionButtons
+          &lt;ActionButtons
             onSearch={buscarOrdenes}
             onGenerateReport={generarReporte}
             loadingPedido={loadingOrdenes}
             generatingReport={generatingReport}
           />
 
-          {ordenes.length > 0 && (
-            <GenericSearchResults
+          {ordenes.length > 0 &amp;&amp; (
+            &lt;GenericSearchResults
               data={ordenes}
               config={ordenesConfig}
               maxVisible={ordenes.length}
             />
           )}
 
-          {(loadingOrdenes || generatingReport) && (
-            <View style={styles.loadingReport}>
-              <ActivityIndicator size="small" color={colors.secondary} />
-              <Text style={styles.loadingReportText}>
+          {(loadingOrdenes || generatingReport) &amp;&amp; (
+            &lt;View style={styles.loadingReport}>
+              &lt;ActivityIndicator size="small" color={colors.secondary} />
+              &lt;Text style={styles.loadingReportText}>
                 {loadingOrdenes ? "Cargando datos..." : "Generando reporte..."}
-              </Text>
-            </View>
+              &lt;/Text>
+            &lt;/View>
           )}
-        </View>
+        &lt;/View>
 
-        <Modal
+        &lt;Modal
           visible={showFiltersModal}
           animationType="slide"
           onRequestClose={() => setShowFiltersModal(false)}
           statusBarTranslucent
         >
-          <SafeAreaView style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filtros de Ubicación</Text>
-              <TouchableOpacity
+          &lt;SafeAreaView style={styles.modalContainer}>
+            &lt;View style={styles.modalHeader}>
+              &lt;Text style={styles.modalTitle}>Filtros de Ubicación&lt;/Text>
+              &lt;TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowFiltersModal(false)}
               >
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
+                &lt;Text style={styles.closeButtonText}>×&lt;/Text>
+              &lt;/TouchableOpacity>
+            &lt;/View>
 
-            <ScrollView
+            &lt;ScrollView
               style={styles.modalContent}
               contentContainerStyle={styles.modalContentContainer}
               showsVerticalScrollIndicator={false}
             >
-              <LocationFilters
+              &lt;LocationFilters
                 selected={locationFilters.selected}
                 locationData={locationFilters.locationData}
                 handlers={locationFilters.handlers}
               />
-            </ScrollView>
+            &lt;/ScrollView>
 
-            <View style={styles.modalFooter}>
-              <TouchableOpacity
+            &lt;View style={styles.modalFooter}>
+              &lt;TouchableOpacity
                 style={styles.applyButton}
                 onPress={() => setShowFiltersModal(false)}
               >
-                <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </Modal>
-      </ScrollView>
-    </SafeAreaView>
+                &lt;Text style={styles.applyButtonText}>Aplicar Filtros&lt;/Text>
+              &lt;/TouchableOpacity>
+            &lt;/View>
+          &lt;/SafeAreaView>
+        &lt;/Modal>
+      &lt;/ScrollView>
+    &lt;/SafeAreaView>
   );
 }
 
@@ -656,3 +684,26 @@ const styles = StyleSheet.create({
   },
   applyButtonText: { ...typography.semibold.medium, color: colors.white },
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
