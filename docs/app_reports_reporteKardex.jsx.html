@@ -57,6 +57,7 @@ import {
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 import CustomPicker from "../../components/CustomPicker";
 import DateTimeInput from "../../components/DateTimeInput";
@@ -92,6 +93,7 @@ const API_URL_REPORT_KARDEX =
  */
 export default function KardexReporte() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const { token, empresaSeleccionada } = useSession();
 
   const locationFilters = useLocationFilters(token, API_URL);
@@ -506,7 +508,7 @@ export default function KardexReporte() {
     return (
       &lt;SafeAreaView style={styles.loadingContainer}>
         &lt;ActivityIndicator size="large" color={colors.secondary} />
-        &lt;Text style={styles.loadingText}>Cargando datos...&lt;/Text>
+        &lt;Text style={styles.loadingText}>{t("filters.loadingData")}&lt;/Text>
       &lt;/SafeAreaView>
     );
   }
@@ -514,8 +516,8 @@ export default function KardexReporte() {
   return (
     &lt;SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       &lt;ReportHeader
-        title="Reporte de Kardex"
-        description="Consulta y genera reportes de kardex de productos"
+        title={t("reporteKardex.title")}
+        description={t("reporteKardex.description")}
         onBackPress={() => navigation.navigate("Reports")}
         onFilterPress={() => setShowFiltersModal(true)}
         filterActive={hasActiveFilters()}
@@ -529,47 +531,43 @@ export default function KardexReporte() {
         &lt;View style={styles.pageContent}>
           &lt;View style={styles.mainFiltersContainer}>
             &lt;CustomPicker
-              label="Categoría Producto"
+              label={t("reporteKardex.filterCategoriaProducto")}
               items={mainData.categorias}
               selectedValue={filtro.productoCategoriaId}
               onValueChange={handleCategoriaChange}
-              placeholder="Selecciona una categoría"
             />
 
             &lt;CustomPicker
-              label="Producto"
+              label={t("reporteKardex.filterProducto")}
               items={productosFiltrados}
               selectedValue={filtro.productoId}
               onValueChange={handleProductoChange}
-              placeholder="Selecciona un producto"
               enabled={productosFiltrados.length > 0}
             />
 
             &lt;CustomPicker
-              label="Producción"
+              label={t("reporteKardex.filterProduccion")}
               items={mainData.producciones}
               selectedValue={filtro.produccionId}
               onValueChange={handleProduccionChange}
-              placeholder="Selecciona una producción"
             />
 
             &lt;CustomPicker
-              label="Presentación"
+              label={t("reporteKardex.filterPresentacion")}
               items={mainData.presentaciones}
               selectedValue={filtro.productoPresentacionId}
               onValueChange={handlePresentacionChange}
-              placeholder="Selecciona una presentación"
             />
 
             &lt;DateTimeInput
-              label="Fecha Inicio"
+              label={t("filters.fechaInicio")}
               value={filtro.fechaInicio}
               onChangeText={handleFechaInicioChange}
               placeholder="DD/MM/AAAA HH:MM"
             />
 
             &lt;DateTimeInput
-              label="Fecha Fin"
+              label={t("filters.fechaFin")}
               value={filtro.fechaFin}
               onChangeText={handleFechaFinChange}
               placeholder="DD/MM/AAAA HH:MM"
@@ -595,7 +593,7 @@ export default function KardexReporte() {
             &lt;View style={styles.loadingReport}>
               &lt;ActivityIndicator size="small" color={colors.secondary} />
               &lt;Text style={styles.loadingReportText}>
-                {loadingKardex ? "Cargando datos..." : "Generando reporte..."}
+                {loadingKardex ? t("filters.loadingData") : t("filters.generatingReport")}
               &lt;/Text>
             &lt;/View>
           )}
@@ -609,7 +607,7 @@ export default function KardexReporte() {
         >
           &lt;SafeAreaView style={styles.modalContainer}>
             &lt;View style={styles.modalHeader}>
-              &lt;Text style={styles.modalTitle}>Filtros de Ubicación&lt;/Text>
+              &lt;Text style={styles.modalTitle}>{t("filters.locationTitle")}&lt;/Text>
               &lt;TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowFiltersModal(false)}
@@ -635,7 +633,7 @@ export default function KardexReporte() {
                 style={styles.applyButton}
                 onPress={() => setShowFiltersModal(false)}
               >
-                &lt;Text style={styles.applyButtonText}>Aplicar Filtros&lt;/Text>
+                &lt;Text style={styles.applyButtonText}>{t("filters.apply")}&lt;/Text>
               &lt;/TouchableOpacity>
             &lt;/View>
           &lt;/SafeAreaView>
@@ -732,13 +730,13 @@ const styles = StyleSheet.create({
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
 </footer>
 
 <script> prettyPrint(); </script>

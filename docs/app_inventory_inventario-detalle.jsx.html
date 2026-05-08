@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/inventory/inventario-detalle.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app/inventory/inventario-detalle.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * app/inventory/inventario-detalle.jsx
+ * Pantalla de ejecución de inventario. Muestra la lista de ítems de la
+ * subsección, permite marcar cada uno como encontrado (checkbox o escaneo
+ * de código), registrar su estado (OK/Incompleto/Dañado) y agregar
+ * observaciones. Incluye barra de progreso, búsqueda en tiempo real y
+ * finalización del inventario. Precarga resultados anteriores para
+ * inventarios en estado Finalizado mediante RESULTADOS_MAP.
+ */
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import CustomButton from "../../components/CustomButton";
+import Header from "../../components/Header";
+import { colors } from "../../config/theme";
+import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
+import { useSession } from "../../context/SessionContext";
+import { clearScanResult, getScanResult } from "./scanResult";
+
+const ITEMS_MAP = {
+  1: require("../../mock/items_subseccion_1.json"),
+  2: require("../../mock/items_subseccion_2.json"),
+  3: require("../../mock/items_subseccion_3.json"),
+};
+
+const RESULTADOS_MAP = {
+  3: require("../../mock/resultado_inventario_3.json"),
+};
+
+const ESTADO_ITEM = [
+  { value: "ok", labelKey: "inventory.stateOk", color: colors.success, icon: "checkmark-circle" },
+  { value: "incompleto", labelKey: "inventory.stateIncomplete", color: colors.warning, icon: "warning" },
+  { value: "dañado", labelKey: "inventory.stateDamaged", color: colors.error, icon: "close-circle" },
+];
+
+/**
+ * Construye la lista de ítems inicial fusionando los datos del mock con los
+ * resultados previos del inventario, si existen.
+ * @param {Object[]} rawItems - Ítems crudos de la subsección (producto, producto_identificador, cantidad).
+ * @param {Object[]|null} resultado - Resultados previos guardados, o null si el inventario es nuevo.
+ * @returns {Object[]} Ítems con los campos encontrado, estado y observacion añadidos.
+ */
+function buildInitialItems(rawItems, resultado = null) {
+  return rawItems.map((item) => {
+    const res = resultado?.find(
+      (r) => r.producto_identificador === item.producto_identificador,
+    );
+    return {
+      ...item,
+      encontrado: res?.encontrado ?? false,
+      estado: res?.estado ?? "ok",
+      observacion: res?.observacion ?? "",
+    };
+  });
+}
+
+/**
+ * Fila expandible que representa un ítem del inventario.
+ * En estado colapsado muestra checkbox, nombre e identificador del producto.
+ * Expandida muestra el selector de estado y el campo de observación.
+ * @param {Object} props
+ * @param {Object} props.item - Ítem del inventario con encontrado, estado, observacion, producto, producto_identificador y cantidad.
+ * @param {function} props.onToggleEncontrado - Callback al marcar/desmarcar el checkbox; recibe producto_identificador.
+ * @param {function} props.onEstadoChange - Callback al cambiar el estado; recibe (producto_identificador, estado).
+ * @param {function} props.onObservacionChange - Callback al editar la observación; recibe (producto_identificador, texto).
+ */
+function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange }) {
+  const { t } = useLanguage();
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    &lt;View style={[styles.itemCard, item.encontrado &amp;&amp; styles.itemCardFound]}>
+      &lt;TouchableOpacity
+        style={styles.itemHeader}
+        onPress={() => setExpanded((v) => !v)}
+        activeOpacity={0.7}
+      >
+        &lt;TouchableOpacity
+          style={[styles.checkbox, item.encontrado &amp;&amp; styles.checkboxChecked]}
+          onPress={() => onToggleEncontrado(item.producto_identificador)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          {item.encontrado &amp;&amp; (
+            &lt;Ionicons name="checkmark" size={14} color={colors.white} />
+          )}
+        &lt;/TouchableOpacity>
+
+        &lt;View style={styles.itemInfo}>
+          &lt;Text style={styles.itemNombre} numberOfLines={2}>{item.producto}&lt;/Text>
+          &lt;Text style={styles.itemId}>{item.producto_identificador}&lt;/Text>
+        &lt;/View>
+
+        &lt;View style={styles.itemRight}>
+          &lt;View style={styles.cantidadBadge}>
+            &lt;Text style={styles.cantidadText}>×{item.cantidad}&lt;/Text>
+          &lt;/View>
+          &lt;Ionicons
+            name={expanded ? "chevron-up" : "chevron-down"}
+            size={16}
+            color={colors.textSec}
+          />
+        &lt;/View>
+      &lt;/TouchableOpacity>
+
+      {expanded &amp;&amp; (
+        &lt;View style={styles.itemExpanded}>
+          &lt;Text style={styles.expandedLabel}>{t("inventory.itemState")}&lt;/Text>
+          &lt;View style={styles.estadoRow}>
+            {ESTADO_ITEM.map((e) => (
+              &lt;TouchableOpacity
+                key={e.value}
+                style={[
+                  styles.estadoChip,
+                  item.estado === e.value &amp;&amp; {
+                    backgroundColor: e.color + "20",
+                    borderColor: e.color,
+                  },
+                ]}
+                onPress={() => onEstadoChange(item.producto_identificador, e.value)}
+              >
+                &lt;Ionicons
+                  name={e.icon}
+                  size={14}
+                  color={item.estado === e.value ? e.color : colors.textSec}
+                />
+                &lt;Text
+                  style={[
+                    styles.estadoChipText,
+                    item.estado === e.value &amp;&amp; { color: e.color },
+                  ]}
+                >
+                  {t(e.labelKey)}
+                &lt;/Text>
+              &lt;/TouchableOpacity>
+            ))}
+          &lt;/View>
+
+          &lt;Text style={styles.expandedLabel}>{t("inventory.observationLabel")}&lt;/Text>
+          &lt;TextInput
+            style={styles.observacionInput}
+            placeholder={t("inventory.observationPlaceholder")}
+            placeholderTextColor={colors.textSec}
+            value={item.observacion}
+            onChangeText={(text) =>
+              onObservacionChange(item.producto_identificador, text)
+            }
+            multiline
+            numberOfLines={2}
+            textAlignVertical="top"
+          />
+        &lt;/View>
+      )}
+    &lt;/View>
+  );
+}
+
+/**
+ * Pantalla de detalle y ejecución de un inventario.
+ * Recibe el objeto inventario por parámetro de navegación. Si el inventario
+ * llega en estado Pendiente (estadoId 1) lo promueve automáticamente a
+ * En proceso (estadoId 2). Lee el resultado del escaneo mediante
+ * scanResult.js en useFocusEffect para marcar ítems al regresar de la cámara.
+ */
+export default function InventarioDetalleScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { t } = useLanguage();
+  const { decodificarToken } = useSession();
+
+  const { inventario: inventarioParam } = route.params ?? {};
+
+  const [inventario, setInventario] = useState(() => {
+    if (!inventarioParam) return null;
+    if (inventarioParam.estadoId === 1) {
+      return { ...inventarioParam, estadoId: 2 };
+    }
+    return inventarioParam;
+  });
+
+  const rawItems = useMemo(
+    () => ITEMS_MAP[inventario?.subSeccionId] ?? [],
+    [inventario?.subSeccionId],
+  );
+
+  const [items, setItems] = useState(() => {
+    const resultado = RESULTADOS_MAP[inventarioParam?.id] ?? null;
+    return buildInitialItems(rawItems, resultado);
+  });
+  const [busqueda, setBusqueda] = useState("");
+
+  const userId = useMemo(() => {
+    const claims = decodificarToken();
+    return claims?.userId ?? 1;
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const codigo = getScanResult();
+      if (!codigo) return;
+      clearScanResult();
+      const codigoNormalizado = codigo.trim();
+      setItems((prev) => {
+        const idx = prev.findIndex(
+          (i) => i.producto_identificador.trim() === codigoNormalizado,
+        );
+        if (idx === -1) {
+          Alert.alert(
+            t("inventory.codeNotFound"),
+            t("inventory.codeNotFoundMessage", { code: codigoNormalizado }),
+          );
+          return prev;
+        }
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], encontrado: true };
+        return updated;
+      });
+    }, []),
+  );
+
+  const itemsFiltrados = useMemo(() => {
+    const q = busqueda.toLowerCase().trim();
+    if (!q) return items;
+    return items.filter(
+      (i) =>
+        i.producto.toLowerCase().includes(q) ||
+        i.producto_identificador.toLowerCase().includes(q),
+    );
+  }, [items, busqueda]);
+
+  const resumen = useMemo(() => {
+    const total = items.length;
+    const encontrados = items.filter((i) => i.encontrado).length;
+    return { total, encontrados };
+  }, [items]);
+
+  const handleToggleEncontrado = (id) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.producto_identificador === id ? { ...i, encontrado: !i.encontrado } : i,
+      ),
+    );
+  };
+
+  const handleEstadoChange = (id, estado) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.producto_identificador === id ? { ...i, estado } : i,
+      ),
+    );
+  };
+
+  const handleObservacionChange = (id, observacion) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.producto_identificador === id ? { ...i, observacion } : i,
+      ),
+    );
+  };
+
+  const handleEscanear = () => {
+    navigation.navigate("Camera", {
+      fromInventario: true,
+      inventario: inventario,
+    });
+  };
+
+  const handleGuardar = () => {
+    const resultado = {
+      inventarioId: inventario.id,
+      subSeccionId: inventario.subSeccionId,
+      usuarioId: userId,
+      fechaHora: new Date().toISOString(),
+      items: items.map((i) => ({
+        producto_identificador: i.producto_identificador,
+        encontrado: i.encontrado,
+        cantidad: i.cantidad,
+        estado: i.estado,
+        observacion: i.observacion,
+        uuid: null,
+      })),
+    };
+
+    console.log("=== RESULTADO INVENTARIO ===");
+    console.log(JSON.stringify(resultado, null, 2));
+
+    setInventario((prev) => ({ ...prev, estadoId: 3 }));
+    navigation.navigate("Inventarios");
+  };
+
+  if (!inventario) {
+    return (
+      &lt;SafeAreaView style={styles.container} edges={["top"]}>
+        &lt;Header title={t("inventory.detailTitle")} onBackPress={() => navigation.goBack()} />
+        &lt;View style={styles.errorContainer}>
+          &lt;Text style={styles.errorText}>{t("inventory.notFound")}&lt;/Text>
+        &lt;/View>
+      &lt;/SafeAreaView>
+    );
+  }
+
+  const estadoFinalizado = inventario.estadoId === 3;
+
+  return (
+    &lt;SafeAreaView style={styles.container} edges={["top"]}>
+      &lt;KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        &lt;Header
+          title={inventario.nombre}
+          description={`${inventario.subSeccionNombre} · ${inventario.seccionNombre}`}
+          onBackPress={() => navigation.navigate("Inventarios")}
+        />
+
+        &lt;View style={styles.toolbarContainer}>
+          &lt;View style={styles.progressRow}>
+            &lt;View style={styles.progressBar}>
+              &lt;View
+                style={[
+                  styles.progressFill,
+                  {
+                    width:
+                      resumen.total > 0
+                        ? `${(resumen.encontrados / resumen.total) * 100}%`
+                        : "0%",
+                  },
+                ]}
+              />
+            &lt;/View>
+            &lt;Text style={styles.progressText}>
+              {t("inventory.progress", { found: resumen.encontrados, total: resumen.total })}
+            &lt;/Text>
+          &lt;/View>
+
+          &lt;View style={styles.searchRow}>
+            &lt;View style={styles.searchContainer}>
+              &lt;Ionicons name="search-outline" size={16} color={colors.textSec} />
+              &lt;TextInput
+                style={styles.searchInput}
+                placeholder={t("inventory.searchPlaceholder")}
+                placeholderTextColor={colors.textSec}
+                value={busqueda}
+                onChangeText={setBusqueda}
+              />
+              {busqueda.length > 0 &amp;&amp; (
+                &lt;TouchableOpacity onPress={() => setBusqueda("")}>
+                  &lt;Ionicons name="close-circle" size={16} color={colors.textSec} />
+                &lt;/TouchableOpacity>
+              )}
+            &lt;/View>
+
+            &lt;TouchableOpacity
+              style={styles.scanButton}
+              onPress={handleEscanear}
+              disabled={estadoFinalizado}
+            >
+              &lt;Ionicons name="qr-code-outline" size={20} color={colors.white} />
+              &lt;Text style={styles.scanButtonText}>{t("inventory.scanButton")}&lt;/Text>
+            &lt;/TouchableOpacity>
+          &lt;/View>
+        &lt;/View>
+
+        &lt;FlatList
+          data={itemsFiltrados}
+          keyExtractor={(item) => item.producto_identificador}
+          renderItem={({ item }) => (
+            &lt;ItemRow
+              item={item}
+              onToggleEncontrado={handleToggleEncontrado}
+              onEstadoChange={handleEstadoChange}
+              onObservacionChange={handleObservacionChange}
+            />
+          )}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => &lt;View style={{ height: 10 }} />}
+          ListEmptyComponent={
+            &lt;View style={styles.emptyContainer}>
+              &lt;Ionicons name="search-outline" size={40} color={colors.border} />
+              &lt;Text style={styles.emptyText}>{t("inventory.noResults", { query: busqueda })}&lt;/Text>
+            &lt;/View>
+          }
+          showsVerticalScrollIndicator={false}
+        />
+
+        &lt;View style={styles.footer}>
+          &lt;CustomButton
+            text={estadoFinalizado ? t("inventory.finishedButton") : t("inventory.saveButton")}
+            onPress={handleGuardar}
+            variant="primary"
+            icon={estadoFinalizado ? "checkmark-circle" : "save-outline"}
+            iconPosition="left"
+            fullWidth
+            disabled={estadoFinalizado}
+          />
+        &lt;/View>
+      &lt;/KeyboardAvoidingView>
+    &lt;/SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.base,
+  },
+  toolbarContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 12,
+    gap: 10,
+  },
+  progressRow: {
+    gap: 6,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: colors.border,
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: colors.success,
+    borderRadius: 3,
+  },
+  progressText: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    textAlign: "right",
+  },
+  searchRow: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 42,
+    gap: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    ...typography.regular.medium,
+    color: colors.text,
+  },
+  scanButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.primary,
+    paddingHorizontal: 14,
+    height: 42,
+    borderRadius: 12,
+  },
+  scanButtonText: {
+    ...typography.semibold.regular,
+    color: colors.white,
+  },
+  listContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+  },
+  itemCard: {
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: "hidden",
+  },
+  itemCardFound: {
+    borderColor: colors.success + "60",
+    backgroundColor: colors.success + "08",
+  },
+  itemHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    gap: 12,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: colors.success,
+    borderColor: colors.success,
+  },
+  itemInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  itemNombre: {
+    ...typography.medium.medium,
+    color: colors.text,
+  },
+  itemId: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    fontFamily: "RobotoMedium",
+  },
+  itemRight: {
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  cantidadBadge: {
+    backgroundColor: colors.lightGray,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  cantidadText: {
+    ...typography.semibold.small,
+    color: colors.textSec,
+  },
+  itemExpanded: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    padding: 14,
+    gap: 8,
+  },
+  expandedLabel: {
+    ...typography.semibold.small,
+    color: colors.textSec,
+    marginBottom: 2,
+  },
+  estadoRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
+  estadoChip: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.lightGray,
+  },
+  estadoChipText: {
+    ...typography.medium.small,
+    color: colors.textSec,
+  },
+  observacionInput: {
+    backgroundColor: colors.lightGray,
+    borderRadius: 10,
+    padding: 10,
+    ...typography.regular.medium,
+    color: colors.text,
+    minHeight: 60,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  footer: {
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 20,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.white,
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  errorText: {
+    ...typography.regular.large,
+    color: colors.textSec,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingTop: 40,
+    gap: 10,
+  },
+  emptyText: {
+    ...typography.regular.medium,
+    color: colors.textSec,
+  },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

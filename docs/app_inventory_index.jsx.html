@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app/inventory/index.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app/inventory/index.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * app/inventory/index.jsx
+ * Pantalla de listado de inventarios asignados al usuario autenticado.
+ * Filtra los inventarios del mock por el userId extraído del JWT y muestra
+ * una tarjeta por cada uno con nombre, sección, estado y fecha. Sirve como
+ * punto de entrada al módulo de inventario físico.
+ */
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useMemo } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Header from "../../components/Header";
+import { colors } from "../../config/theme";
+import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
+import { useSession } from "../../context/SessionContext";
+
+const INVENTARIOS = require("../../mock/inventarios_asignados.json");
+
+const ESTADO_CONFIG = {
+  1: { labelKey: "inventory.statusAssigned", color: colors.warning, icon: "time-outline" },
+  2: { labelKey: "inventory.statusInProgress", color: colors.primary, icon: "sync-outline" },
+  3: { labelKey: "inventory.statusCompleted", color: colors.success, icon: "checkmark-circle-outline" },
+};
+
+/**
+ * Formatea una cadena ISO 8601 al formato local colombiano (día mes año HH:mm).
+ * @param {string} fechaStr - Fecha en formato ISO 8601.
+ * @returns {string} Fecha formateada para mostrar al usuario.
+ */
+function formatFecha(fechaStr) {
+  const fecha = new Date(fechaStr);
+  return fecha.toLocaleDateString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * Distintivo de color que indica el estado de un inventario.
+ * @param {Object} props
+ * @param {number} props.estadoId - ID del estado (1: Asignado, 2: En proceso, 3: Finalizado).
+ */
+function EstadoBadge({ estadoId }) {
+  const { t } = useLanguage();
+  const config = ESTADO_CONFIG[estadoId] ?? ESTADO_CONFIG[1];
+  return (
+    &lt;View style={[styles.badge, { backgroundColor: config.color + "20", borderColor: config.color + "40" }]}>
+      &lt;Ionicons name={config.icon} size={13} color={config.color} />
+      &lt;Text style={[styles.badgeText, { color: config.color }]}>{t(config.labelKey)}&lt;/Text>
+    &lt;/View>
+  );
+}
+
+/**
+ * Tarjeta que representa un inventario asignado en la lista.
+ * @param {Object} props
+ * @param {Object} props.item - Objeto inventario del mock (id, nombre, descripcion, estadoId, seccionNombre, subSeccionNombre, fechaHora).
+ * @param {function} props.onPress - Callback al tocar la tarjeta; recibe el objeto inventario.
+ */
+function InventarioCard({ item, onPress }) {
+  return (
+    &lt;TouchableOpacity style={styles.card} onPress={() => onPress(item)} activeOpacity={0.75}>
+      &lt;View style={styles.cardHeader}>
+        &lt;View style={styles.cardTitleRow}>
+          &lt;Text style={styles.cardNombre} numberOfLines={1}>{item.nombre}&lt;/Text>
+          &lt;EstadoBadge estadoId={item.estadoId} />
+        &lt;/View>
+        &lt;Text style={styles.cardDescripcion} numberOfLines={2}>{item.descripcion}&lt;/Text>
+      &lt;/View>
+
+      &lt;View style={styles.cardDivider} />
+
+      &lt;View style={styles.cardFooter}>
+        &lt;View style={styles.cardMeta}>
+          &lt;Ionicons name="location-outline" size={14} color={colors.textSec} />
+          &lt;Text style={styles.cardMetaText} numberOfLines={1}>
+            {item.subSeccionNombre} · {item.seccionNombre}
+          &lt;/Text>
+        &lt;/View>
+        &lt;View style={styles.cardMeta}>
+          &lt;Ionicons name="calendar-outline" size={14} color={colors.textSec} />
+          &lt;Text style={styles.cardMetaText}>{formatFecha(item.fechaHora)}&lt;/Text>
+        &lt;/View>
+      &lt;/View>
+    &lt;/TouchableOpacity>
+  );
+}
+
+/**
+ * Pantalla principal del módulo de inventario.
+ * Decodifica el JWT para obtener el userId, filtra los inventarios asignados
+ * y muestra un resumen de conteos por estado junto con la lista de tarjetas.
+ */
+export default function InventariosScreen() {
+  const navigation = useNavigation();
+  const { t } = useLanguage();
+  const { decodificarToken } = useSession();
+
+  const userId = useMemo(() => {
+    const claims = decodificarToken();
+    return claims?.userId ?? 1;
+  }, []);
+
+  const inventarios = useMemo(
+    () => INVENTARIOS.filter((inv) => inv.usuarioAsignadoId === userId),
+    [userId],
+  );
+
+  const handleCardPress = (inventario) => {
+    navigation.navigate("InventarioDetalle", { inventario });
+  };
+
+  return (
+    &lt;SafeAreaView style={styles.container} edges={["top"]}>
+      &lt;Header
+        title={t("inventory.title")}
+        description={t("inventory.subtitle")}
+        onBackPress={() => navigation.navigate("Tabs", { screen: "Home" })}
+      />
+
+      &lt;View style={styles.statsRow}>
+        {Object.entries(ESTADO_CONFIG).map(([id, cfg]) => {
+          const count = inventarios.filter((i) => i.estadoId === Number(id)).length;
+          return (
+            &lt;View key={id} style={styles.statChip}>
+              &lt;Ionicons name={cfg.icon} size={16} color={cfg.color} />
+              &lt;Text style={[styles.statCount, { color: cfg.color }]}>{count}&lt;/Text>
+              &lt;Text style={styles.statLabel}>{t(cfg.labelKey)}&lt;/Text>
+            &lt;/View>
+          );
+        })}
+      &lt;/View>
+
+      &lt;FlatList
+        data={inventarios}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={({ item }) => (
+          &lt;InventarioCard item={item} onPress={handleCardPress} />
+        )}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => &lt;View style={{ height: 12 }} />}
+        ListEmptyComponent={
+          &lt;View style={styles.emptyContainer}>
+            &lt;Ionicons name="clipboard-outline" size={56} color={colors.border} />
+            &lt;Text style={styles.emptyText}>{t("inventory.emptyText")}&lt;/Text>
+          &lt;/View>
+        }
+        showsVerticalScrollIndicator={false}
+      />
+    &lt;/SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.base,
+  },
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    gap: 8,
+  },
+  statChip: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  statCount: {
+    ...typography.semibold.regular,
+  },
+  statLabel: {
+    ...typography.regular.small,
+    color: colors.textSec,
+  },
+  listContent: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  card: {
+    backgroundColor: colors.white,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardHeader: {
+    marginBottom: 10,
+  },
+  cardTitleRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 8,
+    marginBottom: 6,
+  },
+  cardNombre: {
+    ...typography.semibold.medium,
+    color: colors.text,
+    flex: 1,
+  },
+  cardDescripcion: {
+    ...typography.regular.regular,
+    color: colors.textSec,
+    lineHeight: 18,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  badgeText: {
+    ...typography.semibold.small,
+    fontSize: 11,
+  },
+  cardDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginBottom: 10,
+  },
+  cardFooter: {
+    gap: 4,
+  },
+  cardMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  cardMetaText: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    flex: 1,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingTop: 80,
+    gap: 12,
+  },
+  emptyText: {
+    ...typography.regular.large,
+    color: colors.textSec,
+  },
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

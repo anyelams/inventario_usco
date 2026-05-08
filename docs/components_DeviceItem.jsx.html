@@ -37,6 +37,7 @@ import React from "react";
 import { StyleSheet, Switch, Text, View } from "react-native";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
+import { useLanguage } from "../context/LanguageContext";
 
 /**
  * Tarjeta de dispositivo IoT con ícono dinámico y switch de control.
@@ -47,6 +48,7 @@ import { typography } from "../config/typography";
  * @param {boolean} props.connected - Si hay conexión MQTT activa (habilita el switch)
  */
 const DeviceItem = ({ device, isOn, onToggle, connected }) => {
+  const { t } = useLanguage();
   /**
    * Retorna el nombre del ícono según el tipo y estado del dispositivo.
    * @param {string} type - Tipo de dispositivo ('bombillo' | 'ventilador')
@@ -99,14 +101,14 @@ const DeviceItem = ({ device, isOn, onToggle, connected }) => {
 
       &lt;View style={styles.deviceInfo}>
         &lt;Text style={styles.deviceName}>{device.name}&lt;/Text>
-        &lt;Text style={styles.deviceStatus}>1 Dispositivo&lt;/Text>
+        &lt;Text style={styles.deviceStatus}>{t("deviceItem.deviceCount")}&lt;/Text>
         &lt;Text
           style={[
             styles.deviceState,
             { color: isOn ? colors.success : colors.textSec },
           ]}
         >
-          {isOn ? "On" : "Off"}
+          {isOn ? t("deviceItem.on") : t("deviceItem.off")}
         &lt;/Text>
       &lt;/View>
     &lt;/View>
@@ -168,13 +170,13 @@ export default DeviceItem;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
 </footer>
 
 <script> prettyPrint(); </script>

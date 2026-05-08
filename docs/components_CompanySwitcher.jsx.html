@@ -45,14 +45,15 @@ import Logo from "../components/Logo";
 import { colors } from "../config/theme";
 import { typography } from "../config/typography";
 import { useSession } from "../context/SessionContext";
+import { useLanguage } from "../context/LanguageContext";
 import DropdownEmpresas from "./DropdownEmpresas";
 /**
  * Formatea nombres de roles removiendo prefijos y aplicando capitalización
  * @param {string} roleName - Nombre del rol a formatear
  * @returns {string} - Nombre del rol formateado
  */
-const formatRoleName = (roleName) => {
-  if (!roleName) return "Rol sin nombre";
+const formatRoleName = (roleName, fallback = "") => {
+  if (!roleName) return fallback;
 
   return roleName
     .replace(/^ROLE_/, "")
@@ -106,6 +107,7 @@ export default function CompanySwitcher({
 }) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const {
     rolesByCompany,
     empresaSeleccionada,
@@ -189,7 +191,7 @@ export default function CompanySwitcher({
    */
   const handleConfirmar = useCallback(async () => {
     if (!seleccion?.empresaId || !seleccion?.rolId) {
-      Alert.alert("Error", "Debes seleccionar una empresa y un rol");
+      Alert.alert("Error", t("companySwitcher.errorSelectBoth"));
       return;
     }
 
@@ -214,14 +216,11 @@ export default function CompanySwitcher({
       }
 
       navigation.navigate("Home");
-      Alert.alert(
-        "Éxito",
-        "Empresa y rol cambiados correctamente. Redirigiendo al inicio...",
-      );
+      Alert.alert("", t("companySwitcher.successMessage"));
     } catch (error) {
       Alert.alert(
         "Error",
-        error.message || "No se pudo cambiar el contexto. Intenta nuevamente.",
+        error.message || t("companySwitcher.errorChangeContext"),
       );
     } finally {
       setCambiando(false);
@@ -264,10 +263,8 @@ export default function CompanySwitcher({
       &lt;/TouchableOpacity>
 
       {/* Título y subtítulo */}
-      &lt;Text style={styles.titulo}>Cambiar empresa&lt;/Text>
-      &lt;Text style={styles.subtitulo}>
-        Selecciona la empresa y rol que deseas usar.
-      &lt;/Text>
+      &lt;Text style={styles.titulo}>{t("companySwitcher.title")}&lt;/Text>
+      &lt;Text style={styles.subtitulo}>{t("companySwitcher.subtitle")}&lt;/Text>
 
       {/* Dropdown de empresas y roles */}
       &lt;View style={styles.dropdownContainer}>
@@ -288,25 +285,21 @@ export default function CompanySwitcher({
                 color={colors.textSec}
               />
             &lt;/View>
-            &lt;Text style={styles.noDataText}>
-              No se pudieron cargar las empresas
-            &lt;/Text>
-            &lt;Text style={styles.noDataSubtext}>
-              Verifica tu conexión e intenta nuevamente
-            &lt;/Text>
+            &lt;Text style={styles.noDataText}>{t("companySwitcher.noDataText")}&lt;/Text>
+            &lt;Text style={styles.noDataSubtext}>{t("companySwitcher.noDataSubtext")}&lt;/Text>
           &lt;/View>
         )}
       &lt;/View>
 
       {/* Información del contexto actual */}
       &lt;View style={styles.currentInfo}>
-        &lt;Text style={styles.currentLabel}>Empresa actual:&lt;/Text>
+        &lt;Text style={styles.currentLabel}>{t("companySwitcher.currentCompany")}&lt;/Text>
         &lt;Text style={styles.currentValue}>
-          {empresaSeleccionada?.empresaNombre || "No seleccionada"}
+          {empresaSeleccionada?.empresaNombre || t("companySwitcher.notSelected")}
         &lt;/Text>
-        &lt;Text style={styles.currentLabel}>Rol actual:&lt;/Text>
+        &lt;Text style={styles.currentLabel}>{t("companySwitcher.currentRole")}&lt;/Text>
         &lt;Text style={styles.currentValue}>
-          {formatRoleName(empresaSeleccionada?.rolNombre) || "No seleccionado"}
+          {formatRoleName(empresaSeleccionada?.rolNombre, t("companySwitcher.noRoleName")) || t("companySwitcher.roleNotSelected")}
         &lt;/Text>
       &lt;/View>
 
@@ -330,11 +323,11 @@ export default function CompanySwitcher({
         {cambiando ? (
           &lt;View style={styles.loadingContainer}>
             &lt;ActivityIndicator size="small" color={colors.white} />
-            &lt;Text style={styles.textoContinuar}>Cambiando...&lt;/Text>
+            &lt;Text style={styles.textoContinuar}>{t("companySwitcher.changing")}&lt;/Text>
           &lt;/View>
         ) : (
           &lt;>
-            &lt;Text style={styles.textoContinuar}>Confirmar cambio&lt;/Text>
+            &lt;Text style={styles.textoContinuar}>{t("companySwitcher.confirmButton")}&lt;/Text>
             &lt;Ionicons name="arrow-forward" size={18} color={colors.white} />
           &lt;/>
         )}
@@ -496,13 +489,13 @@ const styles = StyleSheet.create({
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
 </footer>
 
 <script> prettyPrint(); </script>

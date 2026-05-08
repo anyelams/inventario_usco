@@ -46,6 +46,7 @@ import LanguageSheet from "../../components/LanguageSheet";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 /**
  * Pantalla de perfil del usuario
@@ -57,17 +58,11 @@ const Profile = () => {
   const navigation = useNavigation();
   const { cerrarSesion, userEmail, empresaSeleccionada, getUserInitials } =
     useSession();
+  const { t, currentLanguage, changeLanguage, availableLanguages } = useLanguage();
 
   // Estados locales para configuraciones
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [languageSheetVisible, setLanguageSheetVisible] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState("es");
-
-  // Lista de idiomas soportados por la aplicación
-  const languages = [
-    { code: "es", name: "Español", flag: "🇪🇸" },
-    { code: "en", name: "English", flag: "🇬🇧" },
-  ];
 
   /**
    * Verifica el estado actual de los permisos de notificaciones
@@ -111,17 +106,15 @@ const Profile = () => {
    * @param {string} code - Código del idioma seleccionado
    */
   const handleLanguageSelect = (code) => {
-    setCurrentLanguage(code);
+    changeLanguage(code);
     setLanguageSheetVisible(false);
-    // TODO: Integrar con sistema de internacionalización real
-    // i18n.changeLanguage(code) si se usa i18next
   };
 
   return (
     &lt;SafeAreaView style={styles.safeArea}>
       {/* Header de la pantalla */}
       &lt;Header
-        title="Mi perfil"
+        title={t("profile.title")}
         onBackPress={() => navigation.navigate("Home")}
       />
 
@@ -136,23 +129,23 @@ const Profile = () => {
           &lt;/View>
           &lt;View style={styles.userInfo}>
             &lt;Text style={styles.userName}>
-              {empresaSeleccionada?.empresaNombre || "Nombre empresa"}
+              {empresaSeleccionada?.empresaNombre || t("profile.defaultCompany")}
             &lt;/Text>
             &lt;Text style={styles.userEmail}>
-              {userEmail || "DireccionCorreo@gmail.com"}
+              {userEmail || t("profile.defaultEmail")}
             &lt;/Text>
           &lt;/View>
         &lt;/View>
 
         {/* Sección General */}
-        &lt;Text style={styles.sectionLabel}>General&lt;/Text>
+        &lt;Text style={styles.sectionLabel}>{t("profile.sectionGeneral")}&lt;/Text>
 
         {/* Configuración de notificaciones */}
         &lt;TouchableOpacity
           style={styles.optionRow}
           onPress={handleOpenNotificationSettings}
         >
-          &lt;Text style={styles.optionText}>Notificaciones&lt;/Text>
+          &lt;Text style={styles.optionText}>{t("profile.optionNotifications")}&lt;/Text>
           &lt;Switch
             value={notificationsEnabled}
             onValueChange={handleOpenNotificationSettings}
@@ -166,7 +159,7 @@ const Profile = () => {
           style={styles.optionRow}
           onPress={() => navigation.navigate("ChangePassword")}
         >
-          &lt;Text style={styles.optionText}>Cambiar contraseña&lt;/Text>
+          &lt;Text style={styles.optionText}>{t("profile.optionChangePassword")}&lt;/Text>
           &lt;MaterialCommunityIcons
             name="chevron-right"
             size={20}
@@ -175,17 +168,17 @@ const Profile = () => {
         &lt;/TouchableOpacity>
 
         {/* Sección Preferencias */}
-        &lt;Text style={styles.sectionLabel}>Preferencias&lt;/Text>
+        &lt;Text style={styles.sectionLabel}>{t("profile.sectionPreferences")}&lt;/Text>
 
         {/* Selector de idioma */}
         &lt;TouchableOpacity
           style={styles.optionRow}
           onPress={() => setLanguageSheetVisible(true)}
         >
-          &lt;Text style={styles.optionText}>Idioma&lt;/Text>
+          &lt;Text style={styles.optionText}>{t("profile.optionLanguage")}&lt;/Text>
           &lt;View style={styles.optionRight}>
             &lt;Text style={styles.optionValue}>
-              {languages.find((l) => l.code === currentLanguage)?.name}
+              {availableLanguages.find((l) => l.code === currentLanguage)?.name}
             &lt;/Text>
             &lt;MaterialCommunityIcons
               name="chevron-right"
@@ -197,7 +190,7 @@ const Profile = () => {
 
         {/* Botón de cerrar sesión */}
         &lt;TouchableOpacity style={styles.logoutRow} onPress={handleLogout}>
-          &lt;Text style={styles.logoutText}>Cerrar sesión&lt;/Text>
+          &lt;Text style={styles.logoutText}>{t("profile.logout")}&lt;/Text>
           &lt;MaterialCommunityIcons name="logout" size={20} color={colors.red} />
         &lt;/TouchableOpacity>
       &lt;/ScrollView>
@@ -206,17 +199,10 @@ const Profile = () => {
       &lt;LanguageSheet
         visible={languageSheetVisible}
         onClose={() => setLanguageSheetVisible(false)}
-        languages={languages}
+        languages={availableLanguages}
         currentLanguage={currentLanguage}
         onSelect={handleLanguageSelect}
-        t={(key) => {
-          // Función temporal de traducción hasta integrar i18n real
-          const map = {
-            "welcome.selectLanguage": "Selecciona un idioma",
-            "common.cancel": "Cancelar",
-          };
-          return map[key] || key;
-        }}
+        t={t}
       />
     &lt;/SafeAreaView>
   );
@@ -324,13 +310,13 @@ export default Profile;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
 </footer>
 
 <script> prettyPrint(); </script>

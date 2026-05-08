@@ -30,8 +30,9 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import Constants from "expo-constants";
 import * as ImageManipulator from "expo-image-manipulator";
-import { useNavigation } from "@react-navigation/native";
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import { setScanResult } from "./scanResult";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -45,6 +46,7 @@ import CustomButton from "../../components/CustomButton";
 import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
 
 const { API_CAMARA_URL, API_CODE_PATH } = Constants.expoConfig.extra;
 
@@ -60,6 +62,8 @@ const { API_CAMARA_URL, API_CODE_PATH } = Constants.expoConfig.extra;
  */
 export default function CameraScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { t } = useLanguage();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState("back");
   const [torchEnabled, setTorchEnabled] = useState(false);
@@ -70,6 +74,9 @@ export default function CameraScreen() {
   const [cameraLayout, setCameraLayout] = useState({ width: 0, height: 0 });
   const [imageLayout, setImageLayout] = useState({ width: 640, height: 480 });
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+  const [codigoPendiente, setCodigoPendiente] = useState(null);
+
+  const fromInventario = route.params?.fromInventario === true;
 
   const cameraRef = useRef(null);
   const liveIntervalRef = useRef(null);
@@ -190,18 +197,22 @@ export default function CameraScreen() {
     }
   };
 
-  useEffect(() => {
-    if (isCameraReady) {
-      processLiveFrame();
-      liveIntervalRef.current = setInterval(processLiveFrame, 1000);
-    }
-    return () => {
-      if (liveIntervalRef.current) {
-        clearInterval(liveIntervalRef.current);
-        liveIntervalRef.current = null;
+  useFocusEffect(
+    useCallback(() => {
+      if (isCameraReady) {
+        processLiveFrame();
+        liveIntervalRef.current = setInterval(processLiveFrame, 1000);
       }
-    };
-  }, [isCameraReady]);
+      return () => {
+        if (liveIntervalRef.current) {
+          clearInterval(liveIntervalRef.current);
+          liveIntervalRef.current = null;
+        }
+        setLiveDetections([]);
+        setCodigoPendiente(null);
+      };
+    }, [isCameraReady]),
+  );
 
   const takePhotoAndScan = async () => {
     if (!cameraRef.current || !isCameraReady || isTakingPhoto) return;
@@ -256,6 +267,23 @@ export default function CameraScreen() {
     }
   };
 
+  useEffect(() => {
+    if (!fromInventario) return;
+    const todasDetecciones = [...liveDetections, ...photoDetections];
+    const primera = todasDetecciones.find((d) => d.data);
+    if (primera) {
+      setCodigoPendiente(primera.data);
+    } else {
+      setCodigoPendiente(null);
+    }
+  }, [liveDetections, photoDetections, fromInventario]);
+
+  const handleConfirmarCodigo = () => {
+    if (!codigoPendiente) return;
+    setScanResult(codigoPendiente);
+    navigation.goBack();
+  };
+
   const renderBoundingBoxes = (detections) =>
     detections.map((det, i) => {
       const b = convertBoundingBox(det.bounding_box);
@@ -292,7 +320,7 @@ export default function CameraScreen() {
     return (
       &lt;SafeAreaView style={styles.permissionContainer}>
         &lt;Header
-          title="Escáner de Códigos"
+          title={t("camera.title")}
           onBackPress={() => navigation.goBack()}
         />
         &lt;View style={styles.permissionContent}>
@@ -306,11 +334,8 @@ export default function CameraScreen() {
             &lt;/View>
           &lt;/View>
 
-          &lt;Text style={styles.permissionTitle}>Acceso a la cámara&lt;/Text>
-          &lt;Text style={styles.message}>
-            Para escanear códigos QR y códigos de barras, necesitamos acceso a
-            tu cámara.
-          &lt;/Text>
+          &lt;Text style={styles.permissionTitle}>{t("camera.permissionTitle")}&lt;/Text>
+          &lt;Text style={styles.message}>{t("camera.permissionMessage")}&lt;/Text>
 
           &lt;View style={styles.featuresList}>
             &lt;View style={styles.featureItem}>
@@ -319,7 +344,7 @@ export default function CameraScreen() {
                 size={20}
                 color={colors.secondary}
               />
-              &lt;Text style={styles.featureText}>Escaneo de códigos QR&lt;/Text>
+              &lt;Text style={styles.featureText}>{t("camera.featureQR")}&lt;/Text>
             &lt;/View>
             &lt;View style={styles.featureItem}>
               &lt;Ionicons
@@ -327,7 +352,7 @@ export default function CameraScreen() {
                 size={20}
                 color={colors.secondary}
               />
-              &lt;Text style={styles.featureText}>Códigos de barras&lt;/Text>
+              &lt;Text style={styles.featureText}>{t("camera.featureBarcode")}&lt;/Text>
             &lt;/View>
             &lt;View style={styles.featureItem}>
               &lt;Ionicons
@@ -335,12 +360,12 @@ export default function CameraScreen() {
                 size={20}
                 color={colors.secondary}
               />
-              &lt;Text style={styles.featureText}>Flash automático&lt;/Text>
+              &lt;Text style={styles.featureText}>{t("camera.featureFlash")}&lt;/Text>
             &lt;/View>
           &lt;/View>
 
           &lt;CustomButton
-            text="Permitir acceso a cámara"
+            text={t("camera.allowButton")}
             onPress={requestPermission}
             variant="primary"
             icon="camera"
@@ -348,10 +373,7 @@ export default function CameraScreen() {
             style={styles.permissionButtonCustom}
           />
 
-          &lt;Text style={styles.privacyText}>
-            Tu privacidad es importante. Solo usamos la cámara para escanear
-            códigos.
-          &lt;/Text>
+          &lt;Text style={styles.privacyText}>{t("camera.privacyText")}&lt;/Text>
         &lt;/View>
       &lt;/SafeAreaView>
     );
@@ -398,12 +420,12 @@ export default function CameraScreen() {
           &lt;View style={styles.statusContainer}>
             &lt;Text style={styles.statusText}>
               {!isCameraReady
-                ? "Iniciando cámara..."
+                ? t("camera.starting")
                 : liveDetections.length > 0
-                  ? `Detectado en vivo: ${[
+                  ? `${t("camera.detectedLive")} ${[
                       ...new Set(liveDetections.map((d) => d.type)),
                     ].join(", ")}`
-                  : "Apunta al código"}
+                  : t("camera.pointToCode")}
             &lt;/Text>
           &lt;/View>
 
@@ -413,6 +435,18 @@ export default function CameraScreen() {
           &lt;View style={styles.overlay}>
             {renderBoundingBoxes(photoDetections)}
           &lt;/View>
+
+          {fromInventario &amp;&amp; codigoPendiente &amp;&amp; (
+            &lt;TouchableOpacity
+              style={styles.confirmarButton}
+              onPress={handleConfirmarCodigo}
+            >
+              &lt;Ionicons name="checkmark-circle" size={20} color={colors.white} />
+              &lt;Text style={styles.confirmarButtonText}>
+                Usar: {codigoPendiente}
+              &lt;/Text>
+            &lt;/TouchableOpacity>
+          )}
 
           &lt;View style={styles.controls}>
             &lt;TouchableOpacity
@@ -594,6 +628,29 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 12,
   },
+  confirmarButton: {
+    position: "absolute",
+    bottom: 130,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.success,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+    zIndex: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  confirmarButtonText: {
+    ...typography.semibold.regular,
+    color: colors.white,
+    maxWidth: 220,
+  },
   controls: {
     position: "absolute",
     bottom: 40,
@@ -675,13 +732,13 @@ const styles = StyleSheet.create({
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/Logo.jsx</title>
+    <title>JSDoc: Source: app/inventory/scanResult.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/Logo.jsx</h1>
+    <h1 class="page-title">Source: app/inventory/scanResult.js</h1>
 
     
 
@@ -27,51 +27,32 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/**
- * components/Logo.jsx
- * Componente de logo con dos variantes de imagen:
- * - "dark": logo oscuro para fondos claros
- * - "light": logo claro para fondos oscuros o de imagen
+ * app/inventory/scanResult.js
+ * Singleton de módulo para transferir el código escaneado desde la pantalla
+ * de cámara hacia la pantalla de detalle de inventario. Se usa porque
+ * navigation.navigate() crea instancias nuevas de pantalla; en su lugar,
+ * la cámara escribe aquí y llama navigation.goBack(), y la pantalla de
+ * detalle lee el valor en useFocusEffect al recuperar el foco.
  */
-import React from "react";
-import { Image, StyleSheet, View } from "react-native";
-import logoDark from "../assets/images/logo.png";
-import logoLight from "../assets/images/logo_light.png";
+
+let _codigo = null;
 
 /**
- * Logo de la aplicación con soporte para variante oscura y clara.
- * @param {Object} props
- * @param {number} [props.width=140] - Ancho de la imagen en píxeles
- * @param {number} [props.height=140] - Alto de la imagen en píxeles
- * @param {'dark'|'light'} [props.variant='dark'] - Variante de color del logo
- * @param {Object} [props.style] - Estilos adicionales para el contenedor
+ * Almacena el código escaneado para que lo consuma la pantalla de detalle.
+ * @param {string} codigo - Código de barras o QR detectado por la cámara.
  */
-export default function Logo({
-  width = 140,
-  height = 140,
-  variant = "dark",
-  style,
-}) {
-  const logoSource = variant === "light" ? logoLight : logoDark;
+export const setScanResult = (codigo) => { _codigo = codigo; };
 
-  return (
-    &lt;View style={[styles.container, style]}>
-      &lt;Image
-        source={logoSource}
-        style={[styles.image, { width, height }]}
-        resizeMode="contain"
-      />
-    &lt;/View>
-  );
-}
+/**
+ * Retorna el código almacenado, o null si no hay ninguno pendiente.
+ * @returns {string|null} Código escaneado o null.
+ */
+export const getScanResult = () => _codigo;
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  image: {},
-});
+/**
+ * Limpia el código almacenado tras ser consumido por la pantalla de detalle.
+ */
+export const clearScanResult = () => { _codigo = null; };
 </code></pre>
         </article>
     </section>

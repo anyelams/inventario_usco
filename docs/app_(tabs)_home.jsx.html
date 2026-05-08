@@ -49,6 +49,7 @@ import ModuleCard from "../../components/ModuleCard";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 // Colores corporativos con naranja para seguridad
 const corporateColors = {
@@ -74,36 +75,6 @@ const corporateColors = {
   },
 };
 
-const modules = [
-  {
-    id: "1",
-    title: "Módulo\nInventario",
-    icon: "clipboard-check",
-    route: "inventory",
-    moduleColors: corporateColors.inventory,
-  },
-  {
-    id: "2",
-    title: "Módulo\nde IoT",
-    icon: "access-point",
-    route: "iot",
-    moduleColors: corporateColors.iot,
-  },
-  {
-    id: "3",
-    title: "Módulo\nSeguridad",
-    icon: "shield-lock-outline",
-    route: "security",
-    moduleColors: corporateColors.security,
-  },
-  {
-    id: "4",
-    title: "Módulo\nReportes",
-    icon: "chart-line",
-    route: "reports",
-    moduleColors: corporateColors.reports,
-  },
-];
 
 /**
  * Pantalla Home con saludo al usuario, tarjeta de empresa activa
@@ -111,8 +82,41 @@ const modules = [
  */
 export default function Home() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
+
+  const modules = [
+    {
+      id: "1",
+      title: t("home.moduleInventory"),
+      icon: "clipboard-check",
+      route: "inventory",
+      moduleColors: corporateColors.inventory,
+    },
+    {
+      id: "2",
+      title: t("home.moduleIot"),
+      icon: "access-point",
+      route: "iot",
+      moduleColors: corporateColors.iot,
+    },
+    {
+      id: "3",
+      title: t("home.moduleSecurity"),
+      icon: "shield-lock-outline",
+      route: "security",
+      moduleColors: corporateColors.security,
+    },
+    {
+      id: "4",
+      title: t("home.moduleReports"),
+      icon: "chart-line",
+      route: "reports",
+      moduleColors: corporateColors.reports,
+    },
+  ];
+
   const screenMap = {
-    inventory: "Camera",
+    inventory: "Inventarios",
     iot: "Iot",
     security: "Security",
     reports: "Reports",
@@ -150,9 +154,9 @@ export default function Home() {
    */
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour &lt; 12) return "Buenos días!";
-    if (hour &lt; 18) return "Buenas tardes!";
-    return "Buenas noches!";
+    if (hour &lt; 12) return t("home.greetingMorning");
+    if (hour &lt; 18) return t("home.greetingAfternoon");
+    return t("home.greetingEvening");
   };
 
   /**
@@ -185,8 +189,8 @@ export default function Home() {
             &lt;Text style={styles.greeting}>{getGreeting()}&lt;/Text>
             &lt;Text style={styles.userName}>
               {rolesByCompany?.length > 1
-                ? "Recuerda que desde 'Empresa' podrás cambiar tu sesión actual."
-                : getUserDisplayName() || "Accede a los módulos de tu empresa"}
+                ? t("home.multiCompanyHint")
+                : getUserDisplayName() || t("home.accessModules")}
             &lt;/Text>
           &lt;/View>
         &lt;/View>
@@ -209,7 +213,7 @@ export default function Home() {
                   &lt;/View>
                 &lt;/View>
                 &lt;View style={styles.empresaInfo}>
-                  &lt;Text style={styles.empresaLabel}>Empresa&lt;/Text>
+                  &lt;Text style={styles.empresaLabel}>{t("home.companyLabel")}&lt;/Text>
                   &lt;Text style={styles.empresaText} numberOfLines={1}>
                     {empresaSeleccionada?.empresaNombre}
                   &lt;/Text>
@@ -229,7 +233,7 @@ export default function Home() {
         {/* Módulos Section */}
         &lt;View style={styles.modulesSection}>
           &lt;View style={styles.sectionHeader}>
-            &lt;Text style={styles.sectionTitle}>Módulos disponibles&lt;/Text>
+            &lt;Text style={styles.sectionTitle}>{t("home.availableModules")}&lt;/Text>
           &lt;/View>
           &lt;View style={styles.grid}>
             {modules.map((item) => (
@@ -376,13 +380,13 @@ const styles = StyleSheet.create({
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SearchResults.html">SearchResults</a></li><li><a href="module-app_reports_reporteOrdencompra.html">app/reports/reporteOrdencompra</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ActionButtons">ActionButtons</a></li><li><a href="global.html#CustomButton">CustomButton</a></li><li><a href="global.html#CustomInput">CustomInput</a></li><li><a href="global.html#CustomPicker">CustomPicker</a></li><li><a href="global.html#DateTimeInput">DateTimeInput</a></li><li><a href="global.html#DeviceCard">DeviceCard</a></li><li><a href="global.html#DeviceItem">DeviceItem</a></li><li><a href="global.html#EstadoBadge">EstadoBadge</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#InfoCard">InfoCard</a></li><li><a href="global.html#InventarioCard">InventarioCard</a></li><li><a href="global.html#ItemRow">ItemRow</a></li><li><a href="global.html#LocationFilters">LocationFilters</a></li><li><a href="global.html#ModuleCard">ModuleCard</a></li><li><a href="global.html#Profile">Profile</a></li><li><a href="global.html#ReportCard">ReportCard</a></li><li><a href="global.html#ReportHeader">ReportHeader</a></li><li><a href="global.html#RootNavigator">RootNavigator</a></li><li><a href="global.html#StatusCard">StatusCard</a></li><li><a href="global.html#TankLevelCard">TankLevelCard</a></li><li><a href="global.html#UnderConstruction">UnderConstruction</a></li><li><a href="global.html#_codigo">_codigo</a></li><li><a href="global.html#agruparRolesByCompany">agruparRolesByCompany</a></li><li><a href="global.html#buildInitialItems">buildInitialItems</a></li><li><a href="global.html#clearScanResult">clearScanResult</a></li><li><a href="global.html#formatFecha">formatFecha</a></li><li><a href="global.html#formatRoleName">formatRoleName</a></li><li><a href="global.html#getErrorMessage">getErrorMessage</a></li><li><a href="global.html#getPasswordStrength">getPasswordStrength</a></li><li><a href="global.html#getScanResult">getScanResult</a></li><li><a href="global.html#setScanResult">setScanResult</a></li><li><a href="global.html#useLanguage">useLanguage</a></li><li><a href="global.html#useLocationFilters">useLocationFilters</a></li><li><a href="global.html#useMQTT">useMQTT</a></li><li><a href="global.html#useSession">useSession</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateLoginForm">validateLoginForm</a></li><li><a href="global.html#validateRegisterForm">validateRegisterForm</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed May 06 2026 20:31:40 GMT-0500 (hora estándar de Colombia)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri May 08 2026 04:32:03 GMT-0500 (hora estándar de Colombia)
 </footer>
 
 <script> prettyPrint(); </script>
