@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "nombre": "Inventario Oficina Lab IA",
+    "descripcion": "Verificación de equipos de cómputo y mobiliario",
+    "fechaHora": "2025-05-08T08:00:00",
+    "subSeccionId": 1,
+    "subSeccionNombre": "Oficina",
+    "seccionNombre": "Laboratorio de Inteligencia Artificial",
+    "estadoId": 1,
+    "usuarioAsignadoId": 1
+  },
+  {
+    "id": 2,
+    "nombre": "Inventario Aula Lab IA",
+    "descripcion": "Verificación de equipos y herramientas del aula de trabajo",
+    "fechaHora": "2025-05-08T10:00:00",
+    "subSeccionId": 2,
+    "subSeccionNombre": "Aula",
+    "seccionNombre": "Laboratorio de Inteligencia Artificial",
+    "estadoId": 2,
+    "usuarioAsignadoId": 1
+  },
+  {
+    "id": 3,
+    "nombre": "Inventario Sala de Servidores",
+    "descripcion": "Revisión de equipos de red y servidores",
+    "fechaHora": "2025-05-07T14:00:00",
+    "subSeccionId": 3,
+    "subSeccionNombre": "Sala de Servidores",
+    "seccionNombre": "Laboratorio de Inteligencia Artificial",
+    "estadoId": 3,
+    "usuarioAsignadoId": 1
+  }
+]

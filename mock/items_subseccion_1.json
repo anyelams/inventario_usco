@@ -1,0 +1,8 @@
+[
+  { "producto": "Computador de escritorio", "producto_identificador": "USCO-LAB-001", "cantidad": 2 },
+  { "producto": "Monitor LG 24\"", "producto_identificador": "USCO-LAB-002", "cantidad": 2 },
+  { "producto": "Silla ergonómica", "producto_identificador": "USCO-LAB-003", "cantidad": 4 },
+  { "producto": "Escritorio", "producto_identificador": "USCO-LAB-004", "cantidad": 2 },
+  { "producto": "Impresora HP LaserJet", "producto_identificador": "USCO-LAB-005", "cantidad": 1 },
+  { "producto": "Teléfono IP", "producto_identificador": "USCO-LAB-006", "cantidad": 1 }
+]

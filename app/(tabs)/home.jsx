@@ -88,7 +88,7 @@ export default function Home() {
   ];
 
   const screenMap = {
-    inventory: "Camera",
+    inventory: "Inventarios",
     iot: "Iot",
     security: "Security",
     reports: "Reports",

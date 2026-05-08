@@ -2,8 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import Constants from "expo-constants";
 import * as ImageManipulator from "expo-image-manipulator";
-import { useNavigation } from "@react-navigation/native";
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import { setScanResult } from "./scanResult";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -33,6 +34,7 @@ const { API_CAMARA_URL, API_CODE_PATH } = Constants.expoConfig.extra;
  */
 export default function CameraScreen() {
   const navigation = useNavigation();
+  const route = useRoute();
   const { t } = useLanguage();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState("back");
@@ -44,6 +46,9 @@ export default function CameraScreen() {
   const [cameraLayout, setCameraLayout] = useState({ width: 0, height: 0 });
   const [imageLayout, setImageLayout] = useState({ width: 640, height: 480 });
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+  const [codigoPendiente, setCodigoPendiente] = useState(null);
+
+  const fromInventario = route.params?.fromInventario === true;
 
   const cameraRef = useRef(null);
   const liveIntervalRef = useRef(null);
@@ -164,18 +169,22 @@ export default function CameraScreen() {
     }
   };
 
-  useEffect(() => {
-    if (isCameraReady) {
-      processLiveFrame();
-      liveIntervalRef.current = setInterval(processLiveFrame, 1000);
-    }
-    return () => {
-      if (liveIntervalRef.current) {
-        clearInterval(liveIntervalRef.current);
-        liveIntervalRef.current = null;
+  useFocusEffect(
+    useCallback(() => {
+      if (isCameraReady) {
+        processLiveFrame();
+        liveIntervalRef.current = setInterval(processLiveFrame, 1000);
       }
-    };
-  }, [isCameraReady]);
+      return () => {
+        if (liveIntervalRef.current) {
+          clearInterval(liveIntervalRef.current);
+          liveIntervalRef.current = null;
+        }
+        setLiveDetections([]);
+        setCodigoPendiente(null);
+      };
+    }, [isCameraReady]),
+  );
 
   const takePhotoAndScan = async () => {
     if (!cameraRef.current || !isCameraReady || isTakingPhoto) return;
@@ -228,6 +237,23 @@ export default function CameraScreen() {
     } finally {
       setIsTakingPhoto(false);
     }
+  };
+
+  useEffect(() => {
+    if (!fromInventario) return;
+    const todasDetecciones = [...liveDetections, ...photoDetections];
+    const primera = todasDetecciones.find((d) => d.data);
+    if (primera) {
+      setCodigoPendiente(primera.data);
+    } else {
+      setCodigoPendiente(null);
+    }
+  }, [liveDetections, photoDetections, fromInventario]);
+
+  const handleConfirmarCodigo = () => {
+    if (!codigoPendiente) return;
+    setScanResult(codigoPendiente);
+    navigation.goBack();
   };
 
   const renderBoundingBoxes = (detections) =>
@@ -381,6 +407,18 @@ export default function CameraScreen() {
           <View style={styles.overlay}>
             {renderBoundingBoxes(photoDetections)}
           </View>
+
+          {fromInventario && codigoPendiente && (
+            <TouchableOpacity
+              style={styles.confirmarButton}
+              onPress={handleConfirmarCodigo}
+            >
+              <Ionicons name="checkmark-circle" size={20} color={colors.white} />
+              <Text style={styles.confirmarButtonText}>
+                Usar: {codigoPendiente}
+              </Text>
+            </TouchableOpacity>
+          )}
 
           <View style={styles.controls}>
             <TouchableOpacity
@@ -561,6 +599,29 @@ const styles = StyleSheet.create({
     ...typography.semibold.small,
     color: colors.white,
     fontSize: 12,
+  },
+  confirmarButton: {
+    position: "absolute",
+    bottom: 130,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.success,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+    zIndex: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+  confirmarButtonText: {
+    ...typography.semibold.regular,
+    color: colors.white,
+    maxWidth: 220,
   },
   controls: {
     position: "absolute",

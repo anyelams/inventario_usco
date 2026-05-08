@@ -6,6 +6,8 @@
  */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CameraScreen from "../app/inventory/camera";
+import InventariosScreen from "../app/inventory/index";
+import InventarioDetalleScreen from "../app/inventory/inventario-detalle";
 import IotScreen from "../app/iot/index";
 import IotTemperatureScreen from "../app/iot/temperature";
 import ChangePasswordScreen from "../app/profile/changePassword";
@@ -24,6 +26,8 @@ export default function MainNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Tabs" component={TabsNavigator} />
+      <Stack.Screen name="Inventarios" component={InventariosScreen} />
+      <Stack.Screen name="InventarioDetalle" component={InventarioDetalleScreen} />
       <Stack.Screen name="Camera" component={CameraScreen} />
       <Stack.Screen name="Iot" component={IotScreen} />
       <Stack.Screen name="IotTemperature" component={IotTemperatureScreen} />

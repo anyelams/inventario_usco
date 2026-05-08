@@ -1,0 +1,37 @@
+[
+  {
+    "producto": "Computador portátil Dell",
+    "producto_identificador": "7702189053817",
+    "cantidad": 10
+  },
+  {
+    "producto": "Raspberry Pi 4",
+    "producto_identificador": "USCO-LAB-011",
+    "cantidad": 5
+  },
+  {
+    "producto": "Arduino Uno",
+    "producto_identificador": "USCO-LAB-012",
+    "cantidad": 8
+  },
+  {
+    "producto": "Proyector Epson",
+    "producto_identificador": "USCO-LAB-013",
+    "cantidad": 1
+  },
+  {
+    "producto": "Switch de red",
+    "producto_identificador": "USCO-LAB-014",
+    "cantidad": 2
+  },
+  {
+    "producto": "Cámara IP",
+    "producto_identificador": "USCO-LAB-015",
+    "cantidad": 3
+  },
+  {
+    "producto": "UPS APC",
+    "producto_identificador": "USCO-LAB-016",
+    "cantidad": 2
+  }
+]

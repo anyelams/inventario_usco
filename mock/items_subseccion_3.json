@@ -1,0 +1,7 @@
+[
+  { "producto": "Servidor Dell PowerEdge", "producto_identificador": "USCO-LAB-020", "cantidad": 2 },
+  { "producto": "Router Cisco", "producto_identificador": "USCO-LAB-021", "cantidad": 1 },
+  { "producto": "Switch administrable", "producto_identificador": "USCO-LAB-022", "cantidad": 2 },
+  { "producto": "UPS APC 3000VA", "producto_identificador": "USCO-LAB-023", "cantidad": 1 },
+  { "producto": "Patch panel 24 puertos", "producto_identificador": "USCO-LAB-024", "cantidad": 1 }
+]
