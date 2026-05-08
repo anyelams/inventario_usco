@@ -12,14 +12,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
 import { useSession } from "../../context/SessionContext";
 
 const INVENTARIOS = require("../../mock/inventarios_asignados.json");
 
 const ESTADO_CONFIG = {
-  1: { label: "Asignado", color: colors.warning, icon: "time-outline" },
-  2: { label: "En proceso", color: colors.primary, icon: "sync-outline" },
-  3: { label: "Finalizado", color: colors.success, icon: "checkmark-circle-outline" },
+  1: { labelKey: "inventory.statusAssigned", color: colors.warning, icon: "time-outline" },
+  2: { labelKey: "inventory.statusInProgress", color: colors.primary, icon: "sync-outline" },
+  3: { labelKey: "inventory.statusCompleted", color: colors.success, icon: "checkmark-circle-outline" },
 };
 
 function formatFecha(fechaStr) {
@@ -34,11 +35,12 @@ function formatFecha(fechaStr) {
 }
 
 function EstadoBadge({ estadoId }) {
+  const { t } = useLanguage();
   const config = ESTADO_CONFIG[estadoId] ?? ESTADO_CONFIG[1];
   return (
     <View style={[styles.badge, { backgroundColor: config.color + "20", borderColor: config.color + "40" }]}>
       <Ionicons name={config.icon} size={13} color={config.color} />
-      <Text style={[styles.badgeText, { color: config.color }]}>{config.label}</Text>
+      <Text style={[styles.badgeText, { color: config.color }]}>{t(config.labelKey)}</Text>
     </View>
   );
 }
@@ -74,6 +76,7 @@ function InventarioCard({ item, onPress }) {
 
 export default function InventariosScreen() {
   const navigation = useNavigation();
+  const { t } = useLanguage();
   const { decodificarToken } = useSession();
 
   const userId = useMemo(() => {
@@ -93,8 +96,8 @@ export default function InventariosScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <Header
-        title="Mis Inventarios"
-        description="Inventarios asignados a ti"
+        title={t("inventory.title")}
+        description={t("inventory.subtitle")}
         onBackPress={() => navigation.navigate("Tabs", { screen: "Home" })}
       />
 
@@ -105,7 +108,7 @@ export default function InventariosScreen() {
             <View key={id} style={styles.statChip}>
               <Ionicons name={cfg.icon} size={16} color={cfg.color} />
               <Text style={[styles.statCount, { color: cfg.color }]}>{count}</Text>
-              <Text style={styles.statLabel}>{cfg.label}</Text>
+              <Text style={styles.statLabel}>{t(cfg.labelKey)}</Text>
             </View>
           );
         })}
@@ -122,7 +125,7 @@ export default function InventariosScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="clipboard-outline" size={56} color={colors.border} />
-            <Text style={styles.emptyText}>No tienes inventarios asignados</Text>
+            <Text style={styles.emptyText}>{t("inventory.emptyText")}</Text>
           </View>
         }
         showsVerticalScrollIndicator={false}

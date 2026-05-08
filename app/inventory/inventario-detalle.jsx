@@ -17,6 +17,7 @@ import CustomButton from "../../components/CustomButton";
 import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
+import { useLanguage } from "../../context/LanguageContext";
 import { useSession } from "../../context/SessionContext";
 import { clearScanResult, getScanResult } from "./scanResult";
 
@@ -31,9 +32,9 @@ const RESULTADOS_MAP = {
 };
 
 const ESTADO_ITEM = [
-  { value: "ok", label: "OK", color: colors.success, icon: "checkmark-circle" },
-  { value: "incompleto", label: "Incompleto", color: colors.warning, icon: "warning" },
-  { value: "dañado", label: "Dañado", color: colors.error, icon: "close-circle" },
+  { value: "ok", labelKey: "inventory.stateOk", color: colors.success, icon: "checkmark-circle" },
+  { value: "incompleto", labelKey: "inventory.stateIncomplete", color: colors.warning, icon: "warning" },
+  { value: "dañado", labelKey: "inventory.stateDamaged", color: colors.error, icon: "close-circle" },
 ];
 
 function buildInitialItems(rawItems, resultado = null) {
@@ -51,6 +52,7 @@ function buildInitialItems(rawItems, resultado = null) {
 }
 
 function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange }) {
+  const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -89,7 +91,7 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
 
       {expanded && (
         <View style={styles.itemExpanded}>
-          <Text style={styles.expandedLabel}>Estado del ítem</Text>
+          <Text style={styles.expandedLabel}>{t("inventory.itemState")}</Text>
           <View style={styles.estadoRow}>
             {ESTADO_ITEM.map((e) => (
               <TouchableOpacity
@@ -114,16 +116,16 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
                     item.estado === e.value && { color: e.color },
                   ]}
                 >
-                  {e.label}
+                  {t(e.labelKey)}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={styles.expandedLabel}>Observación (opcional)</Text>
+          <Text style={styles.expandedLabel}>{t("inventory.observationLabel")}</Text>
           <TextInput
             style={styles.observacionInput}
-            placeholder="Escribe una observación..."
+            placeholder={t("inventory.observationPlaceholder")}
             placeholderTextColor={colors.textSec}
             value={item.observacion}
             onChangeText={(text) =>
@@ -142,6 +144,7 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
 export default function InventarioDetalleScreen() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { t } = useLanguage();
   const { decodificarToken } = useSession();
 
   const { inventario: inventarioParam } = route.params ?? {};
@@ -182,8 +185,8 @@ export default function InventarioDetalleScreen() {
         );
         if (idx === -1) {
           Alert.alert(
-            "Código no encontrado",
-            `"${codigoNormalizado}" no corresponde a ningún ítem de este inventario.`,
+            t("inventory.codeNotFound"),
+            t("inventory.codeNotFoundMessage", { code: codigoNormalizado }),
           );
           return prev;
         }
@@ -267,9 +270,9 @@ export default function InventarioDetalleScreen() {
   if (!inventario) {
     return (
       <SafeAreaView style={styles.container} edges={["top"]}>
-        <Header title="Detalle" onBackPress={() => navigation.goBack()} />
+        <Header title={t("inventory.detailTitle")} onBackPress={() => navigation.goBack()} />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No se encontró el inventario.</Text>
+          <Text style={styles.errorText}>{t("inventory.notFound")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -305,7 +308,7 @@ export default function InventarioDetalleScreen() {
               />
             </View>
             <Text style={styles.progressText}>
-              {resumen.encontrados}/{resumen.total} encontrados
+              {t("inventory.progress", { found: resumen.encontrados, total: resumen.total })}
             </Text>
           </View>
 
@@ -314,7 +317,7 @@ export default function InventarioDetalleScreen() {
               <Ionicons name="search-outline" size={16} color={colors.textSec} />
               <TextInput
                 style={styles.searchInput}
-                placeholder="Buscar ítem..."
+                placeholder={t("inventory.searchPlaceholder")}
                 placeholderTextColor={colors.textSec}
                 value={busqueda}
                 onChangeText={setBusqueda}
@@ -332,7 +335,7 @@ export default function InventarioDetalleScreen() {
               disabled={estadoFinalizado}
             >
               <Ionicons name="qr-code-outline" size={20} color={colors.white} />
-              <Text style={styles.scanButtonText}>Escanear</Text>
+              <Text style={styles.scanButtonText}>{t("inventory.scanButton")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -353,7 +356,7 @@ export default function InventarioDetalleScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="search-outline" size={40} color={colors.border} />
-              <Text style={styles.emptyText}>Sin resultados para "{busqueda}"</Text>
+              <Text style={styles.emptyText}>{t("inventory.noResults", { query: busqueda })}</Text>
             </View>
           }
           showsVerticalScrollIndicator={false}
@@ -361,7 +364,7 @@ export default function InventarioDetalleScreen() {
 
         <View style={styles.footer}>
           <CustomButton
-            text={estadoFinalizado ? "Inventario finalizado" : "Guardar y finalizar"}
+            text={estadoFinalizado ? t("inventory.finishedButton") : t("inventory.saveButton")}
             onPress={handleGuardar}
             variant="primary"
             icon={estadoFinalizado ? "checkmark-circle" : "save-outline"}
