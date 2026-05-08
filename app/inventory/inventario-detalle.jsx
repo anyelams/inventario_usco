@@ -26,19 +26,28 @@ const ITEMS_MAP = {
   3: require("../../mock/items_subseccion_3.json"),
 };
 
+const RESULTADOS_MAP = {
+  3: require("../../mock/resultado_inventario_3.json"),
+};
+
 const ESTADO_ITEM = [
   { value: "ok", label: "OK", color: colors.success, icon: "checkmark-circle" },
   { value: "incompleto", label: "Incompleto", color: colors.warning, icon: "warning" },
   { value: "dañado", label: "Dañado", color: colors.error, icon: "close-circle" },
 ];
 
-function buildInitialItems(rawItems) {
-  return rawItems.map((item) => ({
-    ...item,
-    encontrado: false,
-    estado: "ok",
-    observacion: "",
-  }));
+function buildInitialItems(rawItems, resultado = null) {
+  return rawItems.map((item) => {
+    const res = resultado?.find(
+      (r) => r.producto_identificador === item.producto_identificador,
+    );
+    return {
+      ...item,
+      encontrado: res?.encontrado ?? false,
+      estado: res?.estado ?? "ok",
+      observacion: res?.observacion ?? "",
+    };
+  });
 }
 
 function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange }) {
@@ -150,7 +159,10 @@ export default function InventarioDetalleScreen() {
     [inventario?.subSeccionId],
   );
 
-  const [items, setItems] = useState(() => buildInitialItems(rawItems));
+  const [items, setItems] = useState(() => {
+    const resultado = RESULTADOS_MAP[inventarioParam?.id] ?? null;
+    return buildInitialItems(rawItems, resultado);
+  });
   const [busqueda, setBusqueda] = useState("");
 
   const userId = useMemo(() => {

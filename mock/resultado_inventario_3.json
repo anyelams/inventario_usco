@@ -1,0 +1,7 @@
+[
+  { "producto_identificador": "USCO-LAB-020", "encontrado": true, "estado": "ok", "observacion": "" },
+  { "producto_identificador": "USCO-LAB-021", "encontrado": true, "estado": "ok", "observacion": "" },
+  { "producto_identificador": "USCO-LAB-022", "encontrado": true, "estado": "dañado", "observacion": "Presenta daño en el puerto 3" },
+  { "producto_identificador": "USCO-LAB-023", "encontrado": false, "estado": "ok", "observacion": "No se encontró en la sala" },
+  { "producto_identificador": "USCO-LAB-024", "encontrado": true, "estado": "ok", "observacion": "" }
+]
