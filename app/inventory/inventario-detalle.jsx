@@ -1,3 +1,12 @@
+/**
+ * app/inventory/inventario-detalle.jsx
+ * Pantalla de ejecución de inventario. Muestra la lista de ítems de la
+ * subsección, permite marcar cada uno como encontrado (checkbox o escaneo
+ * de código), registrar su estado (OK/Incompleto/Dañado) y agregar
+ * observaciones. Incluye barra de progreso, búsqueda en tiempo real y
+ * finalización del inventario. Precarga resultados anteriores para
+ * inventarios en estado Finalizado mediante RESULTADOS_MAP.
+ */
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -37,6 +46,13 @@ const ESTADO_ITEM = [
   { value: "dañado", labelKey: "inventory.stateDamaged", color: colors.error, icon: "close-circle" },
 ];
 
+/**
+ * Construye la lista de ítems inicial fusionando los datos del mock con los
+ * resultados previos del inventario, si existen.
+ * @param {Object[]} rawItems - Ítems crudos de la subsección (producto, producto_identificador, cantidad).
+ * @param {Object[]|null} resultado - Resultados previos guardados, o null si el inventario es nuevo.
+ * @returns {Object[]} Ítems con los campos encontrado, estado y observacion añadidos.
+ */
 function buildInitialItems(rawItems, resultado = null) {
   return rawItems.map((item) => {
     const res = resultado?.find(
@@ -51,6 +67,16 @@ function buildInitialItems(rawItems, resultado = null) {
   });
 }
 
+/**
+ * Fila expandible que representa un ítem del inventario.
+ * En estado colapsado muestra checkbox, nombre e identificador del producto.
+ * Expandida muestra el selector de estado y el campo de observación.
+ * @param {Object} props
+ * @param {Object} props.item - Ítem del inventario con encontrado, estado, observacion, producto, producto_identificador y cantidad.
+ * @param {function} props.onToggleEncontrado - Callback al marcar/desmarcar el checkbox; recibe producto_identificador.
+ * @param {function} props.onEstadoChange - Callback al cambiar el estado; recibe (producto_identificador, estado).
+ * @param {function} props.onObservacionChange - Callback al editar la observación; recibe (producto_identificador, texto).
+ */
 function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange }) {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
@@ -141,6 +167,13 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
   );
 }
 
+/**
+ * Pantalla de detalle y ejecución de un inventario.
+ * Recibe el objeto inventario por parámetro de navegación. Si el inventario
+ * llega en estado Pendiente (estadoId 1) lo promueve automáticamente a
+ * En proceso (estadoId 2). Lee el resultado del escaneo mediante
+ * scanResult.js en useFocusEffect para marcar ítems al regresar de la cámara.
+ */
 export default function InventarioDetalleScreen() {
   const navigation = useNavigation();
   const route = useRoute();

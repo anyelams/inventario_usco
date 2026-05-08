@@ -1,3 +1,10 @@
+/**
+ * app/inventory/index.jsx
+ * Pantalla de listado de inventarios asignados al usuario autenticado.
+ * Filtra los inventarios del mock por el userId extraído del JWT y muestra
+ * una tarjeta por cada uno con nombre, sección, estado y fecha. Sirve como
+ * punto de entrada al módulo de inventario físico.
+ */
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useMemo } from "react";
@@ -23,6 +30,11 @@ const ESTADO_CONFIG = {
   3: { labelKey: "inventory.statusCompleted", color: colors.success, icon: "checkmark-circle-outline" },
 };
 
+/**
+ * Formatea una cadena ISO 8601 al formato local colombiano (día mes año HH:mm).
+ * @param {string} fechaStr - Fecha en formato ISO 8601.
+ * @returns {string} Fecha formateada para mostrar al usuario.
+ */
 function formatFecha(fechaStr) {
   const fecha = new Date(fechaStr);
   return fecha.toLocaleDateString("es-CO", {
@@ -34,6 +46,11 @@ function formatFecha(fechaStr) {
   });
 }
 
+/**
+ * Distintivo de color que indica el estado de un inventario.
+ * @param {Object} props
+ * @param {number} props.estadoId - ID del estado (1: Asignado, 2: En proceso, 3: Finalizado).
+ */
 function EstadoBadge({ estadoId }) {
   const { t } = useLanguage();
   const config = ESTADO_CONFIG[estadoId] ?? ESTADO_CONFIG[1];
@@ -45,6 +62,12 @@ function EstadoBadge({ estadoId }) {
   );
 }
 
+/**
+ * Tarjeta que representa un inventario asignado en la lista.
+ * @param {Object} props
+ * @param {Object} props.item - Objeto inventario del mock (id, nombre, descripcion, estadoId, seccionNombre, subSeccionNombre, fechaHora).
+ * @param {function} props.onPress - Callback al tocar la tarjeta; recibe el objeto inventario.
+ */
 function InventarioCard({ item, onPress }) {
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(item)} activeOpacity={0.75}>
@@ -74,6 +97,11 @@ function InventarioCard({ item, onPress }) {
   );
 }
 
+/**
+ * Pantalla principal del módulo de inventario.
+ * Decodifica el JWT para obtener el userId, filtra los inventarios asignados
+ * y muestra un resumen de conteos por estado junto con la lista de tarjetas.
+ */
 export default function InventariosScreen() {
   const navigation = useNavigation();
   const { t } = useLanguage();
