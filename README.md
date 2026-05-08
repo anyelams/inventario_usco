@@ -79,7 +79,10 @@ inventario_app/
 │   │   ├── notifications.jsx
 │   │   └── profile.jsx
 │   ├── inventory/       # Módulo de inventario
-│   │   └── camera.jsx       # Escáner QR / código de barras
+│   │   ├── index.jsx        # Lista de inventarios asignados al usuario
+│   │   ├── inventario-detalle.jsx  # Checklist de ítems, estados y finalización
+│   │   ├── camera.jsx       # Escáner QR / código de barras
+│   │   └── scanResult.js    # Singleton para transferir código entre pantallas
 │   ├── iot/             # Módulo IoT
 │   │   ├── index.jsx        # Panel de dispositivos
 │   │   └── temperature.jsx  # Gráfico de temperatura en tiempo real
@@ -120,8 +123,11 @@ inventario_app/
 
 ### Inventario
 
-- Escaneo de códigos QR y de barras mediante la cámara del dispositivo.
-- Integración con el API de detección de imágenes.
+- Listado de inventarios asignados al usuario autenticado, filtrados por `userId` del JWT.
+- Ejecución de inventario físico: checklist de ítems con checkbox, selector de estado (OK / Incompleto / Dañado) y campo de observación.
+- Barra de progreso en tiempo real y búsqueda por nombre o identificador de producto.
+- Escaneo de códigos QR y de barras con la cámara para marcar ítems automáticamente.
+- Finalización del inventario con persistencia del resultado por ítem.
 
 ### IoT
 
