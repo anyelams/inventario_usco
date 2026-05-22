@@ -107,7 +107,7 @@ inventario_app/
 ├── assets/              # Imágenes, fuentes
 ├── app.config.js        # Configuración de Expo (lee variables del .env)
 ├── index.js             # Punto de entrada
-└── .env                 # Variables de entorno (NO subir al repositorio)
+└── .env                 # Variables de entorno
 ```
 
 ---
