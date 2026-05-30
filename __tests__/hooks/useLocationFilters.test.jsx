@@ -177,7 +177,7 @@ describe('handlePaisChange', () => {
     });
 
     // Avanzar el setTimeout de autoSelectIfSingle (100ms)
-    act(() => { jest.advanceTimersByTime(150); });
+    await act(async () => { jest.advanceTimersByTime(150); });
 
     expect(result.current.selected.departamentoId).toBe(10);
   });
@@ -192,7 +192,7 @@ describe('handlePaisChange', () => {
       await result.current.handlers.handlePaisChange(1);
     });
 
-    act(() => { jest.advanceTimersByTime(150); });
+    await act(async () => { jest.advanceTimersByTime(150); });
 
     expect(result.current.selected.departamentoId).toBeNull();
   });
