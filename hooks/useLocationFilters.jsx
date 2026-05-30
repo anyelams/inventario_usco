@@ -73,8 +73,6 @@ const useLocationFilters = (token, API_URL) => {
   const fetchData = useCallback(
     async (endpoint, stateKey, filterFn = null) => {
       try {
-        console.log(`Fetching ${stateKey} desde:`, `${API_URL}${endpoint}`);
-
         const res = await fetch(`${API_URL}${endpoint}`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -115,7 +113,6 @@ const useLocationFilters = (token, API_URL) => {
   const autoSelectIfSingle = useCallback((items, selectedKey, callback) => {
     setTimeout(() => {
       if (items.length === 1) {
-        console.log(`Autoseleccionando ${selectedKey}:`, items[0].id);
         setSelected((current) => ({ ...current, [selectedKey]: items[0].id }));
         if (callback) callback(items[0].id);
       }
