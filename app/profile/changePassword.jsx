@@ -18,36 +18,6 @@ import { useNotifications } from "../../context/NotificationsContext";
 const { API_URL } = Constants.expoConfig.extra;
 
 /**
- * Evalúa la fortaleza de la contraseña y retorna feedback
- */
-const getPasswordStrength = (password, t) => {
-  let score = 0;
-  let feedback = [];
-
-  const requirements = {
-    length: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    number: /[0-9]/.test(password),
-    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-  };
-
-  Object.entries(requirements).forEach(([key, passed]) => {
-    if (passed) {
-      score += 1;
-    } else {
-      feedback.push(t(`password.requirements.${key}`));
-    }
-  });
-
-  const isValid = score === 4;
-  const message = isValid
-    ? t("password.secure")
-    : t("password.missing", { items: feedback.join(", ") });
-
-  return { score, message, isValid, requirements };
-};
-
-/**
  * Pantalla para cambiar la contraseña del usuario
  */
 export default function ChangePassword() {
@@ -62,22 +32,15 @@ export default function ChangePassword() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(null);
 
   const handleInputChange = (field, value) => {
-    const newFormData = { ...formData, [field]: value };
-    setFormData(newFormData);
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: null }));
     }
     if (errors.general) {
       setErrors((prev) => ({ ...prev, general: null }));
-    }
-
-    if (field === "newPassword") {
-      const strength = getPasswordStrength(value, t);
-      setPasswordStrength(strength);
     }
   };
 
@@ -154,7 +117,6 @@ export default function ChangePassword() {
       );
 
       setFormData({ oldPassword: "", newPassword: "" });
-      setPasswordStrength(null);
     } catch (error) {
       console.error("Error al cambiar contraseña:", error);
 
@@ -219,7 +181,7 @@ export default function ChangePassword() {
               showPasswordToggle={true}
               editable={!loading}
               error={errors.oldPassword}
-              style={styles.inputSpacing}
+              style={styles.inputSpacingLg}
             />
 
             {/* Nueva contraseña */}
@@ -235,42 +197,7 @@ export default function ChangePassword() {
               error={errors.newPassword}
               style={styles.inputSpacing}
             />
-
-            {/* Indicador de fortaleza de contraseña */}
-            {formData.newPassword !== "" && passwordStrength && (
-              <View style={styles.passwordStrengthContainer}>
-                <Text
-                  style={[
-                    styles.passwordStrength,
-                    {
-                      color: passwordStrength.isValid
-                        ? colors.success
-                        : colors.secondary,
-                    },
-                  ]}
-                >
-                  {passwordStrength.message}
-                </Text>
-                <View style={styles.strengthBar}>
-                  {[1, 2, 3, 4].map((level) => (
-                    <View
-                      key={level}
-                      style={[
-                        styles.strengthSegment,
-                        {
-                          backgroundColor:
-                            level <= passwordStrength.score
-                              ? passwordStrength.score >= 3
-                                ? colors.success
-                                : colors.warning
-                              : colors.lightGray,
-                        },
-                      ]}
-                    />
-                  ))}
-                </View>
-              </View>
-            )}
+            <Text style={styles.hint}>{t("changePassword.tipText")}</Text>
 
             {/* Botón de actualizar */}
             <CustomButton
@@ -284,20 +211,6 @@ export default function ChangePassword() {
             />
           </View>
 
-          {/* Consejos de seguridad */}
-          <View style={styles.tipsContainer}>
-            <Text style={styles.tipsTitle}>{t("changePassword.tipsTitle")}</Text>
-            <View style={styles.tipItem}>
-              <Ionicons
-                name="checkmark-circle"
-                size={16}
-                color={colors.success}
-              />
-              <Text style={styles.tipText}>
-                {t("changePassword.tipText")}
-              </Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -337,49 +250,18 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   inputSpacing: {
+    marginBottom: 12,
+  },
+  inputSpacingLg: {
     marginBottom: 24,
   },
-  passwordStrengthContainer: {
-    marginTop: -12,
-    marginBottom: 12,
-  },
-  passwordStrength: {
-    marginBottom: 8,
-    ...typography.medium.small,
-  },
-  strengthBar: {
-    flexDirection: "row",
-    gap: 4,
-    height: 4,
-  },
-  strengthSegment: {
-    flex: 1,
-    borderRadius: 2,
+  hint: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    marginBottom: 24,
+    lineHeight: 18,
   },
   updateButton: {
-    marginTop: 20,
-  },
-  tipsContainer: {
-    backgroundColor: colors.base,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  tipsTitle: {
-    ...typography.semibold.medium,
-    color: colors.text,
-    marginBottom: 12,
-  },
-  tipItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 8,
-  },
-  tipText: {
-    ...typography.regular.regular,
-    color: colors.textSec,
-    flex: 1,
-    lineHeight: 20,
+    marginTop: 14,
   },
 });
