@@ -19,6 +19,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { LogBox } from "react-native";
 import { LanguageProvider } from "../context/LanguageContext";
+import { NotificationsProvider } from "../context/NotificationsContext";
 import { SessionProvider, useSession } from "../context/SessionContext";
 import AuthNavigator from "./AuthNavigator";
 import MainNavigator from "./MainNavigator";
@@ -81,7 +82,9 @@ export default function AppNavigator() {
   return (
     <LanguageProvider>
       <SessionProvider>
-        <RootNavigator />
+        <NotificationsProvider>
+          <RootNavigator />
+        </NotificationsProvider>
       </SessionProvider>
     </LanguageProvider>
   );

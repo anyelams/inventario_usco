@@ -15,31 +15,8 @@ import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useLanguage } from "../../context/LanguageContext";
+import { useNotifications } from "../../context/NotificationsContext";
 
-// Datos de ejemplo para notificaciones mientras se implementa la API real
-const mockData = [
-  {
-    id: 1,
-    titulo: "Nuevo mensaje recibido",
-    mensaje: "Revisa la bandeja de entrada.",
-    fecha: "hace 5 min",
-    estado: "no leida",
-  },
-  {
-    id: 2,
-    titulo: "Sistema actualizado",
-    mensaje: "La versión 1.4 está disponible.",
-    fecha: "hace 1 hora",
-    estado: "leida",
-  },
-  {
-    id: 3,
-    titulo: "Sensor desconectado",
-    mensaje: "Sensor 03 perdió conexión.",
-    fecha: "ayer",
-    estado: "no leida",
-  },
-];
 
 /**
  * Pantalla de notificaciones de la aplicación
@@ -50,20 +27,11 @@ const mockData = [
 export default function NotificationsScreen() {
   const navigation = useNavigation();
   const { t } = useLanguage();
+  const { notifications, marcarComoLeida, marcarTodoComoLeido } = useNotifications();
 
-  // Estados de la pantalla
-  const [notificaciones, setNotificaciones] = useState([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  /**
-   * Inicializa la pantalla cargando datos mock y verificando permisos
-   */
   useEffect(() => {
-    setNotificaciones(mockData);
-
-    /**
-     * Verifica el estado de los permisos de notificaciones
-     */
     const checkPermissions = async () => {
       try {
         const settings = await Notifications.getPermissionsAsync();
@@ -72,29 +40,10 @@ export default function NotificationsScreen() {
         console.log("Error verificando permisos:", e);
       }
     };
-
     checkPermissions();
   }, []);
 
-  /**
-   * Marca una notificación específica como leída
-   * @param {number} id - ID de la notificación a marcar como leída
-   */
-  const marcarComoLeida = (id) => {
-    setNotificaciones((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, estado: "leida" } : n)),
-    );
-  };
-
-  /**
-   * Marca todas las notificaciones como leídas
-   */
-  const marcarTodoComoLeido = () => {
-    setNotificaciones((prev) => prev.map((n) => ({ ...n, estado: "leida" })));
-  };
-
-  // Contador de notificaciones no leídas para mostrar en el header
-  const unreadCount = notificaciones.filter((n) => n.estado !== "leida").length;
+  const unreadCount = notifications.filter((n) => n.estado !== "leida").length;
 
   /**
    * Abre la configuración del sistema para gestionar permisos de notificaciones
@@ -127,7 +76,7 @@ export default function NotificationsScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        {notificaciones.map((item, index) => (
+        {notifications.map((item) => (
           <TouchableOpacity
             key={item.id}
             onPress={() => marcarComoLeida(item.id)}
