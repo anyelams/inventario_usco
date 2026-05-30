@@ -13,6 +13,11 @@ import {
   saveTokens,
   saveUsername,
 } from "../services/auth";
+import {
+  decodificarToken as decodificarTokenUtil,
+  getUserInitials as getUserInitialsUtil,
+  tokenEsValido as tokenEsValidoUtil,
+} from "../utils/tokenUtils";
 
 // Configuración de la API
 const API_URL = Constants.expoConfig?.extra?.API_URL ?? "";
@@ -193,62 +198,12 @@ export const SessionProvider = ({ children }) => {
    */
   const tieneMultiplesOpciones = () => rolesByCompany.length > 1;
 
-  /**
-   * Decodifica un JWT token y retorna su payload
-   * @param {string} tokenParam - Token a decodificar (opcional, usa el actual si no se proporciona)
-   * @returns {Object|null} - Payload del token o null si hay error
-   */
-  const decodificarToken = (tokenParam = null) => {
-    const tokenADecodificar = tokenParam || token;
-    if (!tokenADecodificar) return null;
+  const decodificarToken = (tokenParam = null) =>
+    decodificarTokenUtil(tokenParam || token);
 
-    try {
-      const payload = tokenADecodificar.split(".")[1];
-      return JSON.parse(atob(payload));
-    } catch (error) {
-      console.error("Error decodificando token:", error);
-      return null;
-    }
-  };
+  const tokenEsValido = () => tokenEsValidoUtil(token);
 
-  /**
-   * Verifica si el token actual es válido (no expirado)
-   * @returns {boolean} - true si el token es válido
-   */
-  const tokenEsValido = () => {
-    const claims = decodificarToken();
-    if (!claims) return false;
-
-    const ahora = Math.floor(Date.now() / 1000);
-    return claims.exp > ahora;
-  };
-
-  /**
-   * Genera iniciales del usuario basadas en su email
-   * Ejemplos:
-   * - juan.perez@empresa.com → "JP"
-   * - carlos@empresa.com → "CA"
-   * @returns {string} - Iniciales del usuario
-   */
-  const getUserInitials = () => {
-    if (!userEmail) return "U";
-
-    const email = userEmail.toLowerCase();
-    const parts = email.split("@")[0]; // Solo la parte antes del @
-
-    // Si tiene punto, usar primeras letras de cada parte
-    if (parts.includes(".")) {
-      const nameParts = parts.split(".");
-      return nameParts
-        .slice(0, 2) // Máximo 2 partes
-        .map((part) => part.charAt(0))
-        .join("")
-        .toUpperCase();
-    }
-
-    // Si no tiene punto, usar las primeras 2 letras
-    return parts.substring(0, 2).toUpperCase();
-  };
+  const getUserInitials = () => getUserInitialsUtil(userEmail);
 
   // Valores que se exponen a través del contexto
   const contextValue = {
