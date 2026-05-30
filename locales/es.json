@@ -254,7 +254,8 @@
     "progress": "{{found}}/{{total}} encontrados",
     "searchPlaceholder": "Buscar ítem...",
     "scanButton": "Escanear",
-    "saveButton": "Guardar y finalizar",
+    "saveProgressButton": "Guardar",
+    "finalizeButton": "Finalizar",
     "finishedButton": "Inventario finalizado",
     "noResults": "Sin resultados para \"{{query}}\"",
     "codeNotFound": "Código no encontrado",
@@ -264,7 +265,16 @@
     "observationPlaceholder": "Escribe una observación...",
     "stateOk": "OK",
     "stateIncomplete": "Incompleto",
-    "stateDamaged": "Dañado"
+    "stateDamaged": "Dañado",
+    "errorLoad": "No se pudieron cargar los inventarios. Intenta de nuevo.",
+    "savingButton": "Guardando...",
+    "errorSaveTitle": "Error al guardar",
+    "errorSaveMessage": "No se pudo finalizar el inventario. Intenta de nuevo.",
+    "errorProgressMessage": "No se pudo guardar el progreso. Intenta de nuevo.",
+    "unsavedTitle": "Cambios sin guardar",
+    "unsavedMessage": "Tienes cambios en este inventario. ¿Qué deseas hacer?",
+    "unsavedDiscard": "Descartar",
+    "unsavedSave": "Guardar progreso"
   },
   "changePassword": {
     "title": "Cambiar contraseña",

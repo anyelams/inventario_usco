@@ -9,8 +9,10 @@
  */
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Constants from "expo-constants";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   KeyboardAvoidingView,
@@ -30,15 +32,11 @@ import { useLanguage } from "../../context/LanguageContext";
 import { useSession } from "../../context/SessionContext";
 import { clearScanResult, getScanResult } from "./scanResult";
 
-const ITEMS_MAP = {
-  1: require("../../mock/items_subseccion_1.json"),
-  2: require("../../mock/items_subseccion_2.json"),
-  3: require("../../mock/items_subseccion_3.json"),
-};
-
-const RESULTADOS_MAP = {
-  3: require("../../mock/resultado_inventario_3.json"),
-};
+const API_URL = Constants.expoConfig?.extra?.API_URL ?? "";
+const API_URL_SUBSECCION_ITEMS =
+  Constants.expoConfig?.extra?.API_URL_SUBSECCION_ITEMS ?? "/subsecciones";
+const API_URL_INVENTARIO_PROGRESO =
+  Constants.expoConfig?.extra?.API_URL_INVENTARIO_PROGRESO ?? "/inventarios";
 
 const ESTADO_ITEM = [
   { value: "ok", labelKey: "inventory.stateOk", color: colors.success, icon: "checkmark-circle" },
@@ -77,7 +75,7 @@ function buildInitialItems(rawItems, resultado = null) {
  * @param {function} props.onEstadoChange - Callback al cambiar el estado; recibe (producto_identificador, estado).
  * @param {function} props.onObservacionChange - Callback al editar la observación; recibe (producto_identificador, texto).
  */
-function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange }) {
+function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange, readOnly }) {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
 
@@ -89,9 +87,10 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
         activeOpacity={0.7}
       >
         <TouchableOpacity
-          style={[styles.checkbox, item.encontrado && styles.checkboxChecked]}
-          onPress={() => onToggleEncontrado(item.producto_identificador)}
+          style={[styles.checkbox, item.encontrado && styles.checkboxChecked, readOnly && styles.checkboxReadOnly]}
+          onPress={() => !readOnly && onToggleEncontrado(item.producto_identificador)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          disabled={readOnly}
         >
           {item.encontrado && (
             <Ionicons name="checkmark" size={14} color={colors.white} />
@@ -128,8 +127,10 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
                     backgroundColor: e.color + "20",
                     borderColor: e.color,
                   },
+                  readOnly && styles.estadoChipReadOnly,
                 ]}
                 onPress={() => onEstadoChange(item.producto_identificador, e.value)}
+                disabled={readOnly}
               >
                 <Ionicons
                   name={e.icon}
@@ -150,7 +151,7 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
 
           <Text style={styles.expandedLabel}>{t("inventory.observationLabel")}</Text>
           <TextInput
-            style={styles.observacionInput}
+            style={[styles.observacionInput, readOnly && styles.observacionInputReadOnly]}
             placeholder={t("inventory.observationPlaceholder")}
             placeholderTextColor={colors.textSec}
             value={item.observacion}
@@ -160,6 +161,7 @@ function ItemRow({ item, onToggleEncontrado, onEstadoChange, onObservacionChange
             multiline
             numberOfLines={2}
             textAlignVertical="top"
+            editable={!readOnly}
           />
         </View>
       )}
@@ -178,33 +180,37 @@ export default function InventarioDetalleScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { t } = useLanguage();
-  const { decodificarToken } = useSession();
+  const { token, decodificarToken } = useSession();
 
   const { inventario: inventarioParam } = route.params ?? {};
 
-  const [inventario, setInventario] = useState(() => {
-    if (!inventarioParam) return null;
-    if (inventarioParam.estadoId === 1) {
-      return { ...inventarioParam, estadoId: 2 };
-    }
-    return inventarioParam;
-  });
+  const [inventario, setInventario] = useState(inventarioParam ?? null);
 
-  const rawItems = useMemo(
-    () => ITEMS_MAP[inventario?.subSeccionId] ?? [],
-    [inventario?.subSeccionId],
-  );
-
-  const [items, setItems] = useState(() => {
-    const resultado = RESULTADOS_MAP[inventarioParam?.id] ?? null;
-    return buildInitialItems(rawItems, resultado);
-  });
+  const [items, setItems] = useState([]);
+  const [loadingItems, setLoadingItems] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
 
   const userId = useMemo(() => {
     const claims = decodificarToken();
     return claims?.userId ?? 1;
   }, []);
+
+  useEffect(() => {
+    if (!inventario?.subSeccionId || !inventario?.id || !token) return;
+    setLoadingItems(true);
+    const headers = { Authorization: `Bearer ${token}` };
+    Promise.all([
+      fetch(`${API_URL}${API_URL_SUBSECCION_ITEMS}/${inventario.subSeccionId}/items`, { headers })
+        .then((res) => { if (!res.ok) throw new Error(res.status); return res.json(); }),
+      fetch(`${API_URL}${API_URL_INVENTARIO_PROGRESO}/${inventario.id}/progreso`, { headers })
+        .then((res) => { if (!res.ok) throw new Error(res.status); return res.json(); })
+        .catch(() => ({ items: [] })),
+    ])
+      .then(([rawItems, progreso]) => setItems(buildInitialItems(rawItems, progreso.items)))
+      .catch(() => setItems([]))
+      .finally(() => setLoadingItems(false));
+  }, [inventario?.subSeccionId, inventario?.id, token]);
 
   useFocusEffect(
     useCallback(() => {
@@ -223,6 +229,7 @@ export default function InventarioDetalleScreen() {
           );
           return prev;
         }
+        markDirty();
         const updated = [...prev];
         updated[idx] = { ...updated[idx], encontrado: true };
         return updated;
@@ -246,7 +253,17 @@ export default function InventarioDetalleScreen() {
     return { total, encontrados };
   }, [items]);
 
+  const markDirty = () => {
+    if (!isDirty) {
+      setIsDirty(true);
+      setInventario((prev) =>
+        prev?.estadoId === 1 ? { ...prev, estadoId: 2 } : prev,
+      );
+    }
+  };
+
   const handleToggleEncontrado = (id) => {
+    markDirty();
     setItems((prev) =>
       prev.map((i) =>
         i.producto_identificador === id ? { ...i, encontrado: !i.encontrado } : i,
@@ -255,6 +272,7 @@ export default function InventarioDetalleScreen() {
   };
 
   const handleEstadoChange = (id, estado) => {
+    markDirty();
     setItems((prev) =>
       prev.map((i) =>
         i.producto_identificador === id ? { ...i, estado } : i,
@@ -263,12 +281,24 @@ export default function InventarioDetalleScreen() {
   };
 
   const handleObservacionChange = (id, observacion) => {
+    markDirty();
     setItems((prev) =>
       prev.map((i) =>
         i.producto_identificador === id ? { ...i, observacion } : i,
       ),
     );
   };
+
+  const [savingAction, setSavingAction] = useState(null);
+
+  const buildPayload = () => ({
+    items: items.map((i) => ({
+      producto_identificador: i.producto_identificador,
+      encontrado: i.encontrado,
+      estado: i.estado,
+      observacion: i.observacion,
+    })),
+  });
 
   const handleEscanear = () => {
     navigation.navigate("Camera", {
@@ -277,27 +307,76 @@ export default function InventarioDetalleScreen() {
     });
   };
 
-  const handleGuardar = () => {
-    const resultado = {
-      inventarioId: inventario.id,
-      subSeccionId: inventario.subSeccionId,
-      usuarioId: userId,
-      fechaHora: new Date().toISOString(),
-      items: items.map((i) => ({
-        producto_identificador: i.producto_identificador,
-        encontrado: i.encontrado,
-        cantidad: i.cantidad,
-        estado: i.estado,
-        observacion: i.observacion,
-        uuid: null,
-      })),
-    };
+  const handleGuardarProgreso = async ({ silent = false } = {}) => {
+    if (!silent) setSavingAction("progreso");
+    try {
+      await fetch(
+        `${API_URL}${API_URL_INVENTARIO_PROGRESO}/${inventario.id}/progreso`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(buildPayload()),
+        },
+      );
+      if (!silent) navigation.navigate("Inventarios");
+    } catch {
+      if (!silent)
+        Alert.alert(t("inventory.errorSaveTitle"), t("inventory.errorProgressMessage"));
+    } finally {
+      if (!silent) setSavingAction(null);
+    }
+  };
 
-    console.log("=== RESULTADO INVENTARIO ===");
-    console.log(JSON.stringify(resultado, null, 2));
+  const handleBack = () => {
+    if (!isDirty || estadoFinalizado) {
+      navigation.navigate("Inventarios");
+      return;
+    }
+    Alert.alert(
+      t("inventory.unsavedTitle"),
+      t("inventory.unsavedMessage"),
+      [
+        {
+          text: t("inventory.unsavedDiscard"),
+          style: "destructive",
+          onPress: () => navigation.navigate("Inventarios"),
+        },
+        {
+          text: t("inventory.unsavedSave"),
+          onPress: async () => {
+            await handleGuardarProgreso({ silent: true });
+            navigation.navigate("Inventarios");
+          },
+        },
+      ],
+    );
+  };
 
-    setInventario((prev) => ({ ...prev, estadoId: 3 }));
-    navigation.navigate("Inventarios");
+  const handleFinalizar = async () => {
+    setSavingAction("finalizar");
+    try {
+      const res = await fetch(
+        `${API_URL}${API_URL_INVENTARIO_PROGRESO}/${inventario.id}/finalizar`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(buildPayload()),
+        },
+      );
+      if (!res.ok) throw new Error(res.status);
+      setInventario((prev) => ({ ...prev, estadoId: 3 }));
+      navigation.navigate("Inventarios");
+    } catch {
+      Alert.alert(t("inventory.errorSaveTitle"), t("inventory.errorSaveMessage"));
+    } finally {
+      setSavingAction(null);
+    }
   };
 
   if (!inventario) {
@@ -322,7 +401,7 @@ export default function InventarioDetalleScreen() {
         <Header
           title={inventario.nombre}
           description={`${inventario.subSeccionNombre} · ${inventario.seccionNombre}`}
-          onBackPress={() => navigation.navigate("Inventarios")}
+          onBackPress={handleBack}
         />
 
         <View style={styles.toolbarContainer}>
@@ -373,38 +452,79 @@ export default function InventarioDetalleScreen() {
           </View>
         </View>
 
-        <FlatList
-          data={itemsFiltrados}
-          keyExtractor={(item) => item.producto_identificador}
-          renderItem={({ item }) => (
-            <ItemRow
-              item={item}
-              onToggleEncontrado={handleToggleEncontrado}
-              onEstadoChange={handleEstadoChange}
-              onObservacionChange={handleObservacionChange}
-            />
-          )}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="search-outline" size={40} color={colors.border} />
-              <Text style={styles.emptyText}>{t("inventory.noResults", { query: busqueda })}</Text>
-            </View>
-          }
-          showsVerticalScrollIndicator={false}
-        />
+        {loadingItems ? (
+          <View style={styles.emptyContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <FlatList
+            data={itemsFiltrados}
+            keyExtractor={(item) => item.producto_identificador}
+            renderItem={({ item }) => (
+              <ItemRow
+                item={item}
+                onToggleEncontrado={handleToggleEncontrado}
+                onEstadoChange={handleEstadoChange}
+                onObservacionChange={handleObservacionChange}
+                readOnly={estadoFinalizado}
+              />
+            )}
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Ionicons name="search-outline" size={40} color={colors.border} />
+                <Text style={styles.emptyText}>{t("inventory.noResults", { query: busqueda })}</Text>
+              </View>
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        )}
 
         <View style={styles.footer}>
-          <CustomButton
-            text={estadoFinalizado ? t("inventory.finishedButton") : t("inventory.saveButton")}
-            onPress={handleGuardar}
-            variant="primary"
-            icon={estadoFinalizado ? "checkmark-circle" : "save-outline"}
-            iconPosition="left"
-            fullWidth
-            disabled={estadoFinalizado}
-          />
+          {estadoFinalizado ? (
+            <CustomButton
+              text={t("inventory.finishedButton")}
+              variant="primary"
+              icon="checkmark-circle"
+              iconPosition="left"
+              fullWidth
+              disabled
+            />
+          ) : (
+            <View style={styles.footerButtons}>
+              <View style={styles.footerButtonWrap}>
+                <CustomButton
+                  text={
+                    savingAction === "progreso"
+                      ? t("inventory.savingButton")
+                      : t("inventory.saveProgressButton")
+                  }
+                  onPress={handleGuardarProgreso}
+                  variant="outline"
+                  icon="bookmark-outline"
+                  iconPosition="left"
+                  disabled={savingAction !== null}
+                  fullWidth
+                />
+              </View>
+              <View style={styles.footerButtonWrap}>
+                <CustomButton
+                  text={
+                    savingAction === "finalizar"
+                      ? t("inventory.savingButton")
+                      : t("inventory.finalizeButton")
+                  }
+                  onPress={handleFinalizar}
+                  variant="primary"
+                  icon="checkmark-done-outline"
+                  iconPosition="left"
+                  disabled={savingAction !== null}
+                  fullWidth
+                />
+              </View>
+            </View>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -578,6 +698,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  observacionInputReadOnly: {
+    opacity: 0.6,
+  },
+  checkboxReadOnly: {
+    opacity: 0.5,
+  },
+  estadoChipReadOnly: {
+    opacity: 0.7,
+  },
   footer: {
     paddingHorizontal: 24,
     paddingTop: 12,
@@ -585,6 +714,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.white,
+  },
+  footerButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  footerButtonWrap: {
+    flex: 1,
   },
   errorContainer: {
     flex: 1,

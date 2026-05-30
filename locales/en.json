@@ -254,7 +254,8 @@
     "progress": "{{found}}/{{total}} found",
     "searchPlaceholder": "Search item...",
     "scanButton": "Scan",
-    "saveButton": "Save and finish",
+    "saveProgressButton": "Save",
+    "finalizeButton": "Finalize",
     "finishedButton": "Inventory completed",
     "noResults": "No results for \"{{query}}\"",
     "codeNotFound": "Code not found",
@@ -264,7 +265,16 @@
     "observationPlaceholder": "Write an observation...",
     "stateOk": "OK",
     "stateIncomplete": "Incomplete",
-    "stateDamaged": "Damaged"
+    "stateDamaged": "Damaged",
+    "errorLoad": "Could not load inventories. Please try again.",
+    "savingButton": "Saving...",
+    "errorSaveTitle": "Save error",
+    "errorSaveMessage": "Could not finalize the inventory. Please try again.",
+    "errorProgressMessage": "Could not save progress. Please try again.",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "You have changes in this inventory. What would you like to do?",
+    "unsavedDiscard": "Discard",
+    "unsavedSave": "Save progress"
   },
   "changePassword": {
     "title": "Change Password",

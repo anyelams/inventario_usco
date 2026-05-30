@@ -6,9 +6,11 @@
  * punto de entrada al módulo de inventario físico.
  */
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import { useMemo } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import Constants from "expo-constants";
+import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
@@ -22,7 +24,11 @@ import { typography } from "../../config/typography";
 import { useLanguage } from "../../context/LanguageContext";
 import { useSession } from "../../context/SessionContext";
 
-const INVENTARIOS = require("../../mock/inventarios_asignados.json");
+const API_URL = Constants.expoConfig?.extra?.API_URL ?? "";
+const API_URL_INVENTARIOS_ASIGNADOS =
+  Constants.expoConfig?.extra?.API_URL_INVENTARIOS_ASIGNADOS ?? "/inventarios/asignados";
+const API_URL_INVENTARIO_PROGRESO =
+  Constants.expoConfig?.extra?.API_URL_INVENTARIO_PROGRESO ?? "/inventarios";
 
 const ESTADO_CONFIG = {
   1: { labelKey: "inventory.statusAssigned", color: colors.warning, icon: "time-outline" },
@@ -105,17 +111,51 @@ function InventarioCard({ item, onPress }) {
 export default function InventariosScreen() {
   const navigation = useNavigation();
   const { t } = useLanguage();
-  const { decodificarToken } = useSession();
+  const { token } = useSession();
 
-  const userId = useMemo(() => {
-    const claims = decodificarToken();
-    return claims?.userId ?? 1;
-  }, []);
+  const [inventarios, setInventarios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filtroEstado, setFiltroEstado] = useState(null);
 
-  const inventarios = useMemo(
-    () => INVENTARIOS.filter((inv) => inv.usuarioAsignadoId === userId),
-    [userId],
+  useFocusEffect(
+    useCallback(() => {
+      if (!token) return;
+      setLoading(true);
+      setError(null);
+      const headers = { Authorization: `Bearer ${token}` };
+      fetch(`${API_URL}${API_URL_INVENTARIOS_ASIGNADOS}`, { headers })
+        .then((res) => {
+          if (!res.ok) throw new Error(res.status);
+          return res.json();
+        })
+        .then((lista) =>
+          Promise.all(
+            lista.map((inv) =>
+              // solo revisar progreso si el backend aún no lo marcó como En proceso o Finalizado
+              inv.estadoId !== 1
+                ? inv
+                : fetch(
+                    `${API_URL}${API_URL_INVENTARIO_PROGRESO}/${inv.id}/progreso`,
+                    { headers },
+                  )
+                    .then((r) => (r.ok ? r.json() : { items: [] }))
+                    .then(({ items }) =>
+                      items?.length > 0 ? { ...inv, estadoId: 2 } : inv,
+                    )
+                    .catch(() => inv),
+            ),
+          ),
+        )
+        .then(setInventarios)
+        .catch(() => setError(t("inventory.errorLoad")))
+        .finally(() => setLoading(false));
+    }, [token]),
   );
+
+  const inventariosFiltrados = filtroEstado
+    ? inventarios.filter((i) => i.estadoId === filtroEstado)
+    : inventarios;
 
   const handleCardPress = (inventario) => {
     navigation.navigate("InventarioDetalle", { inventario });
@@ -131,33 +171,54 @@ export default function InventariosScreen() {
 
       <View style={styles.statsRow}>
         {Object.entries(ESTADO_CONFIG).map(([id, cfg]) => {
-          const count = inventarios.filter((i) => i.estadoId === Number(id)).length;
+          const estadoId = Number(id);
+          const count = inventarios.filter((i) => i.estadoId === estadoId).length;
+          const activo = filtroEstado === estadoId;
           return (
-            <View key={id} style={styles.statChip}>
+            <TouchableOpacity
+              key={id}
+              style={[
+                styles.statChip,
+                activo && { backgroundColor: cfg.color + "18", borderColor: cfg.color },
+              ]}
+              onPress={() => setFiltroEstado(activo ? null : estadoId)}
+              activeOpacity={0.7}
+            >
               <Ionicons name={cfg.icon} size={16} color={cfg.color} />
               <Text style={[styles.statCount, { color: cfg.color }]}>{count}</Text>
-              <Text style={styles.statLabel}>{t(cfg.labelKey)}</Text>
-            </View>
+              <Text style={[styles.statLabel, activo && { color: cfg.color }]}>{t(cfg.labelKey)}</Text>
+            </TouchableOpacity>
           );
         })}
       </View>
 
-      <FlatList
-        data={inventarios}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <InventarioCard item={item} onPress={handleCardPress} />
-        )}
-        contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="clipboard-outline" size={56} color={colors.border} />
-            <Text style={styles.emptyText}>{t("inventory.emptyText")}</Text>
-          </View>
-        }
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : error ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="alert-circle-outline" size={56} color={colors.danger} />
+          <Text style={styles.emptyText}>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={inventariosFiltrados}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <InventarioCard item={item} onPress={handleCardPress} />
+          )}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="clipboard-outline" size={56} color={colors.border} />
+              <Text style={styles.emptyText}>{t("inventory.emptyText")}</Text>
+            </View>
+          }
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }

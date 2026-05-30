@@ -102,8 +102,9 @@ const CustomButton = ({
       case "primary":
         return colors.white;
       case "secondary":
-      case "outline":
         return colors.text;
+      case "outline":
+        return colors.secondary;
       default:
         return colors.white;
     }
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
   // Estilo base del botón
   button: {
     flexDirection: "row",
-    paddingVertical: 14,
+    paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 20,
     alignItems: "center",
@@ -157,10 +158,12 @@ const styles = StyleSheet.create({
   // Variantes de botón
   primaryButton: {
     backgroundColor: colors.secondary,
+    borderWidth: 2,
+    borderColor: "transparent",
   },
   secondaryButton: {
     backgroundColor: colors.lightGray,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colors.border,
   },
   outlineButton: {
