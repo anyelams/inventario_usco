@@ -66,9 +66,7 @@ export const useMQTT = () => {
    * Incluye sensores de temperatura, humedad, nivel de agua y control de dispositivos
    */
   const topics = [
-    MQTT_TOPIC, // Tópico principal (temperatura/humedad)
-    "tanque/nivel",
-    "sensor/agua/ultrasonico",
+    MQTT_TOPIC,
     "sensor/bombillo",
     "sensor/ventilador",
   ];
@@ -158,6 +156,7 @@ export const useMQTT = () => {
 
     // Cleanup al desmontar el componente
     return () => {
+      client.removeAllListeners();
       client.end(true);
       clientRef.current = null;
     };

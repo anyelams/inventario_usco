@@ -3,7 +3,7 @@ import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,6 +16,7 @@ import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
 import { useLanguage } from "../../context/LanguageContext";
+import { useNotifications } from "../../context/NotificationsContext";
 import { useMQTT } from "../../hooks/useMQTT";
 
 const API_IOT_NOTIFICATIONS = Constants.expoConfig.extra;
@@ -36,6 +37,7 @@ export default function IotScreen() {
   const navigation = useNavigation();
   const { username } = useSession();
   const { t } = useLanguage();
+  const { addNotification } = useNotifications();
 
   const {
     connected,
@@ -52,11 +54,22 @@ export default function IotScreen() {
   const [nivel, setNivel] = useState(0);
   const [distanciaUltrasonico, setDistanciaUltrasonico] = useState(0);
 
-  /**
-   * Altura total del tanque en centímetros
-   * Usado para calcular el porcentaje de nivel de agua
-   */
-  const ALTURA_TANQUE_CM = 100;
+  const ALTURA_TANQUE_CM = 15;
+  const ALTURA_SENSOR_A_FONDO = 27.3;
+  const lastThresholdRef = useRef(null);
+
+  useEffect(() => {
+    if (nivel === 0) return;
+    if (nivel <= 20 && lastThresholdRef.current !== "low") {
+      lastThresholdRef.current = "low";
+      addNotification(t("iot.notifLowTitle"), `${t("iot.notifLowMsg")} ${nivel.toFixed(0)}%`);
+    } else if (nivel >= 90 && lastThresholdRef.current !== "high") {
+      lastThresholdRef.current = "high";
+      addNotification(t("iot.notifHighTitle"), `${t("iot.notifHighMsg")} ${nivel.toFixed(0)}%`);
+    } else if (nivel > 20 && nivel < 90) {
+      lastThresholdRef.current = null;
+    }
+  }, [nivel]);
 
   // Configuración de dispositivos dinámicos
   const devices = [
@@ -76,25 +89,24 @@ export default function IotScreen() {
    * @listens sensor/agua/ultrasonico - Topic MQTT del sensor ultrasónico
    */
   useEffect(() => {
-    if (lastMessage?.topic === "sensor/agua/ultrasonico") {
-      console.log("Sensor Ultrasónico - Mensaje recibido:", {
-        topic: lastMessage.topic,
-        message: lastMessage.message,
-        timestamp: new Date().toLocaleTimeString(),
-      });
+    if (lastMessage?.topic === "tanque/estado") {
+      try {
+        const data = JSON.parse(lastMessage.message);
+        const distancia = data.distancia_cm;
 
-      const distancia = parseFloat(lastMessage.message);
-      if (!isNaN(distancia)) {
-        console.log("Distancia detectada:", distancia, "cm");
-        setDistanciaUltrasonico(distancia);
-
-        // Calcular nivel como porcentaje (0-100%)
-        const nivelCalculado = Math.max(
-          0,
-          Math.min(100, (distancia / ALTURA_TANQUE_CM) * 100),
-        );
-
-        setNivel(nivelCalculado);
+        if (typeof distancia === "number" && distancia > 0) {
+          setDistanciaUltrasonico(distancia);
+          const nivelCalculado = Math.max(
+            0,
+            Math.min(
+              100,
+              ((ALTURA_SENSOR_A_FONDO - distancia) / ALTURA_TANQUE_CM) * 100,
+            ),
+          );
+          setNivel(nivelCalculado);
+        }
+      } catch (e) {
+        console.error("Error parseando tanque/estado:", e);
       }
     }
   }, [lastMessage]);
