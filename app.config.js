@@ -1,4 +1,6 @@
 import "dotenv/config";
+import fs from "fs";
+import path from "path";
 
 export default ({ config }) => ({
   ...config,
@@ -63,13 +65,17 @@ export default ({ config }) => ({
 
       // servicio de MQTT
       MQTT_BROKER_URL: process.env.MQTT_BROKER_URL,
-      MQTT_CLIENT_ID: process.env.MQTT_CLIENT,
+      MQTT_CLIENT_ID: process.env.MQTT_CLIENT_ID,
       MQTT_USERNAME: process.env.MQTT_USERNAME,
       MQTT_PASSWORD: process.env.MQTT_PASSWORD,
       MQTT_TOPIC: process.env.MQTT_TOPIC,
       MQTT_RECONNECT_PERIOD: process.env.MQTT_RECONNECT_PERIOD,
       MQTT_CONNECT_TIMEOUT: process.env.MQTT_CONNECT_TIMEOUT,
       MQTT_CLEAN: process.env.MQTT_CLEAN,
+      MQTT_CA_CERT: fs.readFileSync(
+        path.join(__dirname, "./assets/certs/emqxsl-ca (4).crt"),
+        "utf8",
+      ),
 
       // Ubicación
       API_URL_PAIS: process.env.API_URL_PAIS,
@@ -79,6 +85,7 @@ export default ({ config }) => ({
       API_URL_BLOQUE: process.env.API_URL_BLOQUE,
       API_URL_ESPACIO: process.env.API_URL_ESPACIO,
       API_URL_ALMACEN: process.env.API_URL_ALMACEN,
+
       // Productos y Categorías
       API_URL_PRODUCTO: process.env.API_URL_PRODUCTO,
       API_URL_PRODUCTO_CATEGORIA: process.env.API_URL_PRODUCTO_CATEGORIA,
@@ -100,7 +107,7 @@ export default ({ config }) => ({
       API_URL_REPORT_PRODUCTO_VENCIMIENTO_NUEVO:
         process.env.API_URL_REPORT_PRODUCTO_VENCIMIENTO_NUEVO,
       eas: {
-        projectId: "  ",
+        projectId: "37b6f668-ef2a-4572-bd6f-2ea90941e498",
       },
     },
   },
