@@ -60,16 +60,14 @@ export const useMQTT = () => {
   const [lastMessage, setLastMessage] = useState(null);
 
   const clientRef = useRef(null);
+  const reconnectAttemptsRef = useRef(0);
+  const MAX_RECONNECT_ATTEMPTS = 3;
 
   /**
    * Topics MQTT a los que se suscribe automáticamente
    * Incluye sensores de temperatura, humedad, nivel de agua y control de dispositivos
    */
-  const topics = [
-    MQTT_TOPIC,
-    "sensor/bombillo",
-    "sensor/ventilador",
-  ];
+  const topics = [MQTT_TOPIC, "sensor/bombillo", "sensor/ventilador"];
 
   /**
    * Inicializa y mantiene la conexión MQTT
@@ -79,8 +77,7 @@ export const useMQTT = () => {
     if (clientRef.current) return;
 
     const client = mqtt.connect(MQTT_BROKER_URL, {
-      clientId:
-        MQTT_CLIENT_ID || `client_${Math.random().toString(16).slice(2, 10)}`,
+      clientId: `${MQTT_CLIENT_ID || "mobile"}_${Math.random().toString(16).slice(2, 10)}`,
       username: MQTT_USERNAME,
       password: MQTT_PASSWORD,
       reconnectPeriod: Number(MQTT_RECONNECT_PERIOD || 5000),
@@ -90,11 +87,10 @@ export const useMQTT = () => {
 
     clientRef.current = client;
 
-    client.removeAllListeners();
-
     // Handler: Conexión exitosa
     client.on("connect", () => {
       console.log("Conectado al broker MQTT");
+      reconnectAttemptsRef.current = 0;
       setConnected(true);
       setIsConnecting(false);
 
@@ -115,7 +111,17 @@ export const useMQTT = () => {
 
     // Handler: Intento de reconexión
     client.on("reconnect", () => {
-      console.log("Reintentando conexión...");
+      reconnectAttemptsRef.current += 1;
+      if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+        console.log("Máximo de intentos alcanzado, deteniendo reconexión.");
+        client.end(true);
+        setConnected(false);
+        setIsConnecting(false);
+        return;
+      }
+      console.log(
+        `Reintentando conexión (${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})...`,
+      );
       setIsConnecting(true);
     });
 
@@ -180,7 +186,7 @@ export const useMQTT = () => {
    */
   const toggleDevice = (topic, estado) => {
     if (!clientRef.current || !connected) {
-      console.warn("🔌 Cliente no conectado. No se puede publicar.");
+      console.warn("Cliente no conectado. No se puede publicar.");
       return;
     }
 
