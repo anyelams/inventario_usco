@@ -143,7 +143,7 @@ export const searchResultsConfigs = {
         <View style={styles.listHeader}>
           <Text style={styles.listId}>#{pedido.id}</Text>
           <Text style={styles.listDate}>
-            Vence: {formatFecha(getFecha(pedido))}
+            {formatFecha(getFecha(pedido)) || "—"}
           </Text>
         </View>
         {pedido.estado && (
@@ -157,16 +157,25 @@ export const searchResultsConfigs = {
     singularLabel: "Artículo",
     pluralLabel: "Artículos",
     getItemKey: (item, index) => item.id || index,
-    renderItem: (articulo) => (
-      <>
-        <View style={styles.listHeader}>
-          <Text style={styles.listId}>#{articulo.id || 0}</Text>
-          <Text style={styles.listDate}>
-            Cantidad: {articulo.cantidad || 0}
-          </Text>
-        </View>
-      </>
-    ),
+    renderItem: (articulo) => {
+      const fecha =
+        articulo.fechaHora ??
+        articulo.karFechaHora ??
+        articulo.fecha ??
+        articulo.createdAt ??
+        null;
+      const fechaStr = fecha
+        ? new Date(fecha).toLocaleString()
+        : "—";
+      return (
+        <>
+          <View style={styles.listHeader}>
+            <Text style={styles.listId}>#{articulo.id || 0}</Text>
+            <Text style={styles.listDate}>{fechaStr}</Text>
+          </View>
+        </>
+      );
+    },
   },
 
   productos: {
@@ -322,9 +331,9 @@ const styles = StyleSheet.create({
   },
   listHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 4,
-    gap: 8,
   },
   listId: {
     ...typography.semibold.medium,
