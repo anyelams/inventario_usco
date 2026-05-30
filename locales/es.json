@@ -113,7 +113,11 @@
     "deviceBombillo": "Bombillo",
     "deviceVentilador": "Ventilador",
     "tankTitle": "Nivel del tanque",
-    "tankDistance": "Distancia"
+    "tankDistance": "Distancia",
+    "notifLowTitle": "Tanque bajo",
+    "notifLowMsg": "El nivel del tanque está al",
+    "notifHighTitle": "Tanque lleno",
+    "notifHighMsg": "El nivel del tanque está al"
   },
   "temperature": {
     "title": "Temperatura",

@@ -113,7 +113,11 @@
     "deviceBombillo": "Light Bulb",
     "deviceVentilador": "Fan",
     "tankTitle": "Tank Level",
-    "tankDistance": "Distance"
+    "tankDistance": "Distance",
+    "notifLowTitle": "Tank low",
+    "notifLowMsg": "Tank level is at",
+    "notifHighTitle": "Tank full",
+    "notifHighMsg": "Tank level is at"
   },
   "temperature": {
     "title": "Temperature",
