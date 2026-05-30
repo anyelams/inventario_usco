@@ -72,13 +72,17 @@ const useLocationFilters = (token, API_URL) => {
    */
   const fetchData = useCallback(
     async (endpoint, stateKey, filterFn = null) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
       try {
         const res = await fetch(`${API_URL}${endpoint}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          signal: controller.signal,
         });
+        clearTimeout(timer);
 
         if (!res.ok) {
           throw new Error(`Error ${res.status}: ${res.statusText}`);
@@ -95,6 +99,7 @@ const useLocationFilters = (token, API_URL) => {
 
         return processedData;
       } catch (error) {
+        clearTimeout(timer);
         console.error(`Error cargando ${stateKey}:`, error);
         return [];
       }
