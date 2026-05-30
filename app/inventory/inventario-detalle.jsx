@@ -29,6 +29,7 @@ import Header from "../../components/Header";
 import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useLanguage } from "../../context/LanguageContext";
+import { useNotifications } from "../../context/NotificationsContext";
 import { useSession } from "../../context/SessionContext";
 import { clearScanResult, getScanResult } from "./scanResult";
 
@@ -181,6 +182,7 @@ export default function InventarioDetalleScreen() {
   const route = useRoute();
   const { t } = useLanguage();
   const { token, decodificarToken } = useSession();
+  const { addNotification } = useNotifications();
 
   const { inventario: inventarioParam } = route.params ?? {};
 
@@ -371,6 +373,10 @@ export default function InventarioDetalleScreen() {
       );
       if (!res.ok) throw new Error(res.status);
       setInventario((prev) => ({ ...prev, estadoId: 3 }));
+      addNotification(
+        t("notifications.inventoryFinishedTitle"),
+        t("notifications.inventoryFinishedMessage", { name: inventario.nombre }),
+      );
       navigation.navigate("Inventarios");
     } catch {
       Alert.alert(t("inventory.errorSaveTitle"), t("inventory.errorSaveMessage"));

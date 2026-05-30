@@ -95,7 +95,12 @@
   "notifications": {
     "title": "Notifications",
     "demoNotice": "Preview — service not yet available",
-    "markAllRead": "Mark all as read"
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "passwordChangedTitle": "Password updated",
+    "passwordChangedMessage": "Your password was changed successfully.",
+    "inventoryFinishedTitle": "Inventory completed",
+    "inventoryFinishedMessage": "The inventory \"%{name}\" was completed successfully."
   },
   "reports": {
     "title": "Reports module",

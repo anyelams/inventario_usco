@@ -95,7 +95,12 @@
   "notifications": {
     "title": "Notificaciones",
     "demoNotice": "Vista previa — servicio aún no disponible",
-    "markAllRead": "Marcar todo leído"
+    "markAllRead": "Marcar todo leído",
+    "empty": "No tienes notificaciones",
+    "passwordChangedTitle": "Contraseña actualizada",
+    "passwordChangedMessage": "Tu contraseña fue cambiada exitosamente.",
+    "inventoryFinishedTitle": "Inventario finalizado",
+    "inventoryFinishedMessage": "El inventario \"%{name}\" fue finalizado correctamente."
   },
   "reports": {
     "title": "Módulo reportes",

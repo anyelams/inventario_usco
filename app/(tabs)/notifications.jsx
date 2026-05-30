@@ -1,4 +1,5 @@
 // app/(tabs)/notifications.jsx
+import { Ionicons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
@@ -64,45 +65,42 @@ export default function NotificationsScreen() {
         onBackPress={() => navigation.navigate("Home")}
       />
 
-      {/* Banner de aviso: datos de demostración */}
-      <View style={styles.demoBanner}>
-        <Text style={styles.demoBannerText}>
-          {t("notifications.demoNotice")}
-        </Text>
-      </View>
-
       {/* Lista scrolleable de notificaciones */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        {notifications.map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            onPress={() => marcarComoLeida(item.id)}
-            disabled={item.estado === "leida"}
-            style={styles.listItem}
-          >
-            {/* Indicador visual para notificaciones no leídas */}
-            {item.estado !== "leida" && <View style={styles.indicator} />}
-
-            {/* Contenido de la notificación */}
-            <View style={styles.textContainer}>
-              <Text
-                style={
-                  item.estado === "leida"
-                    ? styles.tituloRead
-                    : styles.tituloUnread
-                }
-                numberOfLines={3}
-              >
-                {item.titulo}
-              </Text>
-              <Text style={styles.fecha}>{item.fecha}</Text>
-              <Text style={styles.mensaje}>{item.mensaje}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        {notifications.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="notifications-off-outline" size={48} color={colors.textSec} />
+            <Text style={styles.emptyText}>{t("notifications.empty")}</Text>
+          </View>
+        ) : (
+          notifications.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              onPress={() => marcarComoLeida(item.id)}
+              disabled={item.estado === "leida"}
+              style={styles.listItem}
+            >
+              {item.estado !== "leida" && <View style={styles.indicator} />}
+              <View style={styles.textContainer}>
+                <Text
+                  style={
+                    item.estado === "leida"
+                      ? styles.tituloRead
+                      : styles.tituloUnread
+                  }
+                  numberOfLines={3}
+                >
+                  {item.titulo}
+                </Text>
+                <Text style={styles.fecha}>{item.fecha}</Text>
+                <Text style={styles.mensaje}>{item.mensaje}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
 
       {/* Botón flotante para marcar todas como leídas (solo si hay no leídas) */}
@@ -132,15 +130,16 @@ const styles = StyleSheet.create({
     paddingBottom: 80, // Espacio para el FAB
   },
 
-  demoBanner: {
-    backgroundColor: colors.secondary,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  emptyContainer: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 80,
+    gap: 12,
   },
-  demoBannerText: {
+  emptyText: {
     ...typography.regular.medium,
-    color: colors.white,
+    color: colors.textSec,
   },
 
   // Item individual de notificación

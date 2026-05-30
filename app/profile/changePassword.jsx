@@ -13,6 +13,7 @@ import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useSession } from "../../context/SessionContext";
 import { useLanguage } from "../../context/LanguageContext";
+import { useNotifications } from "../../context/NotificationsContext";
 
 const { API_URL } = Constants.expoConfig.extra;
 
@@ -53,6 +54,7 @@ export default function ChangePassword() {
   const navigation = useNavigation();
   const { token } = useSession();
   const { t } = useLanguage();
+  const { addNotification } = useNotifications();
 
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -129,6 +131,11 @@ export default function ChangePassword() {
             Authorization: `Bearer ${token}`,
           },
         },
+      );
+
+      addNotification(
+        t("notifications.passwordChangedTitle"),
+        t("notifications.passwordChangedMessage"),
       );
 
       Alert.alert(
