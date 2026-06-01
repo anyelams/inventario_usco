@@ -52,6 +52,7 @@ export default function CameraScreen() {
 
   const cameraRef = useRef(null);
   const liveIntervalRef = useRef(null);
+  const isProcessingRef = useRef(false);
 
   const flipCamera = () => {
     setFacing((prev) => (prev === "back" ? "front" : "back"));
@@ -121,7 +122,8 @@ export default function CameraScreen() {
    */
   const processLiveFrame = async () => {
     if (!cameraRef.current || !isCameraReady) return;
-    setPhotoDetections([]);
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     try {
       const snap = await cameraRef.current.takePictureAsync({
         quality: 0,
@@ -166,6 +168,8 @@ export default function CameraScreen() {
     } catch (err) {
       console.log("Error live detect:", err);
       setLiveDetections([]);
+    } finally {
+      isProcessingRef.current = false;
     }
   };
 
@@ -353,19 +357,19 @@ export default function CameraScreen() {
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback onPress={handleFocus}>
-        <CameraView
-          ref={cameraRef}
-          facing={facing}
-          enableTorch={torchEnabled}
-          autoFocus={autoFocusPoint !== null}
-          autoFocusPointOfInterest={autoFocusPoint}
-          active
-          style={styles.camera}
-          animateShutter={false}
-          onLayout={onCameraLayout}
-          onCameraReady={() => setIsCameraReady(true)}
-        >
-          {/* Botón de regresar en la esquina superior izquierda */}
+        <View style={styles.cameraWrapper} onLayout={onCameraLayout}>
+          <CameraView
+            ref={cameraRef}
+            facing={facing}
+            enableTorch={torchEnabled}
+            autoFocus={autoFocusPoint !== null}
+            autoFocusPointOfInterest={autoFocusPoint}
+            active
+            style={StyleSheet.absoluteFill}
+            animateShutter={false}
+            onCameraReady={() => setIsCameraReady(true)}
+          />
+
           <TouchableOpacity
             onPress={() => navigation.navigate("Tabs")}
             style={styles.backButton}
@@ -373,7 +377,6 @@ export default function CameraScreen() {
             <Ionicons name="arrow-back" size={24} color={colors.white} />
           </TouchableOpacity>
 
-          {/* Botón de flash en la esquina superior derecha */}
           <TouchableOpacity
             onPress={() => setTorchEnabled((t) => !t)}
             style={[
@@ -446,7 +449,7 @@ export default function CameraScreen() {
 
             <View style={styles.placeholder} />
           </View>
-        </CameraView>
+        </View>
       </TouchableWithoutFeedback>
     </View>
   );
@@ -560,7 +563,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  camera: {
+  cameraWrapper: {
     flex: 1,
   },
   overlay: {
