@@ -25,7 +25,8 @@
     "enterEmail": "Ingresa tu correo electrónico",
     "enterPassword": "Ingresa tu contraseña",
     "rememberMe": "Recordarme",
-    "continueWithGoogle": "Acceder con Google"
+    "continueWithGoogle": "Acceder con Google",
+    "passwordHint": "Mínimo 8 caracteres, incluye letras y números."
   },
   "forgotPassword": {
     "title": "Recuperar contraseña",

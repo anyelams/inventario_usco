@@ -25,7 +25,8 @@
     "enterEmail": "Enter your email",
     "enterPassword": "Enter your password",
     "rememberMe": "Remember me",
-    "continueWithGoogle": "Continue with Google"
+    "continueWithGoogle": "Continue with Google",
+    "passwordHint": "At least 8 characters, include letters and numbers."
   },
   "forgotPassword": {
     "title": "Reset Password",

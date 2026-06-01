@@ -36,10 +36,7 @@ import { colors } from "../../config/theme";
 import { typography } from "../../config/typography";
 import { useLanguage } from "../../context/LanguageContext";
 import { useSession } from "../../context/SessionContext";
-import {
-  getPasswordStrength,
-  validateRegisterForm,
-} from "../../utils/validation";
+import { validateRegisterForm } from "../../utils/validation";
 
 const {
   API_URL,
@@ -76,8 +73,6 @@ export default function AuthIndexScreen() {
     email: "",
     password: "",
   });
-  const [passwordStrength, setPasswordStrength] = useState(null);
-
   const { setUsername, guardarSesionCompleta } = useSession();
 
   useEffect(() => {
@@ -162,10 +157,6 @@ export default function AuthIndexScreen() {
       setErrors((prev) => ({ ...prev, [field]: null }));
     }
 
-    if (field === "password") {
-      const strength = getPasswordStrength(value, t);
-      setPasswordStrength(strength);
-    }
   };
 
   /**
@@ -349,7 +340,6 @@ export default function AuthIndexScreen() {
               onPress: () => {
                 setActiveTab("login");
                 setRegisterData({ email: "", password: "" });
-                setPasswordStrength(null);
               },
             },
           ],
@@ -657,40 +647,9 @@ export default function AuthIndexScreen() {
                   error={errors.password}
                 />
 
-                {registerData.password !== "" && passwordStrength && (
-                  <View style={styles.passwordStrengthContainer}>
-                    <Text
-                      style={[
-                        styles.passwordStrength,
-                        {
-                          color: passwordStrength.isValid
-                            ? colors.success
-                            : colors.secondary,
-                        },
-                      ]}
-                    >
-                      {passwordStrength.message}
-                    </Text>
-                    <View style={styles.strengthBar}>
-                      {[1, 2, 3, 4].map((level) => (
-                        <View
-                          key={level}
-                          style={[
-                            styles.strengthSegment,
-                            {
-                              backgroundColor:
-                                level <= passwordStrength.score
-                                  ? passwordStrength.score >= 3
-                                    ? colors.success
-                                    : colors.warning
-                                  : colors.lightGray,
-                            },
-                          ]}
-                        />
-                      ))}
-                    </View>
-                  </View>
-                )}
+                <Text style={styles.passwordHint}>
+                  {t("auth.passwordHint")}
+                </Text>
 
                 <CustomButton
                   text={isLoading ? t("auth.registering") : t("auth.register")}
@@ -853,22 +812,11 @@ const styles = StyleSheet.create({
     ...typography.medium.medium,
     color: colors.primary,
   },
-  passwordStrengthContainer: {
-    marginTop: 8,
-    marginBottom: 12,
-  },
-  passwordStrength: {
-    marginBottom: 8,
-    ...typography.medium.small,
-  },
-  strengthBar: {
-    flexDirection: "row",
-    gap: 4,
-    height: 4,
-  },
-  strengthSegment: {
-    flex: 1,
-    borderRadius: 2,
+  passwordHint: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    marginTop: 6,
+    marginBottom: 4,
   },
   dividerContainer: {
     flexDirection: "row",
