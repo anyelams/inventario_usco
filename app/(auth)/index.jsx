@@ -668,13 +668,13 @@ export default function AuthIndexScreen() {
               <View style={styles.divider} />
             </View>
 
-            <TouchableOpacity style={styles.googleButton} disabled={isLoading}>
+            <TouchableOpacity style={[styles.googleButton, styles.googleButtonDisabled]} disabled>
               <Image
                 source={googleIcon}
                 style={styles.googleIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.googleButtonText}>
+              <Text style={[styles.googleButtonText, styles.googleButtonTextDisabled]}>
                 {t("auth.continueWithGoogle")}
               </Text>
             </TouchableOpacity>
@@ -852,5 +852,11 @@ const styles = StyleSheet.create({
   googleIcon: {
     width: 20,
     height: 20,
+  },
+  googleButtonDisabled: {
+    opacity: 0.4,
+  },
+  googleButtonTextDisabled: {
+    color: colors.textSec,
   },
 });

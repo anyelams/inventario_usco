@@ -19,30 +19,29 @@ import { typography } from "../config/typography";
  * @param {Function} props.onPress - Función llamada al presionar la tarjeta
  * @param {Object} [props.style={}] - Estilos adicionales para el contenedor
  */
-const ModuleCard = ({ title, icon, moduleColors, onPress, style = {} }) => {
+const ModuleCard = ({ title, icon, moduleColors, onPress, style = {}, disabled = false }) => {
   return (
     <TouchableOpacity
-      style={[styles.cardContainer, style]}
-      onPress={onPress}
-      activeOpacity={0.92}
+      style={[styles.cardContainer, style, disabled && styles.disabledCard]}
+      onPress={disabled ? undefined : onPress}
+      activeOpacity={disabled ? 1 : 0.92}
     >
       <View
         style={[
           styles.card,
           {
             backgroundColor: moduleColors.background,
-            borderColor: moduleColors.icon + "33", // Transparencia del 20%
+            borderColor: moduleColors.icon + "33",
           },
         ]}
       >
         <View style={styles.content}>
-          {/* Contenedor del icono con colores temáticos */}
           <View
             style={[
               styles.iconContainer,
               {
-                backgroundColor: moduleColors.accent + "15", // Fondo con transparencia
-                borderColor: moduleColors.accent + "33", // Borde semitransparente
+                backgroundColor: moduleColors.accent + "15",
+                borderColor: moduleColors.accent + "33",
               },
             ]}
           >
@@ -53,8 +52,11 @@ const ModuleCard = ({ title, icon, moduleColors, onPress, style = {} }) => {
             />
           </View>
 
-          {/* Título del módulo */}
           <Text style={styles.title}>{title}</Text>
+
+          {disabled && (
+            <Text style={styles.comingSoon}>Próximamente</Text>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -94,12 +96,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
 
-  // Título del módulo con tipografía específica
   title: {
     ...typography.semibold.regular,
     color: colors.text,
     lineHeight: 18,
     letterSpacing: -0.1,
+  },
+
+  disabledCard: {
+    opacity: 0.45,
+  },
+
+  comingSoon: {
+    ...typography.regular.small,
+    color: colors.textSec,
+    marginTop: 6,
+    fontSize: 11,
+    letterSpacing: 0.2,
   },
 });
 

@@ -35,11 +35,6 @@ const corporateColors = {
     icon: "#7c3aed", // Púrpura
     accent: "#6d28d9", // Púrpura intenso
   },
-  security: {
-    background: "#fff7ed", // Naranja muy claro
-    icon: "#ea580c", // Naranja profesional
-    accent: "#c2410c", // Naranja intenso
-  },
   reports: {
     background: "#f6fdf9", // Verde muy claro
     icon: "#16a34a", // Verde suave
@@ -72,13 +67,6 @@ export default function Home() {
       moduleColors: corporateColors.iot,
     },
     {
-      id: "3",
-      title: t("home.moduleSecurity"),
-      icon: "shield-lock-outline",
-      route: "security",
-      moduleColors: corporateColors.security,
-    },
-    {
       id: "4",
       title: t("home.moduleReports"),
       icon: "chart-line",
@@ -90,7 +78,6 @@ export default function Home() {
   const screenMap = {
     inventory: "Inventarios",
     iot: "Iot",
-    security: "Security",
     reports: "Reports",
   };
   const {
@@ -214,6 +201,7 @@ export default function Home() {
                 title={item.title}
                 icon={item.icon}
                 moduleColors={item.moduleColors}
+                disabled={item.disabled}
                 onPress={() =>
                   navigation.navigate(screenMap[item.route] || item.route)
                 }
