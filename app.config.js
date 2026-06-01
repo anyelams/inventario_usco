@@ -1,8 +1,8 @@
-import "dotenv/config";
-import fs from "fs";
-import path from "path";
+require("dotenv/config");
+const fs = require("fs");
+const path = require("path");
 
-export default ({ config }) => ({
+module.exports = ({ config }) => ({
   ...config,
   expo: {
     name: "Inventario",
@@ -18,7 +18,7 @@ export default ({ config }) => ({
     android: {
       package: "com.luami180.inventario",
       adaptiveIcon: {
-        backgroundColor: "#E6F4FE",
+        backgroundColor: "#FFFFFF",
         foregroundImage: "./assets/images/android-icon.png",
       },
       edgeToEdgeEnabled: true,
@@ -35,9 +35,9 @@ export default ({ config }) => ({
       [
         "expo-splash-screen",
         {
-          image: "./assets/images/splash-full.png",
-          resizeMode: "cover",
-          backgroundColor: "#ffffff",
+          image: "./assets/images/android-icon.png",
+          resizeMode: "contain",
+          backgroundColor: "#50171A",
         },
       ],
     ],
@@ -112,7 +112,7 @@ export default ({ config }) => ({
       API_URL_REPORT_PRODUCTO_VENCIMIENTO_NUEVO:
         process.env.API_URL_REPORT_PRODUCTO_VENCIMIENTO_NUEVO,
       eas: {
-        projectId: "37b6f668-ef2a-4572-bd6f-2ea90941e498",
+        projectId: "8ff9ed13-df1b-47be-ab6b-1bcd72896421",
       },
     },
   },
