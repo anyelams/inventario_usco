@@ -13,7 +13,9 @@ import { colors } from "../config/theme";
 import { typography } from "../config/typography";
 
 /**
- * Formatea nombres de roles removiendo prefijos y aplicando capitalización
+ * Formatea nombres de roles removiendo prefijos y aplicando capitalización.
+ * @param {string} roleName - Nombre del rol (ej. "ROLE_ADMIN_EMPRESA")
+ * @returns {string} Nombre formateado (ej. "Admin Empresa")
  */
 const formatRoleName = (roleName) => {
   if (!roleName) return "Rol sin nombre";
@@ -27,7 +29,12 @@ const formatRoleName = (roleName) => {
 };
 
 /**
- * Dropdown expansible para seleccionar empresas y roles
+ * Dropdown expansible para seleccionar empresa y rol del usuario.
+ * @param {Object} props
+ * @param {Array} [props.data=[]] - Lista de empresas agrupadas con sus roles
+ * @param {Object} props.seleccion - Selección actual { empresaId, rolId }
+ * @param {Function} props.onSelectEmpresa - Callback al expandir una empresa; recibe (empresaId, roles)
+ * @param {Function} props.onSelectRol - Callback al seleccionar un rol; recibe (empresaId, rolId)
  */
 export default function DropdownEmpresas({
   data = [],
