@@ -5,6 +5,7 @@ const REFRESH_KEY = "refresh_token";
 const USERNAME_KEY = "username";
 const EMPRESA_KEY = "empresaSeleccionada";
 const ROLES_KEY = "rolesByCompany";
+const NOMBRE_KEY = "nombrePersona";
 // ---------------------
 // TOKENS
 // ---------------------
@@ -48,6 +49,12 @@ export async function getRolesByCompany() {
   const raw = await AsyncStorage.getItem(ROLES_KEY);
   return raw ? JSON.parse(raw) : [];
 }
+export async function saveNombrePersona(nombre) {
+  await AsyncStorage.setItem(NOMBRE_KEY, nombre);
+}
+export async function getNombrePersona() {
+  return AsyncStorage.getItem(NOMBRE_KEY);
+}
 export async function clearSessionData() {
   await AsyncStorage.multiRemove([
     TOKEN_KEY,
@@ -55,5 +62,6 @@ export async function clearSessionData() {
     USERNAME_KEY,
     EMPRESA_KEY,
     ROLES_KEY,
+    NOMBRE_KEY,
   ]);
 }

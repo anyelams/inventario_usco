@@ -28,7 +28,7 @@ import { useLanguage } from "../../context/LanguageContext";
  */
 const Profile = () => {
   const navigation = useNavigation();
-  const { cerrarSesion, userEmail, empresaSeleccionada, getUserInitials } =
+  const { cerrarSesion, userEmail, empresaSeleccionada, nombrePersona, getUserInitials } =
     useSession();
   const { t, currentLanguage, changeLanguage, availableLanguages } = useLanguage();
 
@@ -101,7 +101,7 @@ const Profile = () => {
           </View>
           <View style={styles.userInfo}>
             <Text style={styles.userName}>
-              {empresaSeleccionada?.empresaNombre || t("profile.defaultCompany")}
+              {nombrePersona || t("profile.defaultCompany")}
             </Text>
             <Text style={styles.userEmail}>
               {userEmail || t("profile.defaultEmail")}

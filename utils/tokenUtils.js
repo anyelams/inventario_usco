@@ -15,17 +15,8 @@ export const tokenEsValido = (token) => {
   return claims.exp > ahora;
 };
 
-export const getUserInitials = (userEmail) => {
-  if (!userEmail) return 'U';
-  const email = userEmail.toLowerCase();
-  const partes = email.split('@')[0];
-  if (partes.includes('.')) {
-    return partes
-      .split('.')
-      .slice(0, 2)
-      .map((p) => p.charAt(0))
-      .join('')
-      .toUpperCase();
-  }
-  return partes.substring(0, 2).toUpperCase();
+export const getUserInitials = (nombre) => {
+  if (!nombre) return 'U';
+  const partes = nombre.trim().split(/\s+/);
+  return partes.slice(0, 2).map((p) => p.charAt(0)).join('').toUpperCase();
 };

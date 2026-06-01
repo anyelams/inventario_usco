@@ -213,7 +213,7 @@ export default function AuthIndexScreen() {
         password: contrasena,
       });
 
-      const { token, empresaId, rolId, rolesByCompany, usuarioEstado } =
+      const { token, empresaId, rolId, rolesByCompany, usuarioEstado, nombrePersona } =
         response.data;
 
       if (!token) {
@@ -260,6 +260,7 @@ export default function AuthIndexScreen() {
           empresaNombre: primeraEmpresa.empresaNombre,
           rolNombre: primeraEmpresa.rolNombre,
           rolesByCompany,
+          nombrePersona,
         });
       } else {
         await guardarSesionCompleta({
@@ -269,6 +270,7 @@ export default function AuthIndexScreen() {
           empresaNombre: empresaActual.empresaNombre,
           rolNombre: empresaActual.rolNombre,
           rolesByCompany,
+          nombrePersona,
         });
       }
 

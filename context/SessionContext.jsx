@@ -5,10 +5,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import {
   clearSessionData,
   getEmpresaSeleccionada,
+  getNombrePersona,
   getRolesByCompany,
   getToken,
   getUsername,
   saveEmpresaSeleccionada,
+  saveNombrePersona,
   saveRolesByCompany,
   saveTokens,
   saveUsername,
@@ -34,6 +36,7 @@ export const SessionProvider = ({ children }) => {
   const [token, setTokenState] = useState(null);
   const [username, setUsernameState] = useState(null);
   const [userEmail, setUserEmail] = useState(null);
+  const [nombrePersona, setNombrePersona] = useState(null);
 
   /**
    * Guarda una sesión completa con todos los datos necesarios
@@ -54,6 +57,7 @@ export const SessionProvider = ({ children }) => {
     rolNombre,
     rolesByCompany,
     refreshToken = null,
+    nombrePersona: nombre = null,
   }) => {
     // Validar parámetros requeridos
     if (!token || !empresaId || !rolId) {
@@ -68,6 +72,12 @@ export const SessionProvider = ({ children }) => {
     const tokenData = decodificarToken(token);
     if (tokenData?.sub) {
       setUserEmail(tokenData.sub);
+    }
+
+    // Guardar nombre de persona si viene en la respuesta
+    if (nombre) {
+      await saveNombrePersona(nombre);
+      setNombrePersona(nombre);
     }
 
     // Guardar username si existe
@@ -150,6 +160,7 @@ export const SessionProvider = ({ children }) => {
         const savedUsername = await getUsername();
         const savedEmpresa = await getEmpresaSeleccionada();
         const savedRoles = await getRolesByCompany();
+        const savedNombre = await getNombrePersona();
 
         // Restaurar token y extraer email
         if (savedToken) {
@@ -164,6 +175,7 @@ export const SessionProvider = ({ children }) => {
         if (savedUsername) setUsernameState(savedUsername);
         if (savedEmpresa) setEmpresaSeleccionada(savedEmpresa);
         if (savedRoles) setRolesByCompany(savedRoles);
+        if (savedNombre) setNombrePersona(savedNombre);
       } catch (error) {
         console.error("Error cargando la sesión:", error);
       }
@@ -180,6 +192,7 @@ export const SessionProvider = ({ children }) => {
       setTokenState(null);
       setUsernameState(null);
       setUserEmail(null);
+      setNombrePersona(null);
       setEmpresaSeleccionada(null);
       setRolesByCompany([]);
 
@@ -203,7 +216,7 @@ export const SessionProvider = ({ children }) => {
 
   const tokenEsValido = () => tokenEsValidoUtil(token);
 
-  const getUserInitials = () => getUserInitialsUtil(userEmail);
+  const getUserInitials = () => getUserInitialsUtil(nombrePersona || userEmail);
 
   // Valores que se exponen a través del contexto
   const contextValue = {
@@ -215,6 +228,7 @@ export const SessionProvider = ({ children }) => {
     token,
     username,
     userEmail,
+    nombrePersona,
     setUsername: setUsernameState,
 
     // Métodos principales
